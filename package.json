@@ -11,6 +11,14 @@
   "bin": {
     "spiderlint": "bin/spiderlint.js"
   },
+  "files": [
+    "bin/",
+    "dist/",
+    "src/server/*.png",
+    "presets/",
+    "vendors/",
+    "locales/"
+  ],
   "scripts": {
     "start": "node --experimental-strip-types src/cli.ts",
     "lint": "eslint ./",
