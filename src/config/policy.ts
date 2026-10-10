@@ -174,7 +174,7 @@ function discover(): string | undefined {
 
 // null when pf-cli is not on PATH; otherwise the subtree (possibly an error).
 function runPfCli(document: string): { raw?: unknown; error?: string } | undefined {
-    const result = spawnSync("pf-cli", ["get", "-f", document, SUBTREE, "--format", "json", "--quiet"], { encoding: "utf8" });
+    const result = spawnSync("pf-cli", ["get", "--file", document, SUBTREE, "--format", "json", "--quiet"], { encoding: "utf8" });
     if (result.error) return undefined;
     // pf-cli answers a path the document lacks with `null` and exit 1.
     if (result.stdout.trim() === "null" && result.stderr.trim() === "") return { raw: {} };
