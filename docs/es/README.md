@@ -16,6 +16,8 @@ Spiderlint rastrea cada página que sirve un sitio, recoge datos de cada petici�
 
 ![Project status](https://badges.kiota.ch/static/v1?label=status&message=experimental&color=1d63ed&style=flat-square) [![Last commit on kiota.ch](https://badges.kiota.ch/gitea/last-commit/damian-buho/spiderlint?gitea_url=https://kiota.ch&label=last%20commit%20on%20kiota.ch&style=flat-square)](https://kiota.ch/damian-buho/spiderlint) [![Last commit on Codeberg](https://badges.kiota.ch/gitea/last-commit/damian-buho/spiderlint?gitea_url=https://codeberg.org&label=last%20commit%20on%20Codeberg&style=flat-square)](https://codeberg.org/damian-buho/spiderlint) [![Last commit on GitHub](https://badges.kiota.ch/github/last-commit/damian-buho/spiderlint?label=last%20commit%20on%20GitHub&style=flat-square)](https://github.com/damian-buho/spiderlint)
 
+[![npm version](https://badges.kiota.ch/npm/v/spiderlint?style=flat-square)](https://www.npmjs.com/package/spiderlint) [![npm downloads per month](https://badges.kiota.ch/npm/dm/spiderlint?style=flat-square)](https://www.npmjs.com/package/spiderlint) [![Dependency freshness](https://badges.kiota.ch/librariesio/release/npm/spiderlint?style=flat-square)](https://libraries.io/npm/spiderlint)
+
 [![Publish pipeline on GitHub](https://github.com/damian-buho/spiderlint/actions/workflows/published.yaml/badge.svg?style=flat-square)](https://github.com/damian-buho/spiderlint/actions) [![Vulnerability audit on GitHub](https://github.com/damian-buho/spiderlint/actions/workflows/audited.yaml/badge.svg?style=flat-square)](https://github.com/damian-buho/spiderlint/actions) [![Dependency freshness on GitHub](https://github.com/damian-buho/spiderlint/actions/workflows/check-outdated.yaml/badge.svg?style=flat-square)](https://github.com/damian-buho/spiderlint/actions) [![Analysis sweep on GitHub](https://github.com/damian-buho/spiderlint/actions/workflows/analyzed.yaml/badge.svg?style=flat-square)](https://github.com/damian-buho/spiderlint/actions)
 
 [![Publish pipeline on kiota.ch](https://kiota.ch/damian-buho/spiderlint/badges/workflows/published.yaml/badge.svg?style=flat-square)](https://kiota.ch/damian-buho/spiderlint/actions) [![Vulnerability audit on kiota.ch](https://kiota.ch/damian-buho/spiderlint/badges/workflows/audited.yaml/badge.svg?style=flat-square)](https://kiota.ch/damian-buho/spiderlint/actions) [![Dependency freshness on kiota.ch](https://kiota.ch/damian-buho/spiderlint/badges/workflows/check-outdated.yaml/badge.svg?style=flat-square)](https://kiota.ch/damian-buho/spiderlint/actions) [![Analysis sweep on kiota.ch](https://kiota.ch/damian-buho/spiderlint/badges/workflows/analyzed.yaml/badge.svg?style=flat-square)](https://kiota.ch/damian-buho/spiderlint/actions)
@@ -60,20 +62,22 @@ También hereda las características de B19 / Ubuntu; consulta [Características
 - **Acción de CI** `damian-buho/spiderlint@0.142.0`
 - **Imagen de contenedor** `ghcr.io/damian-buho/spiderlint:latest`
 - **Imagen de contenedor** `damianbuho/spiderlint:latest`
-- `spiderlint` — comando `spiderlint`
+- **Paquete npm** `spiderlint` — comando `spiderlint`
 
 ## Instalación
 
+### Imagen de contenedor
+
 Descarga la imagen de contenedor publicada:
 
-### Descargar de GHCR — linux/amd64
+#### Descargar de GHCR — linux/amd64
 
 ```sh
 docker pull ghcr.io/damian-buho/spiderlint:latest
 alias spiderlint='docker run --rm --user "$(id -u):$(id -g)" --group-add 0 --volume "$PWD:/app/ws" --workdir /app/ws ghcr.io/damian-buho/spiderlint:latest spiderlint'
 ```
 
-### Descargar de DockerHub — linux/amd64
+#### Descargar de DockerHub — linux/amd64
 
 ```sh
 docker pull damianbuho/spiderlint:latest
@@ -84,7 +88,7 @@ Las versiones estables también publican las etiquetas `X.Y.Z`, `X.Y` y `X`: des
 
 Si los registros anteriores no están disponibles, descarga desde el origen:
 
-### Descargar de Kiota — linux/amd64
+#### Descargar de Kiota — linux/amd64
 
 ```sh
 docker pull kiota.ch/damian-buho/spiderlint:latest
@@ -96,6 +100,16 @@ Después, ejecútalo como si estuviera instalado; el alias ejecuta cada ejemplo 
 ```sh
 spiderlint --help
 ```
+
+### Paquete npm
+
+Instala el comando de forma global:
+
+```sh
+npm install --global spiderlint
+```
+
+Requiere Node.js >=26.
 
 ## Uso
 

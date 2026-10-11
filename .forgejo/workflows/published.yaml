@@ -465,6 +465,12 @@ jobs:
     needs: ["documentation-is-ok", "projectfile-is-ok", "source-is-ok"]
     steps:
       - run: echo inputs-are-ok
+  npm-published:
+    runs-on: docker
+    needs: ["ready-to-publish"]
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - run: echo npm-published
   projectfile-is-ok:
     runs-on: docker
     needs: ["projectfile-is-valid"]
@@ -502,7 +508,7 @@ jobs:
       - run: echo publish-image
   published:
     runs-on: docker
-    needs: ["image-has-sbom", "image-is-attested", "image-is-signed", "publish-image", "ready-to-publish", "release-is-published", "release-notes-are-published"]
+    needs: ["image-has-sbom", "image-is-attested", "image-is-signed", "npm-published", "publish-image", "ready-to-publish", "release-is-published", "release-notes-are-published"]
     steps:
       - run: echo published
   ready-to-publish:

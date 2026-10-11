@@ -27,6 +27,7 @@ includes:
   - .makefile/container/traits/malware.yaml
   - .makefile/container/traits/readme-tool-image.yaml
   - .makefile/core/traits/github-action.yaml
+  - .makefile/library/traits/node-publish.yaml
   - .makefile/library/images/valkey.yaml
   - .makefile/library/languages/node.yaml
   - .makefile/library/vulnerabilities/npm/stream-json.yaml

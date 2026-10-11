@@ -14,6 +14,8 @@ Spiderlint crawls every page a site serves, collects facts about each request (H
 
 ![Project status](https://badges.kiota.ch/static/v1?label=status&message=experimental&color=1d63ed&style=flat-square) [![Last commit on kiota.ch](https://badges.kiota.ch/gitea/last-commit/damian-buho/spiderlint?gitea_url=https://kiota.ch&label=last%20commit%20on%20kiota.ch&style=flat-square)](https://kiota.ch/damian-buho/spiderlint) [![Last commit on Codeberg](https://badges.kiota.ch/gitea/last-commit/damian-buho/spiderlint?gitea_url=https://codeberg.org&label=last%20commit%20on%20Codeberg&style=flat-square)](https://codeberg.org/damian-buho/spiderlint) [![Last commit on GitHub](https://badges.kiota.ch/github/last-commit/damian-buho/spiderlint?label=last%20commit%20on%20GitHub&style=flat-square)](https://github.com/damian-buho/spiderlint)
 
+[![npm version](https://badges.kiota.ch/npm/v/spiderlint?style=flat-square)](https://www.npmjs.com/package/spiderlint) [![npm downloads per month](https://badges.kiota.ch/npm/dm/spiderlint?style=flat-square)](https://www.npmjs.com/package/spiderlint) [![Dependency freshness](https://badges.kiota.ch/librariesio/release/npm/spiderlint?style=flat-square)](https://libraries.io/npm/spiderlint)
+
 [![Publish pipeline on GitHub](https://github.com/damian-buho/spiderlint/actions/workflows/published.yaml/badge.svg?style=flat-square)](https://github.com/damian-buho/spiderlint/actions) [![Vulnerability audit on GitHub](https://github.com/damian-buho/spiderlint/actions/workflows/audited.yaml/badge.svg?style=flat-square)](https://github.com/damian-buho/spiderlint/actions) [![Dependency freshness on GitHub](https://github.com/damian-buho/spiderlint/actions/workflows/check-outdated.yaml/badge.svg?style=flat-square)](https://github.com/damian-buho/spiderlint/actions) [![Analysis sweep on GitHub](https://github.com/damian-buho/spiderlint/actions/workflows/analyzed.yaml/badge.svg?style=flat-square)](https://github.com/damian-buho/spiderlint/actions)
 
 [![Publish pipeline on kiota.ch](https://kiota.ch/damian-buho/spiderlint/badges/workflows/published.yaml/badge.svg?style=flat-square)](https://kiota.ch/damian-buho/spiderlint/actions) [![Vulnerability audit on kiota.ch](https://kiota.ch/damian-buho/spiderlint/badges/workflows/audited.yaml/badge.svg?style=flat-square)](https://kiota.ch/damian-buho/spiderlint/actions) [![Dependency freshness on kiota.ch](https://kiota.ch/damian-buho/spiderlint/badges/workflows/check-outdated.yaml/badge.svg?style=flat-square)](https://kiota.ch/damian-buho/spiderlint/actions) [![Analysis sweep on kiota.ch](https://kiota.ch/damian-buho/spiderlint/badges/workflows/analyzed.yaml/badge.svg?style=flat-square)](https://kiota.ch/damian-buho/spiderlint/actions)
@@ -58,20 +60,22 @@ It also inherits the features of B19 / Ubuntu — see [Features](docs/FEATURES.m
 - **CI action** `damian-buho/spiderlint@0.142.0`
 - **Container image** `ghcr.io/damian-buho/spiderlint:latest`
 - **Container image** `damianbuho/spiderlint:latest`
-- `spiderlint` — command `spiderlint`
+- **npm package** `spiderlint` — command `spiderlint`
 
 ## Installation
 
+### Container image
+
 Pull the published container image:
 
-### Pull from GHCR — linux/amd64
+#### Pull from GHCR — linux/amd64
 
 ```sh
 docker pull ghcr.io/damian-buho/spiderlint:latest
 alias spiderlint='docker run --rm --user "$(id -u):$(id -g)" --group-add 0 --volume "$PWD:/app/ws" --workdir /app/ws ghcr.io/damian-buho/spiderlint:latest spiderlint'
 ```
 
-### Pull from DockerHub — linux/amd64
+#### Pull from DockerHub — linux/amd64
 
 ```sh
 docker pull damianbuho/spiderlint:latest
@@ -82,7 +86,7 @@ Stable releases also publish `X.Y.Z`, `X.Y` and `X` tags — pull the precision 
 
 If the registries above are unreachable, pull from the origin instead:
 
-### Pull from Kiota — linux/amd64
+#### Pull from Kiota — linux/amd64
 
 ```sh
 docker pull kiota.ch/damian-buho/spiderlint:latest
@@ -94,6 +98,16 @@ Then run it as if it were installed — the alias runs every example as written 
 ```sh
 spiderlint --help
 ```
+
+### npm package
+
+Install the command globally:
+
+```sh
+npm install --global spiderlint
+```
+
+Needs Node.js >=26.
 
 ## Usage
 
