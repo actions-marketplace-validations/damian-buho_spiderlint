@@ -4,7 +4,7 @@
 
 import { CheerioCrawler, Configuration, type CheerioCrawlingContext } from "crawlee";
 import type { Readable } from "node:stream";
-import { userAgent } from "../agent.ts";
+import { agentHeaders } from "../agent.ts";
 import type { Config } from "../config/index.ts";
 import { ACCEPT_ENCODING, capped, isParsed, replayed, type Capped } from "./body.ts";
 import { extractHtml, HTML_TYPES } from "../facts/html.ts";
@@ -93,7 +93,7 @@ export function httpCrawler(config: Config, onPage: OnPage, frontier: Frontier, 
             preNavigationHooks: [
                 async ({ request }, gotOptions) => {
                     bodies.delete(request);
-                    Object.assign(gotOptions, { decompress: false, headers: { ...gotOptions.headers, "user-agent": userAgent(), "accept-encoding": ACCEPT_ENCODING } });
+                    Object.assign(gotOptions, { decompress: false, headers: { ...gotOptions.headers, ...agentHeaders(), "accept-encoding": ACCEPT_ENCODING } });
                     const hints: NonNullable<Facts["http"]["early-hints"]> = [];
                     hinted.set(request, hints);
                     const hops: Facts["http"]["redirects"] = [];
