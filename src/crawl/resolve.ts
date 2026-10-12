@@ -43,7 +43,7 @@ function notFound(hostname: string, why: string): NodeJS.ErrnoException {
 async function addressesOf(client: DnsClient, hostname: string, family: number): Promise<LookupAddress[]> {
     const types = family === 4 ? ["A"] : family === 6 ? ["AAAA"] : ["A", "AAAA"];
     const replies = await Promise.all(types.map((type) => client.query(hostname, type)));
-    return replies.flatMap((reply) => reply.answers.flatMap((record) => (record.type === "A" || record.type === "AAAA" ? [{ address: record.data as string, family: record.type === "A" ? 4 : 6 }] : [])));
+    return replies.flatMap((reply) => reply.answers.flatMap((record) => (record.type === "A" || record.type === "AAAA" ? { address: record.data as string, family: record.type === "A" ? 4 : 6 } : [])));
 }
 
 // `dns.lookup` overloads (`(host, cb)`, `(host, family, cb)`) normalised to the three-argument form `lookup` takes.

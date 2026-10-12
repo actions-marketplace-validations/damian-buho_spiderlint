@@ -14,7 +14,7 @@ import type { Facts } from "../facts/types.ts";
 import { dnsProvider } from "../facts/vendors.ts";
 import { log } from "../logger.ts";
 import type { RuleSpec } from "../rules/types.ts";
-import { definePlugin, type SiteContext, type SiteExtractor } from "./types.ts";
+import { type SiteContext, type SiteExtractor, type Plugin } from "./types.ts";
 
 // Suffixes of special-use names, never queried.
 const SPECIAL_USE = ["localhost", "test", "invalid", "example", "local", "onion", "i2p", "alt", "internal", "home.arpa"];
@@ -82,13 +82,13 @@ export function texts(reply: Reply): string[] {
     return records<Buffer | Buffer[]>(reply, "TXT").map(({ data }) => (Array.isArray(data) ? data : [data]).map((chunk) => chunk.toString("utf8")).join(""));
 }
 
-// Parsed SVCB-shaped records of `type` (`UNKNOWN_64` SVCB, `UNKNOWN_65` HTTPS); an unparsable one warns and is dropped.
-function services(host: string, reply: Reply, type: string): Svcb[] {
-    return records<Buffer>(reply, type).flatMap(({ data }) => {
+// Parsed HTTPS-shaped records (`UNKNOWN_65`); an unparsable one warns and is dropped.
+function services(host: string, reply: Reply): Svcb[] {
+    return records<Buffer>(reply, "UNKNOWN_65").flatMap(({ data }) => {
         try {
             return [parseSvcb(data)];
         } catch (error) {
-            log.warn({ host, type, error: reason(error) }, `${type} record of ${host} unparsable:`);
+            log.warn({ host, type: "UNKNOWN_65", error: reason(error) }, `UNKNOWN_65 record of ${host} unparsable:`);
             return [];
         }
     });
@@ -184,7 +184,7 @@ const addresses: SiteExtractor = {
         const [a, aaaa, https, sale, agents, apex] = await Promise.all([context.dns.query(host, "A"), context.dns.query(host, "AAAA"), context.dns.query(host, "UNKNOWN_65"), context.dns.query(`_for-sale.${zone}`, "TXT"), context.dns.query(`_index._agents.${zone}`, "UNKNOWN_65"), context.dns.query(zone, "CNAME")]);
         const v4 = records<string>(a, "A").map(({ data, ttl }) => ({ address: data, ttl }));
         const v6 = records<string>(aaaa, "AAAA").map(({ data, ttl }) => ({ address: data, ttl }));
-        const hinted = services(host, https, "UNKNOWN_65").map((record): Svcb & { "hints-match"?: boolean } => {
+        const hinted = services(host, https).map((record): Svcb & { "hints-match"?: boolean } => {
             const isHinted = record.ipv4hint !== undefined || record.ipv6hint !== undefined;
             return isHinted && (record.target === "." || isSameName(record.target, host))
                 ? {
@@ -202,7 +202,7 @@ const addresses: SiteExtractor = {
                 : record;
         });
         const forSale = texts(sale);
-        const agentServices = services(host, agents, "UNKNOWN_65");
+        const agentServices = services(host, agents);
         const authorised = await caa(host, zone, context.dns);
         const allowed = authorised && issuer(host, authorised, context.pages);
         const broken = dangling(host, a);
@@ -892,7 +892,8 @@ const RECOMMENDED = [...CORE, "domain/expiry", "domain/expiring", "domain/lock",
 const pick = (ids: string[]): Record<string, RuleSpec> => Object.fromEntries(ids.map((id) => [id, RULES[id] as RuleSpec]));
 
 // Records, CAA, DNSSEC and name servers of every crawled host, asked of the configured resolver.
-export default definePlugin({
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- pick() assembles plain rule data, no IO
+export default {
     name: "dns",
     settings: { type: "object", additionalProperties: false, properties: { compare: { type: "array", items: { type: "string", minLength: 1 }, default: [] }, rdap: { type: "boolean", default: true } } },
     sites: [addresses, dnssec, nameservers, resolvers, rdap],
@@ -902,4 +903,4 @@ export default definePlugin({
         "dns:core": { description: "HTTPS record, CAA and its iodef contact, DNSSEC state and dangling CNAMEs, a handful of queries per host", rules: pick(CORE) },
         "dns:recommended": { description: "dns:core, the registration’s expiry and transfer lock, and name servers open to recursion", rules: pick(RECOMMENDED) },
     },
-});
+} satisfies Plugin;

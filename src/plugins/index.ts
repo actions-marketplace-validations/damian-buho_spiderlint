@@ -224,7 +224,7 @@ export function siteExtractorsFor(rules: Rule[]): SiteExtractor[] {
         rules.flatMap((rule) =>
             rule.meta.facts.flatMap((fact) => {
                 const subject = subjectPath(fact);
-                return subject ? [`${subject.kind}\t${subject.id}`] : [];
+                return subject ? `${subject.kind}\t${subject.id}` : [];
             }),
         ),
     );

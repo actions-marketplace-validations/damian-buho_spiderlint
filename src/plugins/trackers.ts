@@ -7,7 +7,7 @@ import { log } from "../logger.ts";
 import { said } from "../rules/message.ts";
 import type { Finding, Make } from "../rules/types.ts";
 import { TRACKERS } from "./trackers-registry.ts";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 
 const HOSTS = Object.entries(TRACKERS).flatMap(([vendor, hosts]) => hosts.map((host) => [host, vendor] as const));
 
@@ -50,7 +50,7 @@ const inventory: Make = (severity) => ({
     },
 });
 
-export default definePlugin({
+export default {
     name: "trackers",
     rules: { "trackers/inventory": inventory },
     presets: {
@@ -59,4 +59,4 @@ export default definePlugin({
             rules: { "trackers/inventory": { severity: "info", score: 2.6 } },
         },
     },
-});
+} satisfies Plugin;

@@ -28,8 +28,8 @@ function certPage(days: number): Facts {
 }
 
 // The scored findings of one TLS rule over a page with `days` left.
-function expiring(days: number, rules: Record<string, never> = {}, id = "tls/cert-expiring"): Finding[] {
-    const rule = compileRulesets(["spiderlint:tls"], rules).find((candidate) => candidate.meta.id === id) as PageRule;
+function expiring(days: number): Finding[] {
+    const rule = compileRulesets(["spiderlint:tls"], {}).find((candidate) => candidate.meta.id === "tls/cert-expiring") as PageRule;
     return rule.check(certPage(days)) ?? [];
 }
 

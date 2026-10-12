@@ -72,9 +72,10 @@ export interface Consumed {
 export type ResourceBucket = Bucket<Stored<Consumed>>;
 
 // The media type of a content-type header, lower-cased.
-function mediaType(raw: string | string[] | null | undefined): string {
+function mediaType(raw: string | string[] | null = ""): string {
+    const text: string | string[] | null = raw;
     return (
-        String(raw ?? "")
+        String(text ?? "")
             .split(";", 1)[0]
             ?.trim()
             .toLowerCase() ?? ""

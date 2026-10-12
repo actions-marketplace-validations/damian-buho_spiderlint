@@ -20,7 +20,7 @@ const POLLED = { etag: '"v1"', "cache-control": "max-age=3600" };
 const HEAD = `<link rel="alternate" type="application/rss+xml" href="/feed.xml"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><link rel="alternate" type="application/feed+json" href="/feed.json">`;
 
 // A page of the site, `head` added to its head.
-const page = (lang: string, title: string, head: string, body: string) => `<!DOCTYPE html><html lang="${lang}"><head><title>${title}</title>${head}</head><body><h1>${title}</h1>${body}</body></html>`;
+const page = (title: string, head: string, body: string) => `<!DOCTYPE html><html lang="en"><head><title>${title}</title>${head}</head><body><h1>${title}</h1>${body}</body></html>`;
 
 const MDX = `import Callout from '../components/Callout.astro'
 
@@ -41,17 +41,16 @@ const FILES: Record<string, [number, Record<string, string>, string | Buffer]> =
         200,
         { "content-type": HTML },
         page(
-            "en",
             "Home",
             HEAD,
             `<a href="/about">About</a> <a href="/mdx.xml">MDX</a> <a href="/spec.xml">Spec</a> <a href="/atom-bad.xml">Atom</a> <a href="/old.json">JSON</a> <a href="/plain.xml">Plain</a> <a href="/podcast.xml">Podcast</a> <a href="/joins.xml">Joins</a> <a href="/cast.xml">Cast</a> <a href="/cast-bad.xml">Bad cast</a> <a href="/long-1">Long one</a> <a href="/long-2">Long two</a> <a href="/summary.xml">Summary</a> <a href="/full.xml">Full</a> <a href="/frozen.xml">Frozen</a>`,
         ),
     ],
-    "/about": [200, { "content-type": HTML }, page("en", "About", `<link rel="alternate" type="application/atom+xml" href="/feed.xml"><link rel="alternate" type="application/rss+xml" href="/posts/1">`, "")],
-    "/posts/1": [200, { "content-type": HTML }, page("en", "First post", `${HEAD}<link rel="canonical" href="/posts/1"><meta property="article:published_time" content="2026-09-01T10:00:00Z">`, "")],
-    "/posts/2": [200, { "content-type": HTML }, page("en", "Another name", `${HEAD}<link rel="canonical" href="/posts/two"><meta property="article:published_time" content="2026-09-20T10:00:00Z"><link rel="alternate" type="application/rss+xml" href="/joins.xml">`, "")],
-    "/long-1": [200, { "content-type": HTML }, page("en", "Long one", HEAD, LONG)],
-    "/long-2": [200, { "content-type": HTML }, page("en", "Long two", HEAD, LONG)],
+    "/about": [200, { "content-type": HTML }, page("About", `<link rel="alternate" type="application/atom+xml" href="/feed.xml"><link rel="alternate" type="application/rss+xml" href="/posts/1">`, "")],
+    "/posts/1": [200, { "content-type": HTML }, page("First post", `${HEAD}<link rel="canonical" href="/posts/1"><meta property="article:published_time" content="2026-09-01T10:00:00Z">`, "")],
+    "/posts/2": [200, { "content-type": HTML }, page("Another name", `${HEAD}<link rel="canonical" href="/posts/two"><meta property="article:published_time" content="2026-09-20T10:00:00Z"><link rel="alternate" type="application/rss+xml" href="/joins.xml">`, "")],
+    "/long-1": [200, { "content-type": HTML }, page("Long one", HEAD, LONG)],
+    "/long-2": [200, { "content-type": HTML }, page("Long two", HEAD, LONG)],
     "/old": [301, { location: "/posts/1" }, ""],
     "/feed.xml": [
         200,
@@ -246,7 +245,7 @@ export async function serveFeeds(): Promise<FeedSite> {
     };
     const server: Server = createServer((request, response) => {
         const pathname = new URL(request.url ?? "/", "http://feeds").pathname;
-        const [status, headers, body] = images[pathname] ?? FILES[pathname] ?? [404, { "content-type": HTML } as Record<string, string>, page("en", "Not found", "", "")];
+        const [status, headers, body] = images[pathname] ?? FILES[pathname] ?? [404, { "content-type": HTML } as Record<string, string>, page("Not found", "", "")];
         const text =
             typeof body === "string"
                 ? body

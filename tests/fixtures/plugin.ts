@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { Facts } from "../../src/facts/types.ts";
-import { definePlugin } from "../../src/plugins/types.ts";
+import type { Plugin } from "../../src/plugins/types.ts";
 
 // Counts the words of a page body; the rule wants at least ten.
-export default definePlugin({
+export default {
     name: "fixture-words",
     extractors: [{ id: "words", extract: async (_page: Facts, body: string) => ({ count: body.split(/\s+/).filter(Boolean).length }) }],
     rules: {
@@ -20,4 +20,4 @@ export default definePlugin({
         }),
     },
     presets: { words: { description: "Word count", rules: { "words/enough": "warning" } } },
-});
+} satisfies Plugin;

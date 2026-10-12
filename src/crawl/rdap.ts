@@ -101,7 +101,7 @@ export async function registration(domain: string, get: Get): Promise<Registrati
     const body = JSON.parse(answer.body) as { status?: unknown; events?: { eventAction?: string; eventDate?: string }[]; nameservers?: { ldhName?: string }[] };
     const expires = body.events?.find((event) => event.eventAction === "expiration")?.eventDate;
     const isDated = expires !== undefined && !Number.isNaN(Date.parse(expires));
-    const nameservers = [...new Set((body.nameservers ?? []).flatMap((server) => (server.ldhName ? [nsName(server.ldhName)] : [])))].toSorted((a, b) => a.localeCompare(b));
+    const nameservers = [...new Set((body.nameservers ?? []).flatMap((server) => (server.ldhName ? nsName(server.ldhName) : [])))].toSorted((a, b) => a.localeCompare(b));
     log.debug({ domain, url, status: body.status, expires, nameservers: nameservers.length }, "rdap answered");
     return { server: base, ...(Array.isArray(body.status) && { status: body.status.map((entry) => String(entry).toLowerCase()) }), ...(isDated && { expires: new Date(expires).toISOString() }), nameservers };
 }

@@ -19,7 +19,6 @@ export function certificate(isOcsp = false, algorithm = ["-newkey", "ec", "-pkey
     const directory = mkdtempSync(path.join(tmpdir(), "spiderlint-tls-"));
     const [key, cert] = [path.join(directory, "key.pem"), path.join(directory, "cert.pem")];
     try {
-        // eslint-disable-next-line unicorn/prefer-https -- an OCSP responder is named by a plain http URI (RFC 6960 Appendix A)
         const made = spawnSync("openssl", ["req", "-x509", ...algorithm, "-nodes", "-days", "30", "-subj", "/CN=localhost", "-addext", "subjectAltName=DNS:localhost,IP:127.0.0.1", ...(isOcsp ? ["-addext", "authorityInfoAccess=OCSP;URI:http://ocsp.test/"] : []), "-keyout", key, "-out", cert], { stdio: "ignore" });
         return made.status === 0 ? { key: readFileSync(key), cert: readFileSync(cert) } : undefined;
     } finally {

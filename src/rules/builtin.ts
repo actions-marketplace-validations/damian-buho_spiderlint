@@ -332,7 +332,7 @@ function pointsHere(id: string, fact: string, label: string, read: (html: HtmlFa
             const raw = page.html && read(page.html);
             if (raw === undefined) return;
             const target = resolve(raw, page.url.href);
-            const here = [page.url.href, page.url.twin].flatMap((href) => (href ? [resolve(href, href)] : []));
+            const here = [page.url.href, page.url.twin].flatMap((href) => (href ? resolve(href, href) : []));
             const matches = here.includes(target);
             log.debug({ rule: id, url: page.url.href, twin: page.url.twin, target, matches }, "self reference checked");
             return matches ? [] : [{ rule: id, severity, scope: "page" as const, url: page.url.href, group: page.group, ...said("{label} names another URL, not this page", { label }), data: { [page.url.href]: { target } }, value: raw }];

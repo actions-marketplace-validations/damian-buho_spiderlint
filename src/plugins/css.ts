@@ -12,7 +12,7 @@ import { log } from "../logger.ts";
 import { pageRule, resourceRule } from "../rules/builtin.ts";
 import { said } from "../rules/message.ts";
 import type { Make, Rule } from "../rules/types.ts";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 
 const ID = "css";
 const require = createRequire(import.meta.url);
@@ -402,7 +402,8 @@ const inlineUnsupported: Make = (severity, settings) =>
         settings as CssSettings,
     );
 
-export default definePlugin({
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- kindRules() assembles plain rule data, no IO
+export default {
     name: "css",
     settings: SETTINGS,
     extractors: [{ id: ID, extract: extractInline }],
@@ -423,4 +424,4 @@ export default definePlugin({
             },
         },
     },
-});
+} satisfies Plugin;

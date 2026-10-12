@@ -65,7 +65,7 @@ const SENTENCES = {
 function outliers(pages: Facts[], path: string, settings: NumericSettings, severity: Finding["severity"]): Finding | undefined {
     const measured = pages.flatMap((page) => {
         const value = get(page, path);
-        return typeof value === "number" && Number.isFinite(value) ? [{ url: page.url.href, value }] : [];
+        return typeof value === "number" && Number.isFinite(value) ? { url: page.url.href, value } : [];
     });
     if (measured.length < settings["min-pages"]) return undefined;
     const sorted = measured.map((entry) => entry.value).toSorted((a, b) => a - b);

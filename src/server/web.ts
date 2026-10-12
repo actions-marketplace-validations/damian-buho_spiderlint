@@ -192,14 +192,15 @@ function phaseNames(t: Translator): Partial<Record<Phase, string>> {
 
 // Where a queued or running scan stands, updated by events or, without scripts, by a refresh.
 function progressBody(t: Translator, job: ScanJob, status: string): string {
-    const { done, total, eta, phase, step } = (typeof job.progress === "object" ? job.progress : {}) as Partial<Progress>;
+    const progress = typeof job.progress === "object" ? job.progress : {};
+    const { done = 0, total, eta, phase, step } = progress as Partial<Progress>;
     const count = t._("Pages: {done} of {total}", { done: "{done}", total: "{total}" });
     const stepText = t._("{phase}: {done} of {total}", { phase: "{phase}", done: "{done}", total: "{total}" });
     const names = phaseNames(t);
     const named = phase && names[phase];
     const phaseText = named ? (step ? t._("{phase}: {done} of {total}", { phase: named, done: t.number(step.done), total: t.number(step.total) }) : named) : "";
     const state = status === "running" ? t._("Scanning…") : t._("Waiting in the queue…");
-    const values = total === undefined ? "" : ` max="${total}" value="${done ?? 0}"`;
+    const values = total === undefined ? "" : ` max="${total}" value="${done}"`;
     const attributes = [
         ["events", `/v1/jobs/${job.id}/events`],
         ["locale", t.locale],
@@ -213,7 +214,7 @@ function progressBody(t: Translator, job: ScanJob, status: string): string {
         .map(([name, value]) => `data-${name}="${escape(value as string)}"`)
         .join(" ");
     const rulesets = (job.data.settings?.rules as string[] | undefined)?.join(", ");
-    return `<div ${attributes}><p data-state>${escape(state)}</p>${rulesets ? `<p class="muted">${escape(t._("Rulesets: {names}", { names: rulesets }))}</p>` : ""}<progress${values}></progress><p><span data-count>${total === undefined ? "" : escape(t._("Pages: {done} of {total}", { done: t.number(done ?? 0), total: t.number(total) }))}</span> <span data-eta class="muted">${escape(etaLine(t, eta))}</span></p><p data-phase class="muted">${escape(phaseText)}</p></div>`;
+    return `<div ${attributes}><p data-state>${escape(state)}</p>${rulesets ? `<p class="muted">${escape(t._("Rulesets: {names}", { names: rulesets }))}</p>` : ""}<progress${values}></progress><p><span data-count>${total === undefined ? "" : escape(t._("Pages: {done} of {total}", { done: t.number(done), total: t.number(total) }))}</span> <span data-eta class="muted">${escape(etaLine(t, eta))}</span></p><p data-phase class="muted">${escape(phaseText)}</p></div>`;
 }
 
 // When a fresh scan of the site may start, and the way to it; `isRepeat` adds why the reader sees an earlier scan.
@@ -263,9 +264,9 @@ function badge(value: string, color: string, href?: string): string {
 }
 
 // `bytes` as an image answer with a shared cache lifetime.
-function image(bytes: Buffer, type = "image/png"): (c: Context) => Response {
+function image(bytes: Buffer): (c: Context) => Response {
     return (c: Context) => {
-        c.header("content-type", type);
+        c.header("content-type", "image/png");
         c.header("cache-control", `public, max-age=${ASSET_MAX_AGE_S}`);
         return c.body(new Uint8Array(bytes));
     };

@@ -7,7 +7,7 @@ import type { Facts } from "../facts/types.ts";
 import { log } from "../logger.ts";
 import { pageRule, resolve } from "../rules/builtin.ts";
 import { said } from "../rules/message.ts";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 
 const ID = "markup";
 
@@ -28,7 +28,7 @@ async function extract(page: Facts, body: string): Promise<MarkupFacts | undefin
         .flatMap((element) => {
             const [href, lang, hreflang] = [resolve(String($(element).attr("href")), page.url.href), $(element).attr("lang"), $(element).attr("hreflang")];
             // A link to the page itself stays in its language, so it never switches.
-            return href !== self && alternates.has(href) ? [{ href, ...(lang !== undefined && { lang }), ...(hreflang !== undefined && { hreflang }) }] : [];
+            return href !== self && alternates.has(href) ? { href, ...(lang !== undefined && { lang }), ...(hreflang !== undefined && { hreflang }) } : [];
         });
     const videos = $("video")
         .get()
@@ -70,7 +70,7 @@ const langSwitcher = pageRule(
             if (pageLang && expected.every((tag) => isAgreeing(tag, pageLang))) return [];
             const declared = lang ?? hreflang;
             if (declared && expected.some((tag) => isAgreeing(declared, tag))) return [];
-            return [`${href} ${declared ? `declares ${declared}, not` : "declares no lang for"} ${expected.join(", ")}`];
+            return `${href} ${declared ? `declares ${declared}, not` : "declares no lang for"} ${expected.join(", ")}`;
         });
         return locations.length === 0 ? [] : [{ ...said("language switcher links do not declare the language they lead to"), data: { [page.url.href]: { links: locations.length } }, value: locations, locations }];
     },
@@ -103,14 +103,14 @@ const inputType = pageRule(
                 .split(/\s+/)
                 .find((token) => Object.hasOwn(EXPECTED, token));
             const expected = field && EXPECTED[field];
-            return !expected || type === expected || inputmode === expected ? [] : [`autocomplete=${field} on type=${type}${inputmode ? ` inputmode=${inputmode}` : ""}`];
+            return !expected || type === expected || inputmode === expected ? [] : `autocomplete=${field} on type=${type}${inputmode ? ` inputmode=${inputmode}` : ""}`;
         });
         return locations.length === 0 ? [] : [{ ...said("an <input> whose type does not match the autocomplete field, so phones show the wrong keyboard"), data: { [page.url.href]: { inputs: locations.length } }, value: locations, locations }];
     },
     { docs: "https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill-field", fix: "Set `type` (or `inputmode`) to what the autocomplete field holds: `email`, `tel` or `url`." },
 );
 
-export default definePlugin({
+export default {
     name: "markup",
     extractors: [{ id: ID, extract }],
     rules: { "markup/lang-switcher": langSwitcher, "markup/captions": captions, "markup/input-type": inputType },
@@ -120,4 +120,4 @@ export default definePlugin({
             rules: { "markup/lang-switcher": { severity: "warning", score: 4.8 }, "markup/captions": { severity: "warning", score: 6 }, "markup/input-type": { severity: "warning", score: 4.4 } },
         },
     },
-});
+} satisfies Plugin;

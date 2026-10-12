@@ -41,8 +41,8 @@ function catalog(lang: string): Map<string, string> {
 }
 
 // The language tags of an `Accept-Language` header or POSIX locale (`uk_UA.UTF-8`) with a positive q-value, best first.
-function ranked(accept: string | undefined): string[] {
-    const parts = (accept ?? "").split(",").map((part) => {
+function ranked(accept = ""): string[] {
+    const parts = accept.split(",").map((part) => {
         const [tag = "", ...parameters] = part.trim().split(";");
         const q = Number(
             parameters

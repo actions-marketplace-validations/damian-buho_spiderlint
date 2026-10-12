@@ -76,7 +76,6 @@ function broken(origin: string): Record<string, File> {
         "/.well-known/openid-configuration": [200, JSON_TYPE, '{"issuer": "https://elsewhere.test"}'],
         "/.well-known/oauth-authorization-server": [200, JSON_TYPE, "{"],
         "/.well-known/oauth-protected-resource": [200, JSON_TYPE, '{"resource": "https://elsewhere.test"}'],
-        // eslint-disable-next-line unicorn/prefer-https -- the nodeinfo schema rel is an http: identifier by definition
         "/.well-known/webauthn": [200, JSON_TYPE, '{"origins": ["http://example.test/path"]}'],
         "/.well-known/apple-app-site-association": [301, "text/plain", "", { location: "/aasa" }],
         "/aasa": [200, "text/plain", '{"applinks": {}}'],

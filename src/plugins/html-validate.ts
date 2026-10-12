@@ -8,7 +8,7 @@ import type { Facts } from "../facts/types.ts";
 import { log } from "../logger.ts";
 import type { Make, RulesetConfig, Severity } from "../rules/types.ts";
 import { messageRule } from "./messages.ts";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 
 const UPSTREAM = { recommended, document: wholeDocument, standard, a11y };
 type Upstream = keyof typeof UPSTREAM;
@@ -196,7 +196,8 @@ async function extract(page: Facts, body: string): Promise<HtmlValidateFacts | u
 
 const rules = Object.fromEntries(Object.keys(severities(BASE)).map((id) => [`${PREFIX}${id}`, rule(id)]));
 
-export default definePlugin({
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- preset() assembles plain rule data, no IO
+export default {
     name: "html-validate",
     extractors: [{ id: ID, extract }],
     rules,
@@ -206,4 +207,4 @@ export default definePlugin({
         "html-validate:a11y": preset("Accessibility defects html-validate can see in the markup", ["a11y"]),
         "html-validate:document": preset("Defects only a whole document has: doctype, labels, heading levels, SRI", ["document"]),
     },
-});
+} satisfies Plugin;

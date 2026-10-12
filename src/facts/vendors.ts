@@ -68,7 +68,7 @@ export function vendorFacts(pages: Facts[], site: SiteFacts, isOn: boolean): voi
         const anchors = page.html ? [...page.html.links.internal, ...page.html.links.external] : [];
         const linked = anchors.flatMap((href) => {
             const entry = vendorPath(href, "page");
-            return entry ? [{ href, entry }] : [];
+            return entry ? { href, entry } : [];
         });
         const loads = [...(page.resources ?? []).map((resource) => resource.url), ...(page.html?.scripts ?? []).flatMap((script) => script.src ?? [])];
         const loaded = loads.flatMap((href) => vendorPath(href, "resource") ?? []);

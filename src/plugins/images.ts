@@ -11,7 +11,7 @@ import { log } from "../logger.ts";
 import { resourceRule } from "../rules/builtin.ts";
 import { said } from "../rules/message.ts";
 import type { Finding, Make } from "../rules/types.ts";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 
 const ID = "images";
 const TEXT = "text";
@@ -375,7 +375,7 @@ const renderedOversize = layoutRule(
     "Serve an image whose natural width matches what the layout renders.",
 );
 
-export default definePlugin({
+export default {
     name: "images",
     settings: SETTINGS,
     extractors: [{ id: LAYOUT, mode: "browser", cost: "expensive", inputs: ["resources"], extract: async (_page, _body, live) => live && ((await live.evaluate(LAYOUT_SCRIPT)) as LayoutFacts) }],
@@ -411,4 +411,4 @@ export default definePlugin({
             rules: { "images/lazy-below-fold": { severity: "warning", score: 4.8 }, "images/lazy-above-fold": { severity: "warning", score: 5.8 }, "images/rendered-oversize": { severity: "warning", score: 4.4 } },
         },
     },
-});
+} satisfies Plugin;

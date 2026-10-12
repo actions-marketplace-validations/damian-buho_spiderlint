@@ -7,7 +7,6 @@ import { Queue, type Job } from "bullmq";
 import { Redis } from "ioredis";
 import type { Report, Summary } from "../index.ts";
 import { log } from "../logger.ts";
-import type { Progress } from "../progress.ts";
 import type { Finding } from "../rules/types.ts";
 import { Refusal, type Admitted } from "./policy.ts";
 

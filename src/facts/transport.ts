@@ -136,8 +136,8 @@ export function redactHeaders(headers: Record<string, string | string[] | undefi
 }
 
 // `DNS:a, IP Address:b` to `[a, b]`.
-function subjectAltNames(raw: string | undefined): string[] {
-    return (raw ?? "")
+function subjectAltNames(raw = ""): string[] {
+    return raw
         .split(",")
         .map((entry) => entry.trim().replace(/^[^:]+:/, ""))
         .filter((entry) => entry.length > 0);
@@ -209,10 +209,10 @@ export function servedVersions(pages: Facts[]): void {
     const quic = new Set(pages.filter((page) => page.http.version === "3.0").map((page) => page.url.origin));
     for (const page of pages) {
         if (page.http.version === undefined || page.http.version === "3.0" || !quic.has(page.url.origin)) continue;
-        const { hostname, port } = new URL(page.url.href);
-        const own = new Set([`:${port || "443"}`, `${hostname}:${port || "443"}`]);
+        const url = new URL(page.url.href);
+        const own = new Set([`:${url.port || "443"}`, `${url.hostname}:${url.port || "443"}`]);
         const offers = page.http.parsed?.["alt-svc"]?.value;
-        const isAdvertised = Array.isArray(offers) && offers.some((offer: { protocol?: string; authority?: string }) => offer.protocol === "h3" && own.has(offer.authority ?? ""));
+        const isAdvertised = Array.isArray(offers) && offers.some(({ protocol, authority = "" }: { protocol?: string; authority?: string }) => protocol === "h3" && own.has(authority));
         log.debug({ url: page.url.href, observed: page.http.version, isAdvertised }, "http version of a page carried over tcp");
         if (isAdvertised) page.http.version = "3.0";
     }

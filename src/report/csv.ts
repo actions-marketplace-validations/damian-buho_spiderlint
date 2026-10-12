@@ -9,8 +9,8 @@ import type { Finding } from "../rules/types.ts";
 const COLUMNS = ["severity", "score", "rule", "scope", "group", "url", "message", "occurrences", "locations"] as const;
 
 // RFC 4180 field: quoted when it holds a quote, comma or line break, quotes doubled.
-export function field(value: string | number | boolean | undefined): string {
-    const text = String(value ?? "");
+export function field(value: string | number | boolean = ""): string {
+    const text = String(value);
     return /[\n\r",]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 

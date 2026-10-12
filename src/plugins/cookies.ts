@@ -11,7 +11,7 @@ import { resourceRule } from "../rules/builtin.ts";
 import { said } from "../rules/message.ts";
 import type { Make, RuleSpec, Severity } from "../rules/types.ts";
 import { TRACKING_COOKIES } from "./cookies-registry.ts";
-import { definePlugin, type Extractor } from "./types.ts";
+import { type Extractor, type Plugin } from "./types.ts";
 import { visit } from "./visit.ts";
 
 // Every hand-kept tracking cookie name as one anchored pattern, `*` as any suffix.
@@ -184,7 +184,8 @@ const STORAGE_BEFORE_CONSENT: RuleSpec = {
 };
 
 // One set of cookie expectations over the page’s Set-Cookie, each resource’s, and what scripts write through `document.cookie`.
-export default definePlugin({
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- Object.fromEntries() assembles plain rule data, no IO
+export default {
     name: "cookies",
     extractors: [consent],
     rules: RESOURCES,
@@ -201,4 +202,4 @@ export default definePlugin({
             rules: { "cookies/before-consent": BEFORE_CONSENT, "cookies/storage-before-consent": STORAGE_BEFORE_CONSENT },
         },
     },
-});
+} satisfies Plugin;

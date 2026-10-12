@@ -30,14 +30,14 @@ function message(type: number, body: Buffer): Buffer {
     return Buffer.concat([Buffer.from([type]), u24(body.length), body]);
 }
 
-function record(type: number, body: Buffer): Buffer {
-    return Buffer.concat([Buffer.from([type, 3, 3]), u16(body.length), body]);
+function record(body: Buffer): Buffer {
+    return Buffer.concat([Buffer.from([22, 3, 3]), u16(body.length), body]);
 }
 
-// A ServerHello body at `version` choosing `suite`, with `extensions` as type and data pairs.
-function serverHello(version: number, suite: number, extensions: [number, Buffer][], random = Buffer.alloc(32, 1)): Buffer {
+// A ServerHello body choosing `suite`, with `extensions` as type and data pairs.
+function serverHello(suite: number, extensions: [number, Buffer][], random = Buffer.alloc(32, 1)): Buffer {
     const list = Buffer.concat(extensions.map(([type, data]) => Buffer.concat([u16(type), u16(data.length), data])));
-    return message(2, Buffer.concat([u16(version), random, Buffer.from([0]), u16(suite), Buffer.from([0]), u16(list.length), list]));
+    return message(2, Buffer.concat([u16(0x03_03), random, Buffer.from([0]), u16(suite), Buffer.from([0]), u16(list.length), list]));
 }
 
 describe("TLS hello bytes", () => {
@@ -73,9 +73,9 @@ describe("TLS hello bytes", () => {
 
 describe("TLS flights", () => {
     it("reads a TLS 1.2 flight split across records, and waits while it is incomplete", () => {
-        const hello = serverHello(0x03_03, 0xc0_2f, [[0xff_01, hex("00")]]);
+        const hello = serverHello(0xc0_2f, [[0xff_01, hex("00")]]);
         const stream = Buffer.concat([hello, message(11, hex("000006000003616263")), message(22, hex("010000023000")), message(12, hex("0300170104")), message(14, hex(""))]);
-        const data = Buffer.concat([record(22, stream.subarray(0, 30)), record(22, stream.subarray(30))]);
+        const data = Buffer.concat([record(stream.subarray(0, 30)), record(stream.subarray(30))]);
         assert.deepEqual(readFlight(data.subarray(0, 40)), { complete: false });
         const flight = readFlight(data);
         assert.deepEqual({ ...flight, keyExchange: undefined }, { complete: true, version: 0x03_03, suite: 0xc0_2f, compression: 0, extensions: [0xff_01], certificates: [Buffer.from("abc")], ocsp: Buffer.from([0x30, 0]), keyExchange: undefined });
@@ -85,7 +85,6 @@ describe("TLS flights", () => {
     it("reads an alert, a HelloRetryRequest and an SSLv2 SERVER-HELLO", () => {
         assert.deepEqual(readFlight(Buffer.from([21, 3, 3, 0, 2, 2, 40])), { complete: true, alert: 40 });
         const hello = serverHello(
-            0x03_03,
             0x13_02,
             [
                 [43, hex("0304")],
@@ -93,7 +92,7 @@ describe("TLS flights", () => {
             ],
             RETRY,
         );
-        const retry = readFlight(record(22, hello));
+        const retry = readFlight(record(hello));
         assert.deepEqual(retry, { complete: true, version: 0x03_04, retry: true, suite: 0x13_02, compression: 0, extensions: [43, 51], group: 23 });
         const sslv2 = hex(`80210400010002000300030010616263010080${"00".repeat(16)}`);
         assert.deepEqual(readFlight(sslv2), { complete: true, version: 2, certificates: [Buffer.from("abc")], kinds: [0x01_00_80] });
@@ -113,7 +112,7 @@ describe("TLS flights", () => {
 
     it("stops at a TLS 1.3 ServerHello it holds no key for, and reports bytes it cannot read", () => {
         assert.deepEqual(readFlight(SERVER_HELLO_RECORD).complete, true);
-        const broken = record(22, message(2, hex("0303")));
+        const broken = record(message(2, hex("0303")));
         assert.match(readFlight(broken).error ?? "", /range/i);
     });
 

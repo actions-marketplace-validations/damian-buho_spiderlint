@@ -159,7 +159,7 @@ const childOf = (node: Node | undefined, local: string, uri = "") => childrenOf(
 const textOf = (node: Node | undefined) => node?.text.trim() || undefined;
 const typeOf = (node: Node | undefined): TextType => (node?.attributes.type === "html" || node?.attributes.type === "xhtml" ? node.attributes.type : "text");
 const dated = (node: Node | undefined, field: string): Dated | undefined => (textOf(node) ? { field, raw: textOf(node) as string } : undefined);
-const emailsOf = (node: Node | undefined, names: string[]): Dated[] => names.flatMap((name) => childrenOf(node, name).flatMap((child) => (textOf(child) ? [{ field: name, raw: textOf(child) as string }] : [])));
+const emailsOf = (node: Node | undefined, names: string[]): Dated[] => names.flatMap((name) => childrenOf(node, name).flatMap((child) => (textOf(child) ? { field: name, raw: textOf(child) as string } : [])));
 
 // Un-namespaced children `known` does not name, once each.
 const unknownIn = (node: Node | undefined, known: Set<string>) => [...new Set((node?.children ?? []).filter((child) => child.uri === "" && !known.has(child.local)).map((child) => child.local))];
@@ -187,7 +187,7 @@ function rssItem(node: Node, position: number, isRdf: boolean): Item {
     const ns = isRdf ? NS.rss1 : "";
     const guid = childOf(node, "guid");
     const id = textOf(guid) ?? node.attributes["rdf:about"];
-    const contents: Content[] = [childOf(node, "description", ns), childOf(node, "encoded", NS.content)].flatMap((child) => (child && child.text.trim() ? [{ field: child.uri === NS.content ? "content:encoded" : "description", type: "html" as const, value: child.text, ...(child.base && { base: child.base }) }] : []));
+    const contents: Content[] = [childOf(node, "description", ns), childOf(node, "encoded", NS.content)].flatMap((child) => (child && child.text.trim() ? { field: child.uri === NS.content ? "content:encoded" : "description", type: "html" as const, value: child.text, ...(child.base && { base: child.base }) } : []));
     const title = childOf(node, "title", ns);
     const link = textOf(childOf(node, "link", ns));
     const missing = [...(!title && !childOf(node, "description", ns) ? ["title or description"] : []), ...(isRdf && !link ? ["link"] : [])];

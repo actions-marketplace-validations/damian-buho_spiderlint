@@ -12,7 +12,7 @@ import { vendorPath } from "../facts/vendors.ts";
 import type { Facts } from "../facts/types.ts";
 import { log } from "../logger.ts";
 import { records } from "./dns.ts";
-import { definePlugin, type SiteContext, type SiteExtractor } from "./types.ts";
+import { type SiteContext, type SiteExtractor, type Plugin } from "./types.ts";
 
 // One service as `vendors/stack.yaml` lists it; every signal is optional.
 interface Service {
@@ -188,4 +188,4 @@ const stack: SiteExtractor = {
 };
 
 // The services an origin runs on, as `site.origins.*.stack`.
-export default definePlugin({ name: "stack", sites: [stack] });
+export default { name: "stack", sites: [stack] } satisfies Plugin;

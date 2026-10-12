@@ -9,7 +9,7 @@ import { evidence } from "../facts/read-note.ts";
 import { log } from "../logger.ts";
 import { pageRule } from "../rules/builtin.ts";
 import { said } from "../rules/message.ts";
-import { definePlugin, type PageContext } from "./types.ts";
+import { type PageContext, type Plugin } from "./types.ts";
 import { visit, withPage } from "./visit.ts";
 
 const ID = "rel-me-live";
@@ -109,7 +109,7 @@ const rendered = pageRule(
     { docs: "https://microformats.org/wiki/rel-me", fix: "Add this site to the profile’s website links, and confirm the profile page shows it to visitors who are not signed in." },
 );
 
-export default definePlugin({
+export default {
     name: "rel-me",
     extractors: [{ id: ID, mode: "browser", cost: "expensive", cached: false, extract }],
     rules: { "links/rel-me-rendered": rendered },
@@ -119,4 +119,4 @@ export default definePlugin({
             rules: { "links/rel-me-rendered": { severity: "info", score: 2.2 } },
         },
     },
-});
+} satisfies Plugin;

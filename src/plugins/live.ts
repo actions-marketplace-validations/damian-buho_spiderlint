@@ -10,7 +10,7 @@ import { log } from "../logger.ts";
 import { pageRule } from "../rules/builtin.ts";
 import { said } from "../rules/message.ts";
 import type { Element } from "./keyboard.ts";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 import { DESCRIBE, visit, withPage } from "./visit.ts";
 
 const ID = "live";
@@ -297,7 +297,7 @@ const webmcp = pageRule(
     { docs: "https://webmcp.org/", fix: "Register the page’s actions as WebMCP tools with `navigator.modelContext`, so an in-browser agent calls them instead of driving the interface." },
 );
 
-export default definePlugin({
+export default {
     name: "live",
     extractors: [{ id: ID, mode: "browser", cost: "expensive", inputs: ["resources"], extract }],
     rules: {
@@ -327,4 +327,4 @@ export default definePlugin({
             },
         },
     },
-});
+} satisfies Plugin;

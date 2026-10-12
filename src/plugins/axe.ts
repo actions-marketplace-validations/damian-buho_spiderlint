@@ -9,7 +9,7 @@ import type { Facts } from "../facts/types.ts";
 import { log } from "../logger.ts";
 import { said } from "../rules/message.ts";
 import type { Finding, Make, RulesetConfig, Severity } from "../rules/types.ts";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 
 const ID = "axe";
 const PREFIX = "axe/";
@@ -146,7 +146,8 @@ async function extract(page: Facts, _body: string, live?: Page): Promise<AxeFact
     return facts;
 }
 
-export default definePlugin({
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- preset() assembles plain rule data, no IO
+export default {
     name: "axe",
     extractors: [{ id: ID, mode: "browser", cost: "expensive", inputs: ["resources"], extract }],
     rules: Object.fromEntries(RULES.map((entry) => [`${PREFIX}${entry.ruleId}`, rule(entry.ruleId, entry.helpUrl.replace(/\?.*$/, ""), entry.help)])),
@@ -155,4 +156,4 @@ export default definePlugin({
         "axe:wcag": preset("WCAG 2.2 A and AA success criteria axe-core can test", isWcag),
         "axe:best-practice": preset("axe-core best practices beyond WCAG", (tags) => tags.includes("best-practice")),
     },
-});
+} satisfies Plugin;

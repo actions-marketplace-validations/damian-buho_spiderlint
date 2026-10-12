@@ -1,6 +1,6 @@
 {
   "name": "spiderlint",
-  "version": "0.143.0",
+  "version": "0.143.1",
   "type": "module",
   "description": "Site-wide linter for SEO tags, security headers, TLS and links",
   "license": "AGPL-3.0-only",
@@ -97,7 +97,7 @@
     "eslint-plugin-n": "18.4.1",
     "eslint-plugin-promise": "7.3.0",
     "eslint-plugin-tsdoc": "0.5.4",
-    "eslint-plugin-unicorn": "76.0.0",
+    "eslint-plugin-unicorn": "77.0.0",
     "globals": "17.13.0",
     "prettier": "3.9.10",
     "typescript": "6.0.3",

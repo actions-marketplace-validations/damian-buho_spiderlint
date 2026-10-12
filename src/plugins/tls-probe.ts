@@ -12,7 +12,7 @@ import { reason } from "../crawl/fetch.ts";
 import { log } from "../logger.ts";
 import type { RuleSpec } from "../rules/types.ts";
 import { scan } from "./tls-scan.ts";
-import { definePlugin, type SiteExtractor } from "./types.ts";
+import { type SiteExtractor, type Plugin } from "./types.ts";
 
 const TIMEOUT_MS = 10_000;
 
@@ -308,9 +308,9 @@ const RULES: Record<string, RuleSpec> = {
 };
 
 // Hand-built handshakes per https origin, for what one connection does not show.
-export default definePlugin({
+export default {
     name: "tls-probe",
     settings: { type: "object", properties: { scan: { type: "boolean", default: true } }, additionalProperties: false },
     sites: [probe],
     presets: { "tls-probe": { description: "Protocols, cipher suites, groups, negotiation weaknesses, chain completeness, OCSP stapling and early data of every https origin", rules: RULES } },
-});
+} satisfies Plugin;

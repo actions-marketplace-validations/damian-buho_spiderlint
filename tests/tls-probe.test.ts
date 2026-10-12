@@ -65,7 +65,6 @@ describe("probed browser TLS", () => {
 
     it("reads HTTP/3 off QUIC and HTTP/1.1 off plain text", () => {
         assert.equal(withProbe("https://a.test/", seen, "QUIC", undefined).version, "3.0");
-        // eslint-disable-next-line unicorn/prefer-https -- a plain-text page is the case under test
         assert.deepEqual(withProbe("http://a.test/", undefined, undefined, undefined), { version: "1.1" });
     });
 
@@ -76,7 +75,7 @@ describe("probed browser TLS", () => {
 });
 
 // The `tls-probe` facts of `origin`, connecting to 127.0.0.1 whatever `localhost` resolves to.
-async function probed(origin: string, settings?: unknown, list: (url: string) => Promise<string> = () => Promise.reject(new Error("no http here"))): Promise<Record<string, unknown> | undefined> {
+async function probed(origin: string, settings?: unknown): Promise<Record<string, unknown> | undefined> {
     const [extractor] = tlsProbe.sites ?? [];
     const signal = AbortSignal.timeout(60_000);
     return extractor?.extract(origin, {
@@ -88,7 +87,7 @@ async function probed(origin: string, settings?: unknown, list: (url: string) =>
         delegated: () => Promise.reject(new Error("no http here")),
         link: () => Promise.reject(new Error("no http here")),
         cached: () => Promise.reject(new Error("no http here")),
-        list,
+        list: () => Promise.reject(new Error("no http here")),
         address: async () => "127.0.0.1",
     }) as Promise<Record<string, unknown> | undefined>;
 }

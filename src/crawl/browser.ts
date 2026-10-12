@@ -122,8 +122,8 @@ async function watchProtocols(page: Page, seen: Observation): Promise<void> {
 }
 
 // `type/subtype` and charset of a Content-Type header; an unparsable one is its raw essence.
-function contentTypeOf(header: string | string[] | undefined): { type: string; charset?: string } {
-    const raw = [header ?? ""].flat()[0] ?? "";
+function contentTypeOf(header: string | string[] = ""): { type: string; charset?: string } {
+    const raw = [header].flat()[0] ?? "";
     try {
         const mime = new MIMEType(raw);
         const charset = mime.params.get("charset");

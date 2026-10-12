@@ -7,7 +7,7 @@ import type { Facts } from "../facts/types.ts";
 import { log } from "../logger.ts";
 import type { RulesetConfig, Severity } from "../rules/types.ts";
 import { messageRule, type MarkupMessage } from "./messages.ts";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 
 const ID = "htmlhint";
 const PREFIX = "htmlhint/";
@@ -99,7 +99,8 @@ function preset(description: string, levels: Record<string, Level>): RulesetConf
 
 const rules = Object.fromEntries(Object.keys(RULESET).map((id) => [`${PREFIX}${id}`, messageRule(ID, PREFIX, id, `https://htmlhint.com/rules/${id}`, DESCRIPTIONS.get(id))]));
 
-export default definePlugin({
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- preset() assembles plain rule data, no IO
+export default {
     name: "htmlhint",
     extractors: [{ id: ID, extract }],
     rules,
@@ -107,4 +108,4 @@ export default definePlugin({
         htmlhint: preset("Markup defects htmlhint reports by default: unpaired tags, duplicate IDs and attributes, a missing doctype or title", DEFAULT),
         "htmlhint:extra": preset("Defects htmlhint ships off: missing alt, labels, lang, meta tags, obsolete tags, unsafe attribute characters", EXTRA),
     },
-});
+} satisfies Plugin;

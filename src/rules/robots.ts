@@ -71,7 +71,7 @@ const aiCrawlers = robotsRule(
     "robots/ai-crawlers",
     "https://www.rfc-editor.org/rfc/rfc9309#section-2.2.1",
     (file) => {
-        const named = file.groups.flatMap((group) => group.agents.flatMap((agent) => (Object.hasOwn(AI_CRAWLERS, agent) ? [{ agent, purpose: AI_CRAWLERS[agent], blocked: isBlanket(group) }] : [])));
+        const named = file.groups.flatMap((group) => group.agents.flatMap((agent) => (Object.hasOwn(AI_CRAWLERS, agent) ? { agent, purpose: AI_CRAWLERS[agent], blocked: isBlanket(group) } : [])));
         if (named.length === 0) return;
         return { ...said("the file names AI crawlers"), locations: named.map(({ agent, purpose, blocked }) => `${agent} (${purpose}${blocked ? ", disallowed" : ""})`), value: named };
     },

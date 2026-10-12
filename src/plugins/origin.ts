@@ -14,7 +14,7 @@ import type { Finding, Make } from "../rules/types.ts";
 import { OfflineMiss } from "../cache/index.ts";
 import { evidence } from "../facts/read-note.ts";
 import { judged } from "./profile-links.ts";
-import { definePlugin, type SiteContext, type SiteExtractor } from "./types.ts";
+import { type SiteContext, type SiteExtractor, type Plugin } from "./types.ts";
 
 // Stack trace shapes of the common server runtimes.
 const TRACE = /Traceback \(most recent call last\)|^\s+at \S.*:\d+:\d+\)?$|Stack trace:|Exception in thread|Fatal error: .* on line \d+/m;
@@ -377,7 +377,7 @@ const meBackLink: Make = (severity) => ({
 });
 
 // Checks made once per origin rather than per page.
-export default definePlugin({
+export default {
     name: "origin",
     rules: { "origin/host-canonical": hostCanonical, "links/rel-me": meBackLink },
     sites: [notFound, entry, variants, locale, encodings, favicon, revalidation, crossDomain, meProfiles],
@@ -508,4 +508,4 @@ export default definePlugin({
             },
         },
     },
-});
+} satisfies Plugin;

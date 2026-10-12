@@ -31,16 +31,16 @@ function at(value: unknown, pointer: string): unknown {
     return pointer === "" ? value : get(value, pointer.slice(1).replaceAll("/", "."));
 }
 
-// A string past `max` keeps its head and tail around one ellipsis, since either end may hold the fix.
-function elide(text: string, max: number): string {
-    return text.length > max ? `${text.slice(0, Math.ceil(max / 2))}…${text.slice(text.length - Math.floor(max / 2) + 1)}` : text;
+// A string past 200 characters keeps its head and tail around one ellipsis, since either end may hold the fix.
+function elide(text: string): string {
+    return text.length > 200 ? `${text.slice(0, 100)}…${text.slice(-99)}` : text;
 }
 
 // Rendering of an offending value for the finding message; a title or description shows whole.
 export function describe(value: unknown): string {
-    if (typeof value === "string") return `${value.length} characters: “${elide(value, 200)}”`;
+    if (typeof value === "string") return `${value.length} characters: “${elide(value)}”`;
     if (Array.isArray(value) && value.length === 0) return "none";
-    if (Array.isArray(value)) return value.every((item) => typeof item === "string" || typeof item === "number") ? `${value.length} items: ${elide(value.map((item) => (typeof item === "string" ? `“${item}”` : String(item))).join(", "), 200)}` : `${value.length} items`;
+    if (Array.isArray(value)) return value.every((item) => typeof item === "string" || typeof item === "number") ? `${value.length} items: ${elide(value.map((item) => (typeof item === "string" ? `“${item}”` : String(item))).join(", "))}` : `${value.length} items`;
     const json = JSON.stringify(value);
     return json.length > 80 ? `${json.slice(0, 77)}…` : json;
 }
@@ -56,8 +56,8 @@ function message(fact: string, value: unknown, error: ErrorObject, text: string 
     return { message: value === undefined ? `${name} is absent` : `${name}${error.instancePath} ${error.message} (got ${got})` };
 }
 
-function severityOf(id: string, spec: RuleSpec, fallback: Severity): Exclude<Severity, "off"> {
-    const severity = typeof spec.score === "number" && !spec.pinned ? levelOf(spec.score) : (spec.severity ?? fallback);
+function severityOf(id: string, spec: RuleSpec): Exclude<Severity, "off"> {
+    const severity = typeof spec.score === "number" && !spec.pinned ? levelOf(spec.score) : (spec.severity ?? "warning");
     if (severity === "off") throw new ConfigError(`rule ${id}: compiled while off`);
     return severity;
 }
@@ -94,7 +94,7 @@ function guard(id: string, when: Record<string, unknown> | undefined): Guard {
 
 // A page whose facts lack the extractor's top-level key is skipped, not failed.
 function compilePage(id: string, spec: RuleSpec, fact: string, validate: ValidateFunction): PageRule {
-    const severity = severityOf(id, spec, "warning");
+    const severity = severityOf(id, spec);
     const root = fact.split(".", 1)[0] as string;
     const isSkipped = guard(id, spec.when);
     return {
@@ -115,7 +115,7 @@ function compilePage(id: string, spec: RuleSpec, fact: string, validate: Validat
 
 // One finding per value held by two or more distinct URLs.
 function compileUnique(id: string, spec: RuleSpec, fact: string): AggregateRule {
-    const severity = severityOf(id, spec, "warning");
+    const severity = severityOf(id, spec);
     const scope = spec.scope === "group" ? "group" : "site";
     const isSkipped = guard(id, spec.when);
     return {
@@ -149,7 +149,7 @@ function isWithheld(facts: unknown, path: string, rule: string, subject: string)
 }
 
 function compileSubject(id: string, spec: RuleSpec, fact: string, subject: NonNullable<ReturnType<typeof subjectPath>>, validate: ValidateFunction): AggregateRule {
-    const severity = severityOf(id, spec, "warning");
+    const severity = severityOf(id, spec);
     const prefix = `site.${subject.kind}.*.`;
     const when = Object.entries(spec.when ?? {}).filter(([path]) => path.startsWith(prefix));
     log.debug({ rule: id, kind: subject.kind, when: when.length, site: Object.keys(siteWhen(spec.when)), ignored: Object.keys(spec.when ?? {}).length - when.length - Object.keys(siteWhen(spec.when)).length }, "subject rule compiled");
@@ -171,7 +171,7 @@ function compileSubject(id: string, spec: RuleSpec, fact: string, subject: NonNu
                       const error = validate.errors?.[0] as ErrorObject;
                       const hint = hintFor(spec.hints, facts.stack);
                       if (hint) log.debug({ rule: id, subject: name, service: hint.service }, "service hint chosen");
-                      return [{ rule: id, severity, scope: "site" as const, url: name, ...message(fact, value, error, spec.message), value, ...(hint && { hint: hint.text }) }];
+                      return { rule: id, severity, scope: "site" as const, url: name, ...message(fact, value, error, spec.message), value, ...(hint && { hint: hint.text }) };
                   });
         },
     };
@@ -223,7 +223,7 @@ function compileUnscored(id: string, spec: RuleSpec): Rule {
     const make = spec.fact ? undefined : ruleMaker(id);
     if (!spec.fact && (make || !spec.expect)) {
         if (!make) throw new ConfigError(`rule ${id}: needs fact and expect, or unique, or a built-in ID`);
-        const rule = make(severityOf(id, spec, "warning"), spec.expect);
+        const rule = make(severityOf(id, spec), spec.expect);
         // A ruleset entry’s `docs` and `fix` win over the built-in’s own.
         Object.assign(rule.meta, spec.docs && { docs: spec.docs }, spec.fix && { fix: spec.fix });
         return guarded(rule, spec.when);

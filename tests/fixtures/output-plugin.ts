@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { definePlugin } from "../../src/plugins/types.ts";
+import type { Plugin } from "../../src/plugins/types.ts";
 
 // The `paths` format lists the crawled paths; the `pair` source yields two pages of the origin it is given and follows their links.
-export default definePlugin({
+export default {
     name: "fixture-output",
     formatters: {
         paths: (report) =>
@@ -15,4 +15,4 @@ export default definePlugin({
                 .join("\n"),
     },
     sources: [{ id: "pair", urls: async (origin) => [`${origin}/about`, `${origin}/orphan`] }],
-});
+} satisfies Plugin;

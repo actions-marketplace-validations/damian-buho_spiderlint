@@ -9,7 +9,7 @@ import { reason } from "../crawl/fetch.ts";
 import { log } from "../logger.ts";
 import type { RuleSpec } from "../rules/types.ts";
 import { records, warnOnce, zoneOf } from "./dns.ts";
-import { definePlugin, type SiteContext, type SiteExtractor } from "./types.ts";
+import { type SiteContext, type SiteExtractor, type Plugin } from "./types.ts";
 
 const run = promisify(execFile);
 // Seconds ssh-keyscan waits on each connection it opens.
@@ -53,7 +53,7 @@ export function fingerprint(blob: Buffer, hash: number): string {
 export function parseKeyscan(output: string): { type: string; blob: Buffer }[] {
     return output.split("\n").flatMap((line) => {
         const [, type, key] = line.trim().split(/\s+/, 3);
-        return !type || !key || line.startsWith("#") ? [] : [{ type, blob: Buffer.from(key, "base64") }];
+        return !type || !key || line.startsWith("#") ? [] : { type, blob: Buffer.from(key, "base64") };
     });
 }
 
@@ -78,7 +78,7 @@ function mismatches(found: SshfpRecord[], served: { algorithm: number; sha1: str
         const same = served.filter((key) => key.algorithm === record.algorithm);
         const isMatched = same.some((key) => key[digest] === record.fingerprint);
         log.debug({ algorithm: record.algorithm, hash: record.hash, served: same.length, isMatched }, "SSHFP record compared");
-        return isMatched ? [] : [{ ...record, served: same.map((key) => key[digest]) }];
+        return isMatched ? [] : { ...record, served: same.map((key) => key[digest]) };
     });
 }
 
@@ -107,7 +107,7 @@ const sshfp: SiteExtractor = {
             return warnOnce(context.dns, isMissing ? "ssh-keyscan" : `SSH port ${port}`, { host, port, records: found.length, error: reason(error) });
         }
         if (keys.length === 0) return log.debug({ host, port, records: found.length }, "no SSH server, sshfp skipped");
-        const served = keys.flatMap(({ type, blob }) => (ALGORITHMS.has(type) ? [{ type, algorithm: ALGORITHMS.get(type) as number, sha1: fingerprint(blob, 1), sha256: fingerprint(blob, 2) }] : []));
+        const served = keys.flatMap(({ type, blob }) => (ALGORITHMS.has(type) ? { type, algorithm: ALGORITHMS.get(type) as number, sha1: fingerprint(blob, 1), sha256: fingerprint(blob, 2) } : []));
         const mismatched = mismatches(found, served);
         log.debug({ host, zone, port, records: found.length, served: served.length, mismatched: mismatched.length, ad: reply.ad }, "sshfp read");
         return {
@@ -167,9 +167,9 @@ const RULES: Record<string, RuleSpec> = {
 };
 
 // SSHFP records of every crawled host compared with the host keys its SSH server presents.
-export default definePlugin({
+export default {
     name: "sshfp",
     settings: { type: "object", additionalProperties: false, properties: { port: { type: "integer", minimum: 1, maximum: 65_535, default: 22 } } },
     sites: [sshfp],
     presets: { sshfp: { description: "SSHFP records of every crawled host matched to the host keys its SSH server presents, and whether DNSSEC lets a client trust them", rules: RULES } },
-});
+} satisfies Plugin;

@@ -87,8 +87,8 @@ function severity(name: Severity, text: string): Option {
 }
 
 // A --name and --no-name pair, shown as one --[no-]name row.
-function toggle(name: string, text: string, fallback: string, environment?: string): Option[] {
-    return [Object.assign(flag(`--${name}`, text, fallback, environment), { flags: `--[no-]${name}` }), new Option(`--no-${name}`).hideHelp()];
+function toggle(name: string, text: string, environment?: string): Option[] {
+    return [Object.assign(flag(`--${name}`, text, "auto", environment), { flags: `--[no-]${name}` }), new Option(`--no-${name}`).hideHelp()];
 }
 
 // Options under one help heading.
@@ -387,7 +387,7 @@ function program(act: (command: Command) => Promise<void>): Command {
     root.usage("<command> [domain…] [options]").description(DOMAIN);
     root.addOption(flag("--config <path>", "settings file", "projectfile.yaml", "SPIDERLINT_CONFIG"));
     root.addOption(repeatable("--site <names>", "only these org.spiderlint.sites, repeatable", "all"));
-    for (const option of [...toggle("color", "force or disable color", "auto", "NO_COLOR, FORCE_COLOR"), ...toggle("progress", "status line on an interactive stderr", "auto")]) root.addOption(option);
+    for (const option of [...toggle("color", "force or disable color", "NO_COLOR, FORCE_COLOR"), ...toggle("progress", "status line on an interactive stderr")]) root.addOption(option);
     root.addOption(flag("--log-level <level>", "trace, debug, info, warn, error or silent", "warn", "SPIDERLINT_LOG_LEVEL"));
     root.version(VERSION, "-V, --version", "show the version");
     root.helpOption("-h, --help", "show this screen, or a command’s");

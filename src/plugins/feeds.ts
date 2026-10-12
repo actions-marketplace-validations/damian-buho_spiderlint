@@ -13,7 +13,7 @@ import { said } from "../rules/message.ts";
 import type { Finding, Make } from "../rules/types.ts";
 import { judgeContent, judgeTitle, wordsOf } from "./feed-content.ts";
 import { NS, readJson, readXml, type Dated, type Format, type Model } from "./feed-model.ts";
-import { definePlugin, type SiteExtractor } from "./types.ts";
+import { type SiteExtractor, type Plugin } from "./types.ts";
 
 const ID = "feed";
 const FEED_TYPES = new Set(["application/rss+xml", "application/atom+xml", "application/rdf+xml", "application/feed+json"]);
@@ -252,7 +252,7 @@ async function extract(page: Facts, body: string): Promise<FeedFacts | undefined
             if (!enclosure.url || !URL.canParse(enclosure.url, page.url.href)) return [];
             const url = new URL(enclosure.url, page.url.href);
             url.hash = "";
-            return /^https?:$/.test(url.protocol) ? [{ url: url.href, ...(enclosure.length !== undefined && { length: enclosure.length }), ...(enclosure.type !== undefined && { type: enclosure.type }), position: item.position }] : [];
+            return /^https?:$/.test(url.protocol) ? { url: url.href, ...(enclosure.length !== undefined && { length: enclosure.length }), ...(enclosure.type !== undefined && { type: enclosure.type }), position: item.position } : [];
         }),
     );
     const image = model.itunes.image ? resolve(model.itunes.image, page.url.href) : undefined;
@@ -368,7 +368,7 @@ const enclosure = pageRule(
         const locations = feed.enclosures.flatMap(({ url, length: declaredLength, type: declaredType, position }) => {
             const answer = answers.get(url);
             if (!answer) return [];
-            if (answer.status < 200 || answer.status > 299) return [`item ${position} ${url} answers ${answer.status}`];
+            if (answer.status < 200 || answer.status > 299) return `item ${position} ${url} answers ${answer.status}`;
             const faults = [];
             const length = firstHeader(answer.headers["content-length"]);
             if (length !== undefined && declaredLength !== undefined && length !== declaredLength) faults.push(`serves ${length} bytes, the feed declares ${declaredLength}`);
@@ -586,8 +586,8 @@ const itemStatus = siteRule(
     (feed, _page, index, site) =>
         (feed.entries ?? []).flatMap((entry) => {
             const { page, landing } = target(entry, index, site);
-            if (landing) return [`item ${entry.position} ${entry.link} redirects to ${landing}`];
-            return page && !isOk(page) ? [`item ${entry.position} ${entry.link} answers ${page.http.status}`] : [];
+            if (landing) return `item ${entry.position} ${entry.link} redirects to ${landing}`;
+            return page && !isOk(page) ? `item ${entry.position} ${entry.link} answers ${page.http.status}` : [];
         }),
     { docs: DOCS.rss, fix: "Point each item link at the final URL of a page that answers 200." },
 );
@@ -602,7 +602,7 @@ const itemCanonical = siteRule(
             if (landing || !page?.html?.canonical || !entry.link || !isOk(page)) return [];
             const canonical = resolve(page.html.canonical, page.url.href);
             const here = [page.url.href, page.url.twin, entry.link].flatMap((href) => (href ? [resolve(href, href)] : []));
-            return here.includes(canonical) ? [] : [`item ${entry.position} links ${entry.link}, its canonical is ${canonical}`];
+            return here.includes(canonical) ? [] : `item ${entry.position} links ${entry.link}, its canonical is ${canonical}`;
         }),
     { docs: DOCS.rss, fix: "Link each item to its page’s canonical URL." },
 );
@@ -618,7 +618,7 @@ const itemTitle = siteRule(
             const titles = [page.html.title, page.html.property["og:title"]].flatMap((title) => (title ? [normal(title)] : []));
             // A `Post: ` style label a mixed feed puts before the title is not part of the page’s title.
             const wanted = [normal(entry.title), normal(entry.title.replace(/^[^:]{1,30}:\s+/, ""))];
-            return titles.length === 0 || titles.some((title) => wanted.some((text) => title.includes(text))) ? [] : [`item ${entry.position} “${entry.title}” against “${page.html.title ?? page.html.property["og:title"]}”`];
+            return titles.length === 0 || titles.some((title) => wanted.some((text) => title.includes(text))) ? [] : `item ${entry.position} “${entry.title}” against “${page.html.title ?? page.html.property["og:title"]}”`;
         }),
     { docs: DOCS.rss, fix: "Use the page’s own title as the item title." },
 );
@@ -632,7 +632,7 @@ const itemDate = siteRule(
             const { page, landing } = target(entry, index, site);
             const published = landing ? undefined : page?.html?.published;
             if (!published || !entry.published || Number.isNaN(Date.parse(published))) return [];
-            return Math.abs(Date.parse(published) - Date.parse(entry.published)) > DAY_MS ? [`item ${entry.position} ${entry.published}, the page says ${published}`] : [];
+            return Math.abs(Date.parse(published) - Date.parse(entry.published)) > DAY_MS ? `item ${entry.position} ${entry.published}, the page says ${published}` : [];
         }),
     { docs: DOCS.rss, fix: "Take the item date from the same field the page’s `article:published_time` or `datePublished` comes from." },
 );
@@ -646,7 +646,7 @@ const summaryOnly = siteRule(
         const judged = (feed.entries ?? []).flatMap((entry) => {
             const { page, landing } = target(entry, index, site);
             const pageWords = page?.html?.text;
-            return landing || !page || !pageWords || entry.words === undefined || !isOk(page) || pageWords < 150 ? [] : [{ entry, words: entry.words, pageWords }];
+            return landing || !page || !pageWords || entry.words === undefined || !isOk(page) || pageWords < 150 ? [] : { entry, words: entry.words, pageWords };
         });
         const short = judged.filter(({ words, pageWords }) => words < pageWords * 0.3);
         return short.length === judged.length && judged.length > 0 ? short.map(({ entry, words, pageWords }) => `item ${entry.position}: ${words} words against ${pageWords} on the page`) : [];
@@ -708,8 +708,8 @@ const archive = siteRule(
         ...Object.entries(feed.archives ?? {}).flatMap(([relation, href]) => {
             const linked = index.get(href);
             if (!linked) return [];
-            if (!isOk(linked)) return [`${relation} ${href} answers ${linked.http.status}`];
-            return parsed(linked) ? [] : [`${relation} ${href} is not a feed`];
+            if (!isOk(linked)) return `${relation} ${href} answers ${linked.http.status}`;
+            return parsed(linked) ? [] : `${relation} ${href} is not a feed`;
         }),
     ],
     { docs: DOCS.archive, fix: "Point `prev-archive`, `next-archive` and `current` at feed documents that answer 200, and drop them from a complete feed." },
@@ -780,13 +780,13 @@ const feedImages: SiteExtractor = {
         const files = Object.fromEntries(await Promise.all(declared.map(async (url) => [url, await fetchOne(url)] as const)));
         const problems = declared.flatMap((url) => {
             const file = files[url] as FeedImageFile;
-            if (file.error) return [`${url} does not answer (${file.error})`];
-            if (file.status < 200 || file.status > 299) return [`${url} answers ${file.status}`];
-            if (!file.format) return [`${url} is not an image (${file.type || "no type"})`];
-            if (!ARTWORK_TYPES.has(file.format)) return [`${url} is ${file.format}, not JPEG or PNG`];
-            if (file.width !== file.height) return [`${url} is ${file.width}x${file.height}, not square`];
+            if (file.error) return `${url} does not answer (${file.error})`;
+            if (file.status < 200 || file.status > 299) return `${url} answers ${file.status}`;
+            if (!file.format) return `${url} is not an image (${file.type || "no type"})`;
+            if (!ARTWORK_TYPES.has(file.format)) return `${url} is ${file.format}, not JPEG or PNG`;
+            if (file.width !== file.height) return `${url} is ${file.width}x${file.height}, not square`;
             const width = file.width ?? 0;
-            return width < ARTWORK_MIN || width > ARTWORK_MAX ? [`${url} is ${file.width} px wide, Apple wants ${ARTWORK_MIN}–${ARTWORK_MAX}`] : [];
+            return width < ARTWORK_MIN || width > ARTWORK_MAX ? `${url} is ${file.width} px wide, Apple wants ${ARTWORK_MIN}–${ARTWORK_MAX}` : [];
         });
         log.debug({ origin, declared: declared.length, problems: problems.length }, "podcast artwork measured");
         return { declared, files, "itunes-image": problems } satisfies FeedImagesFacts;
@@ -898,7 +898,7 @@ const RULES: Record<string, Make> = {
     "feeds/podcast-locked": podcastLocked,
 };
 
-export default definePlugin({
+export default {
     name: "feeds",
     settings: {
         type: "object",
@@ -979,4 +979,4 @@ export default definePlugin({
             },
         },
     },
-});
+} satisfies Plugin;

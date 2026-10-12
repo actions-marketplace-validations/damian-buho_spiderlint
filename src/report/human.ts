@@ -58,9 +58,9 @@ function shown(finding: Finding, url: string, origin: string): string {
 }
 
 // At most `limit` URLs one per line with their values, the rest as a count.
-function measured(finding: Finding, urls: string[], indent: string, origin: string, paint: Paint, limit: number): string[] {
-    const lines = urls.slice(0, limit).map((url) => paint("dim", `${indent}${shown(finding, url, origin)}`));
-    return urls.length > limit ? [...lines, paint("dim", `${indent}… and ${urls.length - limit} more`)] : lines;
+function measured(finding: Finding, urls: string[], origin: string, paint: Paint, limit: number): string[] {
+    const lines = urls.slice(0, limit).map((url) => paint("dim", `${DETAIL}${shown(finding, url, origin)}`));
+    return urls.length > limit ? [...lines, paint("dim", `${DETAIL}… and ${urls.length - limit} more`)] : lines;
 }
 
 // At most `limit` locations, each on its own line under what it locates, the rest as a count.
@@ -112,9 +112,9 @@ function line(finding: Finding, origin: string, paint: Paint, limit: number): st
         const pages = `${finding.sampled === undefined ? `${finding.occurrences} pages` : `${finding.occurrences} of ${finding.sampled} sampled pages`}${finding.groups ? ` in ${finding.groups.join(", ")}` : ""}`;
         return [`${head} — ${pages} (${Math.round((finding.coverage ?? 0) * 100)}%): ${message}`, ...sampled(finding, origin, paint, limit)];
     }
-    if (!finding.urls) return [`${head} ${url}: ${message}`, ...measured(finding, Object.hasOwn(finding.data ?? {}, finding.url) ? [finding.url] : [], DETAIL, origin, paint, limit), ...located(finding.locations, DETAIL, paint, limit)];
+    if (!finding.urls) return [`${head} ${url}: ${message}`, ...measured(finding, Object.hasOwn(finding.data ?? {}, finding.url) ? [finding.url] : [], origin, paint, limit), ...located(finding.locations, DETAIL, paint, limit)];
     const subject = finding.urls.includes(finding.url) ? "—" : `${url}:`;
-    const urls = finding.data ? measured(finding, finding.urls, DETAIL, origin, paint, limit) : [paint("dim", `${DETAIL}${list(finding.urls, origin, limit)}`)];
+    const urls = finding.data ? measured(finding, finding.urls, origin, paint, limit) : [paint("dim", `${DETAIL}${list(finding.urls, origin, limit)}`)];
     return [`${head} ${subject} ${message}`, ...urls, ...located(finding.locations, DETAIL, paint, limit)];
 }
 

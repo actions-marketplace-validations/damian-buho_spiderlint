@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { Facts } from "../../src/facts/types.ts";
-import { definePlugin } from "../../src/plugins/types.ts";
+import type { Plugin } from "../../src/plugins/types.ts";
 
 // A cheap body length and an expensive marker, each failing its rule on every HTML page.
-export default definePlugin({
+export default {
     name: "fixture-sample",
     extractors: [
         { id: "length", extract: async (page: Facts, body: string) => (page.html ? { bytes: body.length } : undefined) },
@@ -19,4 +19,4 @@ export default definePlugin({
         }),
     },
     presets: { heavy: { description: "Expensive fixture extractor", rules: { "heavy/ran": "warning" } } },
-});
+} satisfies Plugin;

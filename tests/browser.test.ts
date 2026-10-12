@@ -316,14 +316,14 @@ describe("browser fetch", { skip }, () => {
             ["#ring"],
             "a box-shadow ring vanishes under forced colours",
         );
-        const live = (path: string) => report.pages.find((entry) => entry.url.pathname === path)?.live as LiveFacts | undefined;
+        const live = () => report.pages.find((entry) => entry.url.pathname === "/live-bad")?.live as LiveFacts | undefined;
         assert.deepEqual(
-            live("/live-bad")?.forced.icons.map((element) => element.target),
+            live()?.forced.icons.map((element) => element.target),
             ["body > main > button:nth-of-type(2)", "body > main > button:nth-of-type(3)"],
             "gradient and masked icons vanish, text and inline SVG stay",
         );
         assert.deepEqual(
-            live("/live-bad")?.forced["opt-out"].map((element) => element.target),
+            live()?.forced["opt-out"].map((element) => element.target),
             ["body > main > p:nth-of-type(2)"],
         );
         assert.equal((report.pages.find((entry) => entry.url.pathname === "/live-skip")?.live as { dark?: unknown } | undefined)?.dark, undefined, "a page claiming no dark scheme is not judged in one");

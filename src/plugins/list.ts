@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { readFile } from "node:fs/promises";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 
 // One URL per line of a file, `-` for stdin, skipping blank lines and `#` comments; they are the whole frontier.
-export default definePlugin({
+export default {
     name: "list",
     sources: [
         {
@@ -21,4 +21,4 @@ export default definePlugin({
             },
         },
     ],
-});
+} satisfies Plugin;

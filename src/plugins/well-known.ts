@@ -13,7 +13,7 @@ import { marked, type TokensList } from "marked";
 import { checkCarbonTxt } from "./carbon-txt.ts";
 import { isSpecialUse, texts } from "./dns.ts";
 import { mediaType } from "./origin.ts";
-import { definePlugin, type Extractor, type PageContext, type SiteContext, type SiteExtractor } from "./types.ts";
+import { type Extractor, type PageContext, type SiteContext, type SiteExtractor, type Plugin } from "./types.ts";
 import { REGISTERED } from "./well-known-registry.ts";
 
 // What a format check found: its defects, and the few values worth keeping as facts.
@@ -737,7 +737,7 @@ const CARBON_RULES: Record<string, RuleSpec> = {
 };
 
 // RFC 8615 files, the files agents read and carbon.txt, probed once per origin.
-export default definePlugin({
+export default {
     name: "well-known",
     settings: { type: "object", additionalProperties: false, properties: { "max-links": { type: "integer", minimum: 0, default: MAX_LINKS } } },
     extractors: [markdown],
@@ -748,4 +748,4 @@ export default definePlugin({
         "carbon-txt": { description: "carbon.txt: present, valid, current, and its disclosures reachable", rules: CARBON_RULES },
         agents: { description: "Files agents read: llms.txt, per-page Markdown sources, A2A agent card, MCP server card, Agent Skills, AI catalog, OKF, schemamap", rules: AGENT_RULES },
     },
-});
+} satisfies Plugin;

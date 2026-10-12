@@ -29,7 +29,7 @@ describe("vendor paths", () => {
 
     after(() => site.close());
 
-    const at = (report: Report, path: string) => report.findings.filter((finding) => new URL(finding.url).pathname === path).map((finding) => finding.rule);
+    const at = (report: Report) => report.findings.filter((finding) => new URL(finding.url).pathname === PROTECTION).map((finding) => finding.rule);
 
     it("ships entries each naming a vendor, a glob, a kind and its docs", () => {
         for (const entry of vendorPaths()) assert.ok(entry.vendor && entry.match.startsWith("/") && entry.kind.length > 0 && entry.kind.every((kind) => kind === "page" || kind === "resource") && URL.canParse(entry.docs), entry.match);
@@ -39,7 +39,7 @@ describe("vendor paths", () => {
 
     it("keeps the email protection page out of the crawl, its link out of links/broken, and records the link’s vendor", () => {
         assert.ok(on.pages.every((page) => page.url.pathname !== PROTECTION));
-        assert.deepEqual(at(on, PROTECTION), []);
+        assert.deepEqual(at(on), []);
         assert.ok(on.findings.every((finding) => !finding.rule.startsWith("links/broken")));
         const contact = on.pages.find((page) => page.url.pathname === "/contact");
         assert.deepEqual(Object.values(contact?.html?.links.vendor ?? {}), ["Cloudflare"]);
@@ -59,7 +59,7 @@ describe("vendor paths", () => {
     });
 
     it("lints the page as the site’s own with vendor-paths false", () => {
-        for (const rule of DEFECTS) assert.ok(at(off, PROTECTION).includes(rule), rule);
+        for (const rule of DEFECTS) assert.ok(at(off).includes(rule), rule);
         assert.ok(off.findings.every((finding) => finding.rule !== "vendor/cloudflare-email-obfuscation" && !finding.vendor));
     });
 });

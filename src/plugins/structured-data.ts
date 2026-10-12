@@ -9,7 +9,7 @@ import { pageRule, resolve } from "../rules/builtin.ts";
 import { said } from "../rules/message.ts";
 import type { Finding, Make } from "../rules/types.ts";
 import { SUPERSEDED } from "./schema-registry.ts";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 
 type Node = Record<string, unknown>;
 
@@ -64,8 +64,8 @@ const bare = (term: string) => term.replace(/^.*[/#:]/, "");
 const absolute = (id: string, base: string) => (!id.startsWith("_:") && URL.canParse(id, base) ? new URL(id, base).href : id);
 
 // The bare terms of a space-separated attribute.
-const terms = (attribute: string | undefined) =>
-    (attribute ?? "")
+const terms = (attribute = "") =>
+    attribute
         .split(/\s+/)
         .filter(Boolean)
         .map((term) => bare(term));
@@ -172,7 +172,7 @@ const required = pageRule(
         const locations = nodesOf(page).flatMap((node) =>
             typesOf(node).flatMap((type) => {
                 const missing = (REQUIRED[type] ?? []).filter((property) => !isSet(node[property]));
-                return missing.length === 0 ? [] : [`${type} without ${missing.join(", ")}`];
+                return missing.length === 0 ? [] : `${type} without ${missing.join(", ")}`;
             }),
         );
         return locations.length === 0 ? [] : [{ ...said("structured data nodes lack properties their rich result requires"), data: { [page.url.href]: { nodes: locations.length } }, value: locations, locations }];
@@ -405,7 +405,7 @@ const dates = pageRule(
     { docs: "https://developers.google.com/search/docs/appearance/structured-data/article", fix: "Write each date as ISO 8601 with a time zone, from the same source that fills `article:published_time`." },
 );
 
-export default definePlugin({
+export default {
     name: "structured-data",
     extractors: [{ id: ID, extract }],
     rules: {
@@ -433,4 +433,4 @@ export default definePlugin({
             },
         },
     },
-});
+} satisfies Plugin;

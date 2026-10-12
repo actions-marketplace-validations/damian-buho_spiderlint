@@ -11,7 +11,7 @@ import type { Facts } from "../facts/types.ts";
 import { log } from "../logger.ts";
 import type { Severity } from "../rules/types.ts";
 import { mediaType } from "./origin.ts";
-import { definePlugin, type SiteContext, type SiteExtractor } from "./types.ts";
+import { type SiteContext, type SiteExtractor, type Plugin } from "./types.ts";
 
 const ID = "icons";
 const APPLE = "180x180";
@@ -62,7 +62,7 @@ export interface IconsFacts {
 const TYPES: Record<string, string> = { "image/png": "png", "image/x-icon": "ico", "image/vnd.microsoft.icon": "ico", [SVG]: "svg", "image/jpeg": "jpeg", "image/gif": "gif", "image/webp": "webp", "image/avif": "avif" };
 
 // The lower-cased tokens of a `rel`, `sizes` or `purpose` value.
-const tokens = (value: string | undefined) => (value ?? "").toLowerCase().split(/\s+/).filter(Boolean);
+const tokens = (value = "") => value.toLowerCase().split(/\s+/).filter(Boolean);
 
 // The sizes an ICO directory lists, 0 standing for 256.
 function icoSizes(bytes: Buffer): string[] {
@@ -207,9 +207,9 @@ function faviconProblems(declared: DeclaredIcon[], files: Record<string, IconFil
     return judged.flatMap((url) => {
         const file = files[url];
         const problem = unusable(url, file);
-        if (problem) return [problem];
+        if (problem) return problem;
         const missing = file?.format === "ico" ? ICO_SIZES.filter((size) => !file.sizes?.includes(size)) : [];
-        return missing.length > 0 ? [`${url} holds ${file?.sizes?.join(", ") || "no image"}, not ${ICO_SIZES.join(" and ")}`] : [];
+        return missing.length > 0 ? `${url} holds ${file?.sizes?.join(", ") || "no image"}, not ${ICO_SIZES.join(" and ")}` : [];
     });
 }
 
@@ -220,9 +220,9 @@ function svgProblems(declared: DeclaredIcon[], files: Record<string, IconFile>):
     return svgs.flatMap((icon) => {
         const file = files[icon.url];
         const problem = unusable(icon.url, file);
-        if (problem) return [problem];
-        if (file?.xml === false) return [`${icon.url} does not parse as XML`];
-        return icon.type === SVG ? [] : [`${icon.url} is linked without type="${SVG}"`];
+        if (problem) return problem;
+        if (file?.xml === false) return `${icon.url} does not parse as XML`;
+        return icon.type === SVG ? [] : `${icon.url} is linked without type="${SVG}"`;
     });
 }
 
@@ -239,7 +239,7 @@ function appleProblems(declared: DeclaredIcon[], files: Record<string, IconFile>
         else if (file.opaque === false) problems.push(`${icon.url} has transparent pixels, which iOS draws black`);
     }
     const sizes = judged.map((icon) => ("sizes" in icon && icon.sizes ? tokens(icon.sizes)[0] : files[icon.url]?.sizes?.[0]));
-    if (judged.length > 0 && !sizes.includes(APPLE)) problems.push(`no apple-touch-icon is ${APPLE} (got ${sizes.map((size) => size ?? "unknown").join(", ")})`);
+    if (judged.length > 0 && !sizes.includes(APPLE)) problems.push(`no apple-touch-icon is ${APPLE} (got ${sizes.map((size = "unknown") => size).join(", ")})`);
     return problems;
 }
 
@@ -249,7 +249,7 @@ function maskProblems(declared: DeclaredIcon[], files: Record<string, IconFile>)
         .filter((icon) => icon.source === "mask-icon")
         .flatMap((icon) => {
             const problem = unusable(icon.url, files[icon.url]);
-            if (problem) return [problem];
+            if (problem) return problem;
             const colours = files[icon.url]?.colours ?? 0;
             return [...(files[icon.url]?.format === "svg" ? [] : [`${icon.url} is not an SVG`]), ...(colours > 1 ? [`${icon.url} paints ${colours} colours, not one`] : []), ...(icon.color ? [] : [`${icon.url} is linked without a color`])];
         });
@@ -313,7 +313,8 @@ function problemRule(check: keyof IconsFacts, severity: Severity, score: number,
     return { fact: `site.origins.*.${ID}.${check}`, expect: { maxItems: 0 }, message: `${message}: {got}`, severity, score, docs: documentation, fix };
 }
 
-export default definePlugin({
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- problemRule() assembles plain rule data, no IO
+export default {
     name: ID,
     sites: [icons],
     presets: {
@@ -350,4 +351,4 @@ export default definePlugin({
             },
         },
     },
-});
+} satisfies Plugin;

@@ -7,7 +7,7 @@ import { log } from "../logger.ts";
 import { resourceRule } from "../rules/builtin.ts";
 import { said } from "../rules/message.ts";
 import type { Finding, Make } from "../rules/types.ts";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 
 const ID = "manifest";
 const FIELDS = ["name", "start_url", "display", "icons"];
@@ -134,7 +134,7 @@ const discovery: Make = (severity) => ({
     },
 });
 
-export default definePlugin({
+export default {
     name: "manifest",
     resources: [{ id: ID, types: ["application/manifest+json", "application/json"], extract }],
     rules: { "manifest/parse": parse, "manifest/fields": fields, "manifest/icons": icons, "manifest/served": served, "manifest/discovery": discovery },
@@ -144,4 +144,4 @@ export default definePlugin({
             rules: { "manifest/parse": { severity: "error", score: 7.2 }, "manifest/fields": { severity: "warning", score: 5 }, "manifest/icons": { severity: "warning", score: 4.6 }, "manifest/served": { severity: "warning", score: 5.4 }, "manifest/discovery": { severity: "warning", score: 4.2 } },
         },
     },
-});
+} satisfies Plugin;

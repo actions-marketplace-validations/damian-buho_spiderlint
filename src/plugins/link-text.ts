@@ -7,7 +7,7 @@ import type { Facts } from "../facts/types.ts";
 import { log } from "../logger.ts";
 import { pageRule } from "../rules/builtin.ts";
 import { said } from "../rules/message.ts";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 
 const ID = "linktext";
 
@@ -59,7 +59,7 @@ async function extract(page: Facts, body: string): Promise<LinkTextFacts | undef
                 .join(" ");
             const name = anchor.attr("aria-labelledby") ? labelled(String(anchor.attr("aria-labelledby"))) : (anchor.attr("aria-label") ?? `${anchor.text()} ${alt}`);
             const text = normalise(name, locale);
-            return known.has(text) ? [{ text, href: String(anchor.attr("href")) }] : [];
+            return known.has(text) ? { text, href: String(anchor.attr("href")) } : [];
         });
     log.debug({ url: page.url.href, locale, generic: generic.length }, "link text read");
     return { locale, generic };
@@ -77,7 +77,7 @@ const generic = pageRule(
     { docs: "https://www.w3.org/WAI/WCAG22/Understanding/link-purpose-in-context.html", fix: "Name the target in the link text itself, or give the link an `aria-label` that does." },
 );
 
-export default definePlugin({
+export default {
     name: "link-text",
     extractors: [{ id: ID, extract }],
     rules: { "link-text/generic": generic },
@@ -87,4 +87,4 @@ export default definePlugin({
             rules: { "link-text/generic": { severity: "warning", score: 4.6 } },
         },
     },
-});
+} satisfies Plugin;

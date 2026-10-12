@@ -87,8 +87,8 @@ export function listRules(config: Config, names: string[]): RuleExplanation[] {
 }
 
 // A rule’s score as `5.0`, or the scale a dynamic one follows as `0 days → 6.8, 2 → 5.2`.
-function scoreText({ score, scale }: Pick<RuleMeta, "score" | "scale">): string {
-    return scale ? `dynamic: ${scale.map(([value, points]) => `${value} → ${points.toFixed(1)}`).join(", ")}` : (score ?? 0).toFixed(1);
+function scoreText({ score = 0, scale }: Pick<RuleMeta, "score" | "scale">): string {
+    return scale ? `dynamic: ${scale.map(([value, points]) => `${value} → ${points.toFixed(1)}`).join(", ")}` : score.toFixed(1);
 }
 
 // One rule’s catalog row, compiled at its preset severity so an `off` rule still has a meta.

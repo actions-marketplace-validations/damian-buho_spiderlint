@@ -7,7 +7,7 @@ import type { Facts } from "../facts/types.ts";
 import { log } from "../logger.ts";
 import { pageRule } from "../rules/builtin.ts";
 import { said } from "../rules/message.ts";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 import { DESCRIBE, visit, withPage } from "./visit.ts";
 
 const ID = "keyboard";
@@ -241,7 +241,7 @@ const skipLink = pageRule(
     { docs: "https://www.w3.org/WAI/WCAG22/Techniques/general/G1", fix: 'Make the first focusable element `<a href="#main">Skip to content</a>`, pointing at `<main id="main">`.' },
 );
 
-export default definePlugin({
+export default {
     name: "keyboard",
     extractors: [{ id: ID, mode: "browser", cost: "expensive", inputs: ["resources"], extract }],
     rules: { "keyboard/tab-walk": tabWalk, "keyboard/focus-visible": focusVisible, "keyboard/focus-obscured": focusObscured, "keyboard/forced-focus": forcedFocus, "keyboard/skip-link": skipLink },
@@ -257,4 +257,4 @@ export default definePlugin({
             },
         },
     },
-});
+} satisfies Plugin;

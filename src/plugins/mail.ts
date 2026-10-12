@@ -14,7 +14,7 @@ import { log } from "../logger.ts";
 import type { RuleSpec } from "../rules/types.ts";
 import { pin } from "../rules/score.ts";
 import { MAIL_RULES, records, texts, warnOnce, zoneOf } from "./dns.ts";
-import { definePlugin, type SiteContext, type SiteExtractor } from "./types.ts";
+import { type SiteContext, type SiteExtractor, type Plugin } from "./types.ts";
 
 // `org.spiderlint.mail`: `mode` overrides the derived one, `dkim-selectors` adds to the probed list, `dane` and `starttls` opt in.
 interface MailSettings {
@@ -50,8 +50,8 @@ const DMARC_POLICIES = new Set(["none", "quarantine", "reject"]);
 
 type Parsed = { tags: Map<string, string>; errors: string[] };
 
-// `tag=value` pairs split on `;`, duplicates and malformed pairs as errors; `first` must lead with `version`.
-function tagList(record: string, first: string, version: RegExp): Parsed {
+// `tag=value` pairs split on `;`, duplicates and malformed pairs as errors; the first tag must lead with `version`.
+function tagList(record: string, version: RegExp): Parsed {
     const tags = new Map<string, string>();
     const errors: string[] = [];
     const parts = record
@@ -63,7 +63,7 @@ function tagList(record: string, first: string, version: RegExp): Parsed {
         if (!match) errors.push(`malformed tag “${part}”`);
         else if (tags.has((match[1] as string).toLowerCase())) errors.push(`duplicate tag ${match[1]}`);
         else tags.set((match[1] as string).toLowerCase(), (match[2] as string).trim());
-        if (index === 0 && (match?.[1]?.toLowerCase() !== first || !version.test(match[2] ?? ""))) errors.push(`does not begin with ${first}=`);
+        if (index === 0 && (match?.[1]?.toLowerCase() !== "v" || !version.test(match[2] ?? ""))) errors.push("does not begin with v=");
     }
     return { tags, errors };
 }
@@ -214,7 +214,7 @@ export async function dmarc(host: string, dns: DnsClient): Promise<{ at: string;
 
 // The grammar of a DMARC record by RFC 9989 §4.7, `pct` read as the legacy tag older receivers still honour.
 function dmarcTags(record: string): Parsed {
-    const parsed = tagList(record, "v", /^DMARC1$/);
+    const parsed = tagList(record, /^DMARC1$/);
     const check = (tag: string, isValid: (value: string) => boolean) => {
         const value = parsed.tags.get(tag);
         if (value !== undefined && !isValid(value.toLowerCase())) parsed.errors.push(`bad ${tag}=${value}`);
@@ -259,7 +259,7 @@ async function dmarcCheck(subject: string, found: { at: string; record: string; 
 
 // The grammar, key type, key size, testing flag and revocation of one DKIM key record (RFC 6376 §3.6.1).
 function dkimKey(selector: string, record: string): Record<string, unknown> {
-    const { tags, errors } = tagList(record.startsWith("v=") ? record : `v=DKIM1; ${record}`, "v", /^DKIM1$/);
+    const { tags, errors } = tagList(record.startsWith("v=") ? record : `v=DKIM1; ${record}`, /^DKIM1$/);
     const k = (tags.get("k") ?? "rsa").toLowerCase();
     const p = (tags.get("p") ?? "").replaceAll(/\s/g, "");
     if (!tags.has("p")) errors.push("no p= tag");
@@ -316,7 +316,7 @@ function isCovered(pattern: string, exchange: string): boolean {
 async function mtaStsCheck(domain: string, exchanges: string[], context: SiteContext): Promise<Record<string, unknown>> {
     const found = texts(await context.dns.query(`_mta-sts.${domain}`, "TXT")).filter((entry) => /^v\s*=\s*STSv1\s*(;|$)/i.test(entry));
     if (found.length === 0) return {};
-    const { tags, errors } = tagList(found[0] as string, "v", /^STSv1$/);
+    const { tags, errors } = tagList(found[0] as string, /^STSv1$/);
     if (found.length > 1) errors.push(`${found.length} records`);
     if (!/^[A-Za-z0-9]{1,32}$/.test(tags.get("id") ?? "")) errors.push("id= is not 1 to 32 letters and digits");
     if (errors.length > 0) return { record: found[0], errors };
@@ -351,7 +351,7 @@ async function mtaStsCheck(domain: string, exchanges: string[], context: SiteCon
 async function tlsRptCheck(domain: string, dns: DnsClient): Promise<Record<string, unknown>> {
     const found = texts(await dns.query(`_smtp._tls.${domain}`, "TXT")).filter((entry) => /^v\s*=\s*TLSRPTv1\s*(;|$)/i.test(entry));
     if (found.length === 0) return {};
-    const { tags, errors } = tagList(found[0] as string, "v", /^TLSRPTv1$/);
+    const { tags, errors } = tagList(found[0] as string, /^TLSRPTv1$/);
     if (found.length > 1) errors.push(`${found.length} records`);
     const uris = (tags.get("rua") ?? "")
         .split(",")
@@ -406,7 +406,7 @@ async function fetched(url: string, context: SiteContext): Promise<{ status?: nu
 async function bimiCheck(domain: string, isEnforced: boolean, context: SiteContext): Promise<Record<string, unknown> | undefined> {
     const found = texts(await context.dns.query(`default._bimi.${domain}`, "TXT")).filter((entry) => /^v\s*=\s*BIMI1\s*(;|$)/i.test(entry));
     if (found.length === 0) return;
-    const { tags, errors } = tagList(found[0] as string, "v", /^BIMI1$/);
+    const { tags, errors } = tagList(found[0] as string, /^BIMI1$/);
     const [logo, vmc] = [tags.get("l") ?? "", tags.get("a") ?? ""];
     if (logo && !/^https:\/\/\S+$/i.test(logo)) errors.push(`l= ${logo} is not an https URL`);
     if (vmc && !/^https:\/\/\S+$/i.test(vmc)) errors.push(`a= ${vmc} is not an https URL`);
@@ -979,7 +979,8 @@ function asWarning(id: string): RuleSpec {
 }
 
 // Mail authentication of every crawled host and its registrable domain: SPF, DMARC, DKIM, MX, MTA-STS, TLS-RPT, BIMI, and opt-in DANE and STARTTLS.
-export default definePlugin({
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- Object.fromEntries() assembles plain rule data, no IO
+export default {
     name: "mail",
     settings: {
         type: "object",
@@ -991,4 +992,4 @@ export default definePlugin({
         mail: { description: "Mail authentication of names that take or send mail: SPF grammar and lookups, DMARC, DKIM keys, MX, MTA-STS, TLS-RPT and BIMI; DANE and STARTTLS once turned on", rules: ALL },
         "mail:recommended": { description: "SPF, DMARC and MX correctness of names that take or send mail", rules: Object.fromEntries(RECOMMENDED.map((id) => [id, asWarning(id)])) },
     },
-});
+} satisfies Plugin;

@@ -8,7 +8,7 @@ import type { Facts } from "../facts/types.ts";
 import { log } from "../logger.ts";
 import type { RuleSpec } from "../rules/types.ts";
 import type { Scale } from "../rules/score.ts";
-import { definePlugin } from "./types.ts";
+import type { Plugin } from "./types.ts";
 
 const ID = "lighthouse";
 // The lab metrics kept, by the Lighthouse audit that measures each.
@@ -84,7 +84,8 @@ function metric(key: keyof typeof VITALS, limit: number, unit: string, link: str
     };
 }
 
-export default definePlugin({
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- score() and metric() assemble plain rule data, no IO
+export default {
     name: "lighthouse",
     extractors: [{ id: ID, mode: "browser", cost: "expensive", cached: false, debugging: true, extract }],
     presets: {
@@ -126,4 +127,4 @@ export default definePlugin({
             },
         },
     },
-});
+} satisfies Plugin;

@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { setTimeout as sleep } from "node:timers/promises";
-import { definePlugin } from "../../src/plugins/types.ts";
+import type { Plugin } from "../../src/plugins/types.ts";
 
 // Real runs of each extractor, read by the tests.
 export const runs = { robots: 0, stuck: 0 };
 
 // Probes each host’s robots.txt once, and never finishes a second probe inside its timeout.
-export default definePlugin({
+export default {
     name: "fixture-hosts",
     sites: [
         {
@@ -40,4 +40,4 @@ export default definePlugin({
             },
         },
     },
-});
+} satisfies Plugin;

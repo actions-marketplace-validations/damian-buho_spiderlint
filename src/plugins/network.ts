@@ -9,7 +9,7 @@ import { reason } from "../crawl/fetch.ts";
 import { log } from "../logger.ts";
 import type { RuleSpec } from "../rules/types.ts";
 import { isSpecialUse, once, records, texts, warnOnce, zoneOf } from "./dns.ts";
-import { definePlugin, type SiteContext, type SiteExtractor } from "./types.ts";
+import { type SiteContext, type SiteExtractor, type Plugin } from "./types.ts";
 
 const RIPESTAT = "https://stat.ripe.net/data/rpki-validation/data.json";
 
@@ -168,7 +168,7 @@ const network: SiteExtractor = {
             return Promise.all(addresses.flat().map(({ address, name }) => identify(address, name)));
         };
         const [webIds, mailIds, serverIds] = await Promise.all([Promise.all(web.map((address) => identify(address))), named(exchanges), named(servers)]);
-        const asns = answered() ? [...new Set([...webIds, ...serverIds].flatMap((entry) => (entry.asn === undefined ? [] : [`AS${entry.asn}`])))].toSorted((a, b) => a.localeCompare(b)) : undefined;
+        const asns = answered() ? [...new Set([...webIds, ...serverIds].flatMap((entry) => (entry.asn === undefined ? [] : `AS${entry.asn}`)))].toSorted((a, b) => a.localeCompare(b)) : undefined;
         log.debug({ host, zone, web: webIds.length, mail: mailIds.length, nameservers: serverIds.length, asns }, "network identity read");
         return { web: webIds, mail: mailIds, nameservers: serverIds, ...(asns && { asns }) };
     },
@@ -215,9 +215,9 @@ const RULES: Record<string, RuleSpec> = {
 };
 
 // Who routes every crawled host’s addresses, through Team Cymru’s DNS interface and RIPEstat.
-export default definePlugin({
+export default {
     name: "network",
     settings: { type: "object", additionalProperties: false, properties: { rpki: { type: "boolean", default: true } } },
     sites: [network],
     presets: { network: { description: "ASN, RPKI route validity and reverse DNS of every crawled host, its mail exchangers and name servers", rules: RULES } },
-});
+} satisfies Plugin;

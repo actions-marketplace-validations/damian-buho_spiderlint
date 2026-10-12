@@ -84,8 +84,8 @@ async function extract(host: string, pages: Facts[], client: DnsClient, mailSett
 }
 
 // Rule IDs `preset` reports over a site document, sorted.
-function findings(hosts: Record<string, Record<string, unknown>>, preset = "dns", linked?: string[]): string[] {
-    return keyed({ sitemaps: [], hosts, ...(linked && { linked }) }, preset).map(([rule]) => rule);
+function findings(hosts: Record<string, Record<string, unknown>>, preset = "dns"): string[] {
+    return keyed({ sitemaps: [], hosts }, preset).map(([rule]) => rule);
 }
 
 // `[rule, subject]` of every finding `preset` reports over `site`, sorted.

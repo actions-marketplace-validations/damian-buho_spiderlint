@@ -16,8 +16,8 @@ const CHROME_MAJOR = "147";
 const SCAN = { via: "" };
 
 // The instance `setVia` keeps, without port, path, casing or brackets; garbage becomes empty.
-export function normalizeVia(raw: string | undefined): string {
-    const host = (raw ?? "").trim().toLowerCase().split("/", 1)[0] ?? "";
+export function normalizeVia(raw = ""): string {
+    const host = raw.trim().toLowerCase().split("/", 1)[0] ?? "";
     const bare = host.startsWith("[") ? (host.slice(1).split("]", 1)[0] ?? "") : (host.split(":", 1)[0] ?? "");
     return /^[a-z0-9:]([a-z0-9.:-]*[a-z0-9])?\.?$/.test(bare) ? bare.replace(/\.$/, "") : "";
 }

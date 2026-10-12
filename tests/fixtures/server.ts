@@ -100,10 +100,8 @@ async function body(pathname: string, origin: string, local: string): Promise<[s
         try {
             const type = TYPES[candidate.split(".").pop() as string] ?? "application/octet-stream";
             const raw = await readFile(new URL(candidate.slice(1), SITE));
-            // eslint-disable-next-line unicorn/prefer-https -- fixture.test mirrors the plain-http origin the fixture server runs on
             const placeholder = "http://fixture.test";
             const cdn = local.replace("//127.0.0.1:", "//localhost:");
-            // eslint-disable-next-line unicorn/prefer-https -- the CDN placeholder mirrors the same plain-http server
             const cdnPlaceholder = "http://fixture-cdn.test";
             return [
                 type,
