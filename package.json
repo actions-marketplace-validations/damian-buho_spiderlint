@@ -1,6 +1,6 @@
 {
   "name": "spiderlint",
-  "version": "0.142.0",
+  "version": "0.143.0",
   "type": "module",
   "description": "Site-wide linter for SEO tags, security headers, TLS and links",
   "license": "AGPL-3.0-only",
@@ -124,8 +124,8 @@
     }
   ],
   "repository": {
-    "url": "git@github.com:damian-buho/spiderlint.git",
-    "type": "git"
+    "type": "git",
+    "url": "git@github.com:damian-buho/spiderlint.git"
   },
   "os": [
     "linux",
