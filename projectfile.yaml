@@ -123,8 +123,10 @@ org:
       - amd64
     artifacts:
       npm-package:
+        architecture: [amd64, arm64]
         command: ${identity.name}
         executable: bin/spiderlint.js
+        operating-system: [linux, darwin]
         subcommands: [audit, crawl, lint, show-report, show-facts, export-facts, list-groups, list-rules, list-presets, explain-rule, show-cache, purge-cache, warm-cache]
     build:
       args:
@@ -176,7 +178,8 @@ repositories:
     role: origin
     type: git
     url: ssh://git@kiota.ch/damian-buho/spiderlint.git
-  - role: mirror
+  - packages: true
+    role: mirror
     type: git
     url: git@github.com:damian-buho/spiderlint.git
   - role: mirror

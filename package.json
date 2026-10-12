@@ -124,14 +124,16 @@
     }
   ],
   "repository": {
-    "type": "git",
-    "url": "ssh://git@kiota.ch/damian-buho/spiderlint.git"
+    "url": "git@github.com:damian-buho/spiderlint.git",
+    "type": "git"
   },
   "os": [
-    "linux"
+    "linux",
+    "darwin"
   ],
   "cpu": [
-    "x64"
+    "x64",
+    "arm64"
   ],
   "homepage": "https://dbuho.me/project/spiderlint/",
   "bugs": {
