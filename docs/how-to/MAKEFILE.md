@@ -683,7 +683,7 @@ Pre-pull the base, tool and frontend images the projectfile names, so a later bu
 
 ### `usage-check`
 
-Verify the committed --help captures in docs/usage.d match the built image
+Verify the committed --help captures in docs/usage.d match the declared executable, else the built image
 
 ## License
 
@@ -1061,6 +1061,14 @@ Autofix stylelint findings
 
 > Image: D9T_JS_TOOLS_IMAGE
 
+### `check-outdated-deps-npm`
+
+Check toolbox npm pins for upstream drift
+
+`.makefile/core/scripts/check-outdated.sh ' -> ' .makefile/core/scripts/check-outdated-deps.sh .container/*/deps/*.npm.deps`
+
+> Image: B19_NODE_BASE_IMAGE
+
 ### `check-outdated-npm`
 
 Check for outdated npm dependencies
@@ -1268,16 +1276,6 @@ Lint Sass and SCSS sources
 `sass-lint **/*.scss -v -q`
 
 > Image: D9T_JS_TOOLS_IMAGE
-
-## Observability
-
-### `gonzo`
-
-Analyze log streams in a terminal UI
-
-`gonzo`
-
-> Image: D9T_GO_TOOLS_IMAGE
 
 ## Projectfile
 
