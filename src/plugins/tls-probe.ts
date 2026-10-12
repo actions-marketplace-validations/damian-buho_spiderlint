@@ -60,7 +60,7 @@ async function isRunnable(): Promise<boolean> {
 }
 
 // Whether `openssl` is on PATH, asked once per PATH so a missing tool warns once.
-function opensslFound(): Promise<boolean> {
+async function isOpensslAvailable(): Promise<boolean> {
     const key = process.env.PATH ?? "";
     let known = available.get(key);
     if (!known) {
@@ -152,7 +152,7 @@ const probe: SiteExtractor = {
         const sent = certificates.map((der) => new X509Certificate(der));
         const chain = chainOf(sent);
         const responder = sent[0]?.infoAccess?.includes("OCSP - URI:") ?? false;
-        const isEarly = scanned.protocols.includes("TLSv1.3") && (await opensslFound()) ? await earlyData(host, port, address, context.signal) : undefined;
+        const isEarly = scanned.protocols.includes("TLSv1.3") && (await isOpensslAvailable()) ? await earlyData(host, port, address, context.signal) : undefined;
         log.debug({ origin, address, isFull, protocols: scanned.protocols, chain, responder, isStapled: isSuccessful(ocsp), isEarly }, "tls probed");
         return { address, ...scanned, ...(chain && { chain }), ...(sent.length > 0 && { ocsp: { responder, stapled: isSuccessful(ocsp) } }), ...(isEarly !== undefined && { "early-data": isEarly }) };
     },

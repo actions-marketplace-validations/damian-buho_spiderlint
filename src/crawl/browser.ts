@@ -350,9 +350,9 @@ export async function installBrowser(name: BrowserName): Promise<void> {
             clearTimeout(timer);
             resolve(-1);
         });
-        child.once("close", (status) => {
+        child.once("close", (status: number | null = -1) => {
             clearTimeout(timer);
-            resolve(status ?? -1);
+            resolve(status === null ? -1 : status);
         });
     });
     const seconds = Math.round((Date.now() - started) / 1000);

@@ -199,7 +199,7 @@ function progressBody(t: Translator, job: ScanJob, status: string): string {
     const names = phaseNames(t);
     const named = phase && names[phase];
     const phaseText = named ? (step ? t._("{phase}: {done} of {total}", { phase: named, done: t.number(step.done), total: t.number(step.total) }) : named) : "";
-    const state = status === "running" ? t._("Scanning…") : t._("Waiting in the queue…");
+    const state = t._(status === "running" ? "Scanning…" : "Waiting in the queue…");
     const values = total === undefined ? "" : ` max="${total}" value="${done}"`;
     const attributes = [
         ["events", `/v1/jobs/${job.id}/events`],

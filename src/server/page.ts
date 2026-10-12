@@ -161,7 +161,7 @@ export async function asset(root: string, relative: string): Promise<{ body: Buf
         const base = await realpath(root);
         const file = await realpath(path.join(base, ...segments));
         const found = await stat(file);
-        return !file.startsWith(`${base}${path.sep}`) || !found.isFile() ? undefined : { body: await readFile(file), type: MEDIA[path.extname(file).slice(1).toLowerCase()] ?? "application/octet-stream" };
+        return file.startsWith(`${base}${path.sep}`) && found.isFile() ? { body: await readFile(file), type: MEDIA[path.extname(file).slice(1).toLowerCase()] ?? "application/octet-stream" } : undefined;
     } catch {
         return undefined;
     }
