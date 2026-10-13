@@ -9,7 +9,7 @@ import { relative, singleOrigin } from "../crawl/scope.ts";
 import type { Report } from "../index.ts";
 import { isRanked } from "../facts/flatten.ts";
 import { log } from "../logger.ts";
-import { fixFor } from "../rules/fix.ts";
+import { fixFor, fixesOf } from "../rules/fix.ts";
 import { cachedReads, inEnglish, valuesAt } from "../rules/message.ts";
 import { utc } from "../facts/read-note.ts";
 import { importance, scoreOf } from "../rules/score.ts";
@@ -66,7 +66,8 @@ function block(same: Finding[], guide: RuleGuide | undefined, origin: string): s
     const target = originOf(finding, origin);
     const reads = guide?.facts.length ? `Reads: ${guide.facts.map((fact) => `\`${fact}\``).join(", ")}${guide.expect ? `, expects \`${JSON.stringify(guide.expect)}\`` : ""}` : "";
     const facts = finding.scope === "page" && guide?.expect ? `, and \`spiderlint show-facts ${finding.samples?.[0] ?? finding.url}\` shows \`${guide.facts[0]}\` meeting it` : "";
-    const fix = guide?.fix ? `Fix: ${fixFor(guide.fix, finding)}` : guide?.docs ? `Fix: follow ${guide.docs}` : "";
+    const all = fixesOf(guide).map((fix) => fixFor(fix, finding));
+    const fix = all.length > 0 ? `Fix: ${all.join(" ")}` : guide?.docs ? `Fix: follow ${guide.docs}` : "";
     return [
         `## ${finding.rule} (${finding.severity} ${scoreOf(finding).toFixed(1)})`,
         "",

@@ -6,7 +6,7 @@ import { relative, singleOrigin } from "../crawl/scope.ts";
 import { environmentLocale } from "../i18n.ts";
 import { bytes as sized, isLabelled, label, withUnit } from "../facts/labels.ts";
 import type { Report } from "../index.ts";
-import { fixFor } from "../rules/fix.ts";
+import { fixFor, fixesOf } from "../rules/fix.ts";
 import { cachedReads, valuesAt } from "../rules/message.ts";
 import { byImportance, scoreOf } from "../rules/score.ts";
 import type { Finding, RuleGuide } from "../rules/types.ts";
@@ -128,9 +128,11 @@ function change(now: number, before: number | undefined, paint: Paint): string {
     return before === undefined || now === before ? "" : ` ${paint(now < before ? "green" : "red", `${now < before ? MINUS : "+"}${number(Math.abs(now - before))}`)}`;
 }
 
-// The rule’s fix filled for this finding, then its docs, under the finding.
+// The rule’s fixes filled for this finding, then its docs, under the finding.
 function explanation(guide: RuleGuide | undefined, finding: Finding, paint: Paint): string[] {
-    return [guide?.fix ? `${paint("dim", `${DETAIL}fix  `)}${fixFor(guide.fix, finding)}` : "", guide?.docs ? paint("dim", `${DETAIL}docs ${guide.docs}`) : ""].filter(Boolean);
+    const all = fixesOf(guide);
+    const fixes = all.map((fix, index) => `${paint("dim", `${DETAIL}fix${all.length > 1 ? ` ${index + 1}` : " "} `)}${fixFor(fix, finding)}`);
+    return [...fixes, guide?.docs ? paint("dim", `${DETAIL}docs ${guide.docs}`) : ""].filter(Boolean);
 }
 
 // Findings by importance (score times the share of pages touched) then rule then URL, bundled, each followed by its explanation when `guides` is given.

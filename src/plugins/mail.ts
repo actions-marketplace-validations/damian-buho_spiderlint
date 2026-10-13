@@ -873,7 +873,8 @@ const RULES: Record<string, RuleSpec> = {
         severity: "info",
         score: 1.8,
         docs: "https://www.rfc-editor.org/rfc/rfc8460",
-        fix: "Add a TXT record at Name `_smtp._tls.{domain}` with Content `v=TLSRPTv1; rua=mailto:tls-reports@{domain}`. Report Relay https://dbuho.me/project/report-relay/ collects these reports and sends them to your Grafana: open source, self-hosted, free.",
+        fix: "Add a TXT record at Name `_smtp._tls.{domain}` with Content `v=TLSRPTv1; rua=mailto:tls-reports@{domain}`.",
+        extra: ["Report Relay https://dbuho.me/project/report-relay/ collects these reports and sends them to your Grafana: open source, self-hosted, free."],
     },
     "mail/tls-rpt-syntax": {
         fact: "site.hosts.*.mail.tls-rpt.errors",

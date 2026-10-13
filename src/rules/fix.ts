@@ -4,7 +4,7 @@
 
 import { getDomain } from "tldts";
 import { log } from "../logger.ts";
-import type { Finding } from "./types.ts";
+import type { Finding, RuleMeta } from "./types.ts";
 
 const PLACEHOLDER = /\{(host|domain|origin|url)\}/g;
 
@@ -14,6 +14,11 @@ function subject(finding: Finding): Record<string, string> | undefined {
     if (!URL.canParse(href)) return undefined;
     const url = new URL(href);
     return { host: url.hostname, domain: getDomain(url.hostname, { allowPrivateDomains: true }) ?? url.hostname, origin: url.origin, url: url.href };
+}
+
+// A rule’s fixes in order: `fix` first, then each of `extra`.
+export function fixesOf(guide: Pick<RuleMeta, "fix" | "extra"> | undefined): string[] {
+    return [guide?.fix, ...(guide?.extra ?? [])].filter((fix): fix is string => fix !== undefined);
 }
 
 // A rule’s fix, or the hint for the service the finding’s subject runs on, with `{host}`, `{domain}`, `{origin}` and `{url}` taken from the finding, else shown as `<host>`.

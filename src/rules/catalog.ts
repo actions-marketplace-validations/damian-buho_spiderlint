@@ -9,7 +9,7 @@ import { log } from "../logger.ts";
 import { ConfigError } from "../config/index.ts";
 import { ruleMaker } from "../plugins/index.ts";
 import { compileRule } from "./declarative.ts";
-import { fixFor } from "./fix.ts";
+import { fixFor, fixesOf } from "./fix.ts";
 import { compileRulesets, lookup, presetNames, resolveRuleset } from "./rulesets.ts";
 import type { RuleMeta, RuleSpec, Scope, Severity } from "./types.ts";
 
@@ -34,6 +34,7 @@ export interface RuleExplanation extends RuleInfo {
     when?: Record<string, unknown>;
     message?: string;
     fix?: string;
+    extra?: string[];
 }
 
 export interface PresetInfo {
@@ -96,7 +97,7 @@ function describeRule(id: string, spec: RuleSpec, severities: Map<string, Set<st
     const preset = spec.severity ?? "warning";
     const { meta } = compileRule(id, { ...spec, severity: preset === "off" ? "warning" : preset });
     const kind = spec.unique ? "unique" : spec.fact ? "declarative" : "built-in";
-    return { id, severity: [...(severities.get(id) ?? ["off"])].join("/"), preset, score: scoreText(meta), scope: meta.scope, rulesets, facts: meta.facts, docs: meta.docs, kind, expect: spec.expect, when: spec.when, message: spec.message, fix: meta.fix };
+    return { id, severity: [...(severities.get(id) ?? ["off"])].join("/"), preset, score: scoreText(meta), scope: meta.scope, rulesets, facts: meta.facts, docs: meta.docs, kind, expect: spec.expect, when: spec.when, message: spec.message, fix: meta.fix, extra: meta.extra };
 }
 
 // Everything known about one rule; a rule no ruleset carries and no plugin makes is a config error.
@@ -160,6 +161,7 @@ export function formatRules(rules: RuleInfo[], paint: Paint): string {
 
 // One labelled line per field the rule carries; schemas as compact JSON.
 export function formatExplanation(rule: RuleExplanation, paint: Paint): string {
+    const fixes = [rule.fix, ...(rule.extra ?? [])].filter((fix): fix is string => fix !== undefined);
     const rows: [string, string | undefined][] = [
         ["severity", `${rule.severity} (preset ${rule.preset})`],
         ["score", rule.score],
@@ -170,7 +172,7 @@ export function formatExplanation(rule: RuleExplanation, paint: Paint): string {
         ["expect", rule.expect && JSON.stringify(rule.expect)],
         ["when", rule.when && JSON.stringify(rule.when)],
         ["message", rule.message],
-        ["fix", rule.fix && fixFor(rule.fix)],
+        ...fixes.map((fix, index): [string, string] => [`fix${fixes.length > 1 ? ` ${index + 1}` : ""}`, fixFor(fix)]),
         ["docs", rule.docs],
     ];
     const lines = rows.filter((row): row is [string, string] => row[1] !== undefined).map(([label, value]) => `${paint("dim", label.padEnd(9))}${value}`);

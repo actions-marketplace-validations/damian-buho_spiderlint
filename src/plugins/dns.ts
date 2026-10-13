@@ -606,7 +606,8 @@ const RULES: Record<string, RuleSpec> = {
         severity: "info",
         score: 2.8,
         docs: "https://www.rfc-editor.org/rfc/rfc8659#section-4.4",
-        fix: "Add a CAA iodef tag pointing at a contact URI or email for issuance incident reports. Report Relay https://dbuho.me/project/report-relay/ collects these reports and sends them to your Grafana: open source, self-hosted, free.",
+        fix: "Add a CAA iodef tag pointing at a contact URI or email for issuance incident reports.",
+        extra: ["Report Relay https://dbuho.me/project/report-relay/ collects these reports and sends them to your Grafana: open source, self-hosted, free."],
     },
     "dns/caa-critical": {
         fact: "site.hosts.*.dns.caa.records",

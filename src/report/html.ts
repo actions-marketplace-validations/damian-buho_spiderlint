@@ -4,7 +4,7 @@
 
 import { relative, singleOrigin } from "../crawl/scope.ts";
 import { shippedRules } from "../rules/catalog.ts";
-import { fixFor } from "../rules/fix.ts";
+import { fixFor, fixesOf } from "../rules/fix.ts";
 import { cachedReads, sentence, valuesAt } from "../rules/message.ts";
 import { bytes, isLabelled, label, withUnit } from "../facts/labels.ts";
 import { utc } from "../facts/read-note.ts";
@@ -159,9 +159,11 @@ function cached(t: Translator, same: Finding[], origin: string): string {
     )}`;
 }
 
-// The rule’s fix filled for this finding, then its docs link; nothing when the rule has neither.
+// The rule’s fixes filled for this finding, then its docs link; nothing when the rule has neither.
 function remedy(t: Translator, guide: RuleGuide | undefined, finding: Finding): string {
-    const fix = guide?.fix ? `<p>${escape(t._("Fix: {fix}", { fix: fixFor(guide.fix, finding) }))}</p>` : "";
+    const fix = fixesOf(guide)
+        .map((text) => `<p>${escape(t._("Fix: {fix}", { fix: fixFor(text, finding) }))}</p>`)
+        .join("");
     const documentation = guide?.docs && /^https?:\/\//i.test(guide.docs) ? `<p><a href="${escape(guide.docs)}" rel="noopener noreferrer">${escape(t._("Documentation"))}</a></p>` : "";
     return fix + documentation;
 }
@@ -217,8 +219,10 @@ function statistics(t: Translator, stats: Report["summary"]["stats"] = {}): stri
 function passed(t: Translator, report: Pick<Report, "summary" | "rules">): string {
     const clean = passing(report.summary.checked);
     const rows = clean.map(([id, rule]) => {
-        const fix = report.rules?.[id]?.fix;
-        const body = fix ? `<div class="rule-findings"><p class="muted">${escape(fixFor(fix))}</p></div>` : "";
+        const fix = fixesOf(report.rules?.[id])
+            .map((text) => fixFor(text))
+            .join(" ");
+        const body = fix ? `<div class="rule-findings"><p class="muted">${escape(fix)}</p></div>` : "";
         const foot = `<span>${escape(t._("Impact"))}: ${escape(t.number(0))}</span><span>${escape(t._("Scope"))}: ${escape(t._("Pages: {count}", { count: t.number(rule.pages) }))}</span>`;
         return `<details class="rule-card passed"><summary class="rule-head"><span class="tick" aria-hidden="true">✓</span><code>${escape(id)}</code><span class="rule-arrow" aria-hidden="true">▾</span></summary>${body}<footer class="rule-foot">${foot}</footer></details>`;
     });

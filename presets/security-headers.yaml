@@ -179,7 +179,8 @@ rules:
     severity: info
     score: 1.5
     message: "no Reporting-Endpoints header naming an endpoint, found {got}"
-    fix: "Send a Reporting-Endpoints header naming your reporting endpoints. Report Relay https://dbuho.me/project/report-relay/ collects these reports and sends them to your Grafana: open source, self-hosted, free."
+    fix: "Send a Reporting-Endpoints header naming your reporting endpoints."
+    extra: ["Report Relay https://dbuho.me/project/report-relay/ collects these reports and sends them to your Grafana: open source, self-hosted, free."]
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Reporting-Endpoints
   http/no-x-xss-protection:
     fact: http.headers
