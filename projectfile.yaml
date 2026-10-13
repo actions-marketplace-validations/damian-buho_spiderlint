@@ -28,6 +28,7 @@ includes:
   - .makefile/container/traits/readme-tool-image.yaml
   - .makefile/core/traits/github-action.yaml
   - .makefile/library/traits/node-publish.yaml
+  - .makefile/library/traits/node-prettier.yaml
   - .makefile/library/images/valkey.yaml
   - .makefile/library/languages/node.yaml
   - .makefile/library/vulnerabilities/npm/stream-json.yaml
@@ -143,17 +144,7 @@ org:
         source-is-tested:
           needs:
             usage-check: true
-        source-passes-lint:
-          needs:
-            npm-format-check: true
       tools:
-        npm-format-check:
-          image: NODE_TOOL_IMAGE
-          run: npm run format:check
-          description: Check the source is formatted by prettier
-          guard: package.json
-          fuse: lint
-          tags: [node]
         npm-test:
           set-env:
             PLAYWRIGHT_BROWSERS_PATH: /app/.cache/host-playwright
