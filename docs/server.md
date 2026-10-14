@@ -161,7 +161,7 @@ A job:
 
 ```json
 {
-  "id": "0b1e…",
+  "id": "example.ua-20260927T090000Z-3f9c1a7e2b4d",
   "url": "https://example.ua/",
   "policy": "ua",
   "status": "running",
@@ -169,9 +169,9 @@ A job:
   "created": "2026-09-27T09:00:00.000Z",
   "started": "2026-09-27T09:00:01.000Z",
   "links": {
-    "self": "/v1/jobs/0b1e…",
-    "page": "/jobs/0b1e…",
-    "events": "/v1/jobs/0b1e…/events"
+    "self": "/v1/jobs/example.ua-20260927T090000Z-3f9c1a7e2b4d",
+    "page": "/jobs/example.ua-20260927T090000Z-3f9c1a7e2b4d",
+    "events": "/v1/jobs/example.ua-20260927T090000Z-3f9c1a7e2b4d/events"
   }
 }
 ```
@@ -179,7 +179,7 @@ A job:
 `status` is `queued`, `running`, `done` or `failed`. `eta` is a range in seconds,
 absent until a few pages are timed. A `done` job adds `summary`, as the `json`
 report carries it with the rating, and `links.reports`. A `failed` job adds `error`.
-The ID is random and unguessable; nothing lists jobs.
+The ID is the host, the UTC time the job was queued and 48 random bits, so a report’s address says what and when; the random part keeps it unguessable.
 
 A refusal is `{ "error": { "code": "…", "message": "…" } }`. Clients translate the
 `code`; the message is for logs:

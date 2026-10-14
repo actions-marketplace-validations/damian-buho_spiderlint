@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { Queue, type Job } from "bullmq";
 import { Redis } from "ioredis";
 import type { Report, Summary } from "../index.ts";
@@ -75,6 +75,12 @@ export async function charge(redis: Redis, admitted: Admitted): Promise<void> {
 export function repeatKey(admitted: Admitted): string {
     const sorted = JSON.stringify(admitted.settings, (_key, value: unknown) => (value && typeof value === "object" && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).toSorted(([a], [b]) => a.localeCompare(b))) : value));
     return `${PREFIX}:repeat:${admitted.policy.name}:${createHash("sha256").update(`${admitted.url}\n${sorted}`).digest("hex")}`;
+}
+
+// A job ID that names its host and queue time, closed by 48 random bits: `example.org-20261014T171505Z-3f9c1a7e2b4d`.
+export function jobId(host: string, at = new Date()): string {
+    const stamp = at.toISOString().replaceAll(/[-:]|\.\d+/g, "");
+    return `${host.replaceAll(/[^\da-z.-]/g, "-")}-${stamp}-${randomBytes(6).toString("hex")}`;
 }
 
 // The key naming the last finished scan of `host`, which the badge reads.

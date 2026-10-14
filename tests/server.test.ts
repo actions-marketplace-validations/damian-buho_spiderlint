@@ -19,7 +19,7 @@ import { api } from "../src/server/api.ts";
 import { Buckets, clientOf } from "../src/server/clients.ts";
 import { admit, policyFor, presetSettings, presetsOffered, Refusal, resolveRules } from "../src/server/policy.ts";
 import { addRanges } from "../src/server/providers.ts";
-import { connect, scanQueue } from "../src/server/queue.ts";
+import { connect, jobId, scanQueue } from "../src/server/queue.ts";
 import { hostSuffix, settingsOf } from "../src/server/settings.ts";
 import { startWorker } from "../src/server/worker.ts";
 import { serveFixture, type Fixture } from "./fixtures/server.ts";
@@ -542,6 +542,21 @@ describe("server policy", () => {
         const { settings } = admit({ url: "https://a.ua/", settings: { rules: ["seo"], "max-pages": 0, concurrency: 1 } }, SETTINGS);
         assert.deepEqual([settings["max-pages"], settings.concurrency, settings.fetch, settings.robots, settings["allow-private"]], [20, 1, "http", true, false]);
         assert.equal(admit({ url: "https://a.ua/", settings: { rules: ["seo"], "max-pages": 500 } }, SETTINGS).settings["max-pages"], 20);
+    });
+});
+
+describe("job IDs", () => {
+    it("name the host and the queue time, then 48 random bits", () => {
+        assert.match(jobId("example.org", new Date("2026-10-14T17:15:05.123Z")), /^example\.org-20261014T171505Z-[\da-f]{12}$/);
+    });
+
+    it("keep a host with a colon or bracket to characters a queue accepts", () => {
+        assert.match(jobId("[::1]", new Date("2026-10-14T17:15:05Z")), /^---1--20261014T171505Z-[\da-f]{12}$/);
+    });
+
+    it("differ for one host at one instant", () => {
+        const at = new Date();
+        assert.notEqual(jobId("example.org", at), jobId("example.org", at));
     });
 });
 
