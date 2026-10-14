@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { domainToUnicode } from "node:url";
 import { Hono, type Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
+import { etag } from "hono/etag";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { routePath } from "hono/route";
 import { LICENSE } from "../agent.ts";
@@ -333,6 +334,8 @@ export function web(jobs: Jobs): Hono {
 
     // Text answers leave compressed when the client asks for gzip.
     app.use(compress());
+    // Every page carries a validator, so a revalidation is a 304.
+    app.use(etag());
 
     app.get("/logo.png", (c) => {
         log.debug({ bytes: LOGO.length }, "logo served");

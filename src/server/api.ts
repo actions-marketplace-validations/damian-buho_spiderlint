@@ -5,6 +5,7 @@
 import type { Queue } from "bullmq";
 import { Hono, type Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
+import { etag } from "hono/etag";
 import { routePath } from "hono/route";
 import { secureHeaders } from "hono/secure-headers";
 import { streamSSE } from "hono/streaming";
@@ -70,6 +71,8 @@ export function api(queue: Queue<ScanData, ScanResult>, redis: Redis, settings: 
     app.use(secureHeaders({ xXssProtection: false }));
     // Report downloads are text over 1 KB, so they leave compressed; scoped off the event stream, which must stay unbuffered.
     app.use("/v1/jobs/:id/report/:format", compress());
+    // Downloads carry a validator too, so a revalidation is a 304.
+    app.use("/v1/jobs/:id/report/:format", etag());
     app.use(async (c, next) => {
         const started = performance.now();
         await next();

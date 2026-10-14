@@ -341,6 +341,16 @@ describe("server pages without Redis", () => {
         assert.equal(gunzipSync(raw).toString("utf8"), plain, "gzip round-trips");
     });
 
+    it("tags the form with an ETag a revalidation answers with 304", async () => {
+        const first = await app.request("/");
+        const tag = first.headers.get("etag") ?? "";
+        assert.ok(tag.length > 0, "ETag present");
+        const fresh = await app.request("/", { headers: { "if-none-match": tag } });
+        assert.equal(fresh.status, 304);
+        const stale = await app.request("/", { headers: { "if-none-match": '"no-such-tag"' } });
+        assert.equal(stale.status, 200);
+    });
+
     it("sends no X-XSS-Protection, and upgrades insecure requests in the policy", async () => {
         const response = await app.request("/");
         assert.ok(!response.headers.has("x-xss-protection"));
