@@ -136,6 +136,7 @@ export function api(queue: Queue<ScanData, ScanResult>, redis: Redis, settings: 
         const report = { pages: [], site: {}, ...job.returnvalue } as unknown as Report;
         c.header("content-type", `${media}; charset=utf-8`);
         c.header("content-security-policy", PAGE_CSP);
+        c.header("cache-control", "no-cache");
         c.header("content-disposition", `inline; filename="spiderlint-${job.data.host.replaceAll(/[^\w.-]/g, "-")}.${extension}"`);
         const lang = negotiate(c.req.header("accept-language"));
         return c.body(format(report, plain, false, lang));

@@ -355,6 +355,26 @@ describe("server pages without Redis", () => {
         assert.equal(stale.status, 200);
     });
 
+    it("serves report downloads for revalidation, not from a cache", async () => {
+        const summary = {
+            started: "2026-10-03T00:00:00Z",
+            durationMs: 1000,
+            pages: 1,
+            bytes: 10,
+            groups: { default: 1 },
+            statuses: {},
+            findings: { total: 0, error: 0, warning: 0, info: 0, hint: 0 },
+            rules: 0,
+            checks: { total: 0, passed: 0, failed: 0, errored: 0 },
+            byRule: {},
+            cost: {},
+            stats: {},
+        };
+        const job = { id: "j6", data: { url: "https://a.test/", host: "a.test" }, returnvalue: { summary, findings: [] }, getState: async () => "completed" };
+        const response = await api({ getJob: async () => job } as unknown as Queue, {} as Redis, () => SETTINGS).request("/v1/jobs/j6/report/json");
+        assert.equal(response.headers.get("cache-control"), "no-cache");
+    });
+
     it("sends no X-XSS-Protection, and upgrades insecure requests in the policy", async () => {
         const response = await app.request("/");
         assert.ok(!response.headers.has("x-xss-protection"));
