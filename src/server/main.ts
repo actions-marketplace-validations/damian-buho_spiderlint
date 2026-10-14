@@ -59,7 +59,7 @@ async function main(): Promise<void> {
     if (mode !== "api") {
         await prepareWorkerBrowser();
         const redis = connect(url, password);
-        const worker = startWorker(redis, workers, retention);
+        const worker = startWorker(redis, workers, retention, () => settings.current().recent);
         closers.push(
             async () => worker.close(),
             async () => redis.quit(),

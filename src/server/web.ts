@@ -21,7 +21,7 @@ import { compress } from "./compress.ts";
 import { jobOf, submit, type Jobs } from "./jobs.ts";
 import { asset, type Sources } from "./page.ts";
 import { presetSettings, presetsOffered, Refusal } from "./policy.ts";
-import { latestKey, type ScanJob } from "./queue.ts";
+import { latestKey, recentReports, type Recent, type ScanJob } from "./queue.ts";
 import type { ServerSettings } from "./settings.ts";
 
 declare module "hono" {
@@ -169,16 +169,27 @@ function presetChoice(t: Translator, offered: string[], chosen?: string): string
     return `<fieldset><legend class="muted">${escape(t._("Checks"))}</legend>${options.join("")}</fieldset>`;
 }
 
+// The latest reports as a list of grade, domain and finish time, newest first; nothing while there are none.
+function recentBlock(t: Translator, recent: Recent[]): string {
+    if (recent.length === 0) return "";
+    const when = new Intl.DateTimeFormat(t.locale, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC", timeZoneName: "short" });
+    const items = recent.map(
+        (entry) =>
+            `<li><a href="/jobs/${escape(entry.id)}"><span class="grade grade-${escape(entry.grade ?? "none")}" title="${escape(t._("Rating"))}">${escape(entry.grade ?? "–")}</span><span>${escape(domainToUnicode(entry.host) || entry.host)}<br><time class="muted" datetime="${new Date(entry.finished).toISOString()}">${escape(when.format(entry.finished))}</time></span></a></li>`,
+    );
+    return `<section><h2>${escape(t._("Latest reports"))}</h2><ul class="recent">${items.join("")}</ul></section>`;
+}
+
 // The box that keeps a scan out of the latest reports and the badge.
 function hideChoice(t: Translator, isHidden: boolean): string {
     return `<label class="check" for="hidden"><input id="hidden" type="checkbox" name="hidden" value="1"${isHidden ? " checked" : ""}> ${escape(t._("Hide from results"))} <small class="muted">${escape(t._("The scan stays out of the latest reports and the badge. Anyone with its link can still open it."))}</small></label>`;
 }
 
 // The form, with the address typed, the preset chosen, the hide box and the refusal it met, if any.
-function formPage(c: Context, t: Translator, offered: string[], typed = "", refusal?: Refusal, chosen?: string, isHidden = false): Response {
+function formPage(c: Context, t: Translator, offered: string[], recent: Recent[], typed = "", refusal?: Refusal, chosen?: string, isHidden = false): Response {
     if (refusal?.retryAfter !== undefined) c.header("retry-after", String(refusal.retryAfter));
     const alert = refusal ? `<p class="alert" role="alert">${escape(refusalText(t, refusal))}${refusal.code === "banned" ? `<br><small>${escape(refusal.message)}</small>` : ""}</p>` : "";
-    const body = `<main id="main"><h1>spiderlint</h1><p>${escape(t._("Checks every page of a site: search engine tags, security headers, TLS, links and more."))}</p>${alert}<form method="post" action="/"><label for="url" class="muted">${escape(t._("Site address"))}</label><input id="url" name="url" type="text" inputmode="url" autocomplete="url" required spellcheck="false" placeholder="example.com" value="${escape(typed)}"${refusal ? ' aria-invalid="true"' : ""}><button type="submit">${escape(t._("Scan"))}</button>${presetChoice(t, offered, chosen)}${hideChoice(t, isHidden)}</form><p class="muted"><small>${escape(t._("Scans obey robots.txt and identify themselves as spiderlint. A finished report is public: its link and the site’s badge lead to it."))}</small></p></main>`;
+    const body = `<main id="main"><h1>spiderlint</h1><p>${escape(t._("Checks every page of a site: search engine tags, security headers, TLS, links and more."))}</p>${alert}<form method="post" action="/"><label for="url" class="muted">${escape(t._("Site address"))}</label><input id="url" name="url" type="text" inputmode="url" autocomplete="url" required spellcheck="false" placeholder="example.com" value="${escape(typed)}"${refusal ? ' aria-invalid="true"' : ""}><button type="submit">${escape(t._("Scan"))}</button>${presetChoice(t, offered, chosen)}${hideChoice(t, isHidden)}</form><p class="muted"><small>${escape(t._("Scans obey robots.txt and identify themselves as spiderlint. A finished report is public: its link and the site’s badge lead to it."))}</small></p>${recentBlock(t, recent)}</main>`;
     return respond(c, t, t._("spiderlint — scan every page of a website"), body, refusal?.status ?? 200);
 }
 
@@ -308,6 +319,7 @@ export function web(jobs: Jobs): Hono {
     });
 
     const offered = () => presetsOffered(jobs.settings());
+    const recent = async () => recentReports(jobs.redis, jobs.settings().recent);
 
     // Text answers leave compressed when the client asks for gzip.
     app.use(compress());
@@ -340,9 +352,9 @@ export function web(jobs: Jobs): Hono {
         return c.body(`Contact: mailto:damian.buho@proton.me\nExpires: ${expires}\nPreferred-Languages: en\n`);
     });
 
-    app.get("/", (c) => formPage(c, translate(c), offered(), c.req.query("url") ?? ""));
+    app.get("/", async (c) => formPage(c, translate(c), offered(), await recent(), c.req.query("url") ?? ""));
 
-    app.post("/", bodyLimit({ maxSize: BODY_MAX, onError: (c) => formPage(c, translate(c), offered(), "", new Refusal(400, "invalid-body", "form too large")) }), async (c) => {
+    app.post("/", bodyLimit({ maxSize: BODY_MAX, onError: async (c) => formPage(c, translate(c), offered(), await recent(), "", new Refusal(400, "invalid-body", "form too large")) }), async (c) => {
         const t = translate(c);
         const form = await formOf(c);
         const typed = typeof form.url === "string" ? form.url : "";
@@ -356,7 +368,7 @@ export function web(jobs: Jobs): Hono {
         } catch (error) {
             if (!(error instanceof Refusal)) throw error;
             log.info({ code: error.code, status: error.status, preset, isHidden }, "form refused");
-            return formPage(c, t, offered(), typed, error, preset, isHidden);
+            return formPage(c, t, offered(), await recent(), typed, error, preset, isHidden);
         }
     });
 

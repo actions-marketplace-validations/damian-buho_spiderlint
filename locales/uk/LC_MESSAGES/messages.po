@@ -149,6 +149,9 @@ msgstr "Внутрішні посилання"
 msgid "Largest Contentful Paint"
 msgstr "Largest Contentful Paint"
 
+msgid "Latest reports"
+msgstr "Останні звіти"
+
 msgid "Less than {range} left"
 msgstr "Залишилося менше ніж {range}"
 

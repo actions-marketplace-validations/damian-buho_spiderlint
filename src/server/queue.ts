@@ -7,6 +7,7 @@ import { Queue, type Job } from "bullmq";
 import { Redis } from "ioredis";
 import type { Report, Summary } from "../index.ts";
 import { log } from "../logger.ts";
+import type { Grade } from "../report/rating.ts";
 import type { Finding } from "../rules/types.ts";
 import { Refusal, type Admitted } from "./policy.ts";
 
@@ -90,4 +91,46 @@ export function jobId(host: string, at = new Date()): string {
 // The key naming the last finished scan of `host`, which the badge reads.
 export function latestKey(host: string): string {
     return `${PREFIX}:latest:${host}`;
+}
+
+// What the form lists of a host’s latest finished scan.
+export interface Recent {
+    id: string;
+    host: string;
+    grade?: Grade;
+    finished: number;
+}
+
+// The hosts of the latest reports by finish time; each host’s entry sits under its own key.
+const RECENT = `${PREFIX}:recent`;
+
+// Points the host’s badge at the finished scan and, while `limit` is above zero, lists it among the latest reports, dropping the oldest past `limit`.
+export async function recordLatest(redis: Redis, job: ScanJob, retention: number, limit: number): Promise<void> {
+    const { host } = job.data;
+    const grade = job.returnvalue.summary.rating?.grade;
+    const entry: Recent = { id: job.id as string, host, finished: job.finishedOn ?? Date.now(), ...(grade && { grade }) };
+    const pending = redis.multi().set(latestKey(host), entry.id, "EX", retention);
+    if (limit > 0)
+        pending
+            .set(`${RECENT}:${host}`, JSON.stringify(entry), "EX", retention)
+            .zadd(RECENT, entry.finished, host)
+            .zremrangebyrank(RECENT, 0, -(limit + 1));
+    await pending.exec();
+    log.debug({ job: entry.id, host, grade, limit }, "latest scan recorded");
+}
+
+// The latest reports, newest first and at most `limit`; an entry whose scan expired is dropped, and a Redis that fails reads as none.
+export async function recentReports(redis: Redis, limit: number): Promise<Recent[]> {
+    if (limit <= 0) return [];
+    try {
+        const hosts = await redis.zrevrange(RECENT, 0, limit - 1);
+        const raw = hosts.length > 0 ? await redis.mget(hosts.map((host) => `${RECENT}:${host}`)) : [];
+        const gone = hosts.filter((_host, index) => !raw.at(index));
+        if (gone.length > 0) await redis.zrem(RECENT, ...gone);
+        log.debug({ hosts: hosts.length, gone: gone.length, limit }, "latest reports read");
+        return raw.flatMap((entry) => (entry ? [JSON.parse(entry) as Recent] : []));
+    } catch (error) {
+        log.warn({ limit, error: String(error) }, "latest reports not read");
+        return [];
+    }
 }

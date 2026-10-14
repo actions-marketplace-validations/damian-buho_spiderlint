@@ -152,6 +152,9 @@ msgstr "Enlaces internos"
 msgid "Largest Contentful Paint"
 msgstr "Largest Contentful Paint"
 
+msgid "Latest reports"
+msgstr "Últimos informes"
+
 msgid "Less than {range} left"
 msgstr "Quedan menos de {range}"
 

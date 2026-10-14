@@ -56,6 +56,11 @@ describe("server settings", () => {
         assert.deepEqual([policy?.hosts, policy?.fetch, policy?.caps["max-pages"], policy?.scanTimeout], [["*"], ["http"], 100, 600]);
     });
 
+    it("lists 16 latest reports unless told otherwise, 0 for none, and refuses a negative count", () => {
+        assert.deepEqual([settingsOf({}).recent, settingsOf({ recent: 0 }).recent, settingsOf({ recent: 5 }).recent], [16, 0, 5]);
+        assert.throws(() => settingsOf({ recent: -1 }), ConfigError);
+    });
+
     it("refuses the browser while private addresses are refused", () => {
         assert.throws(() => settingsOf({ policies: [{ name: "b", hosts: ["*"], fetch: ["browser"] }] }), ConfigError);
         assert.doesNotThrow(() => settingsOf({ "allow-private": true, policies: [{ name: "b", hosts: ["*"], fetch: ["browser"] }] }));
@@ -197,6 +202,44 @@ describe("server pages without Redis", () => {
         assert.match(html, /<input id="hidden" type="checkbox" name="hidden" value="1"> Ocultar de los resultados/);
         const refused = await app.request("/", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ url: "", hidden: "1" }).toString() });
         assert.match(await refused.text(), /<input id="hidden" type="checkbox" name="hidden" value="1" checked>/);
+    });
+
+    it("lists the latest reports newest first in the reader’s language and drops one whose scan expired", async () => {
+        const entry = JSON.stringify({ id: "b.test-20261014T171505Z-3f9c1a7e2b4d", host: "b.test", grade: "A", finished: Date.UTC(2026, 9, 14, 17, 15, 5) });
+        const dropped: string[] = [];
+        const redis = {
+            zrevrange: async () => ["b.test", "a.test"],
+            mget: async () => [entry, undefined],
+            zrem: async (_key: string, ...hosts: string[]) => {
+                dropped.push(...hosts);
+            },
+        };
+        const response = await api({} as Queue, redis as unknown as Redis, () => SETTINGS).request("/", { headers: { "accept-language": "es" } });
+        const html = await response.text();
+        assert.ok(html.includes("<h2>Últimos informes</h2>"), html);
+        assert.ok(html.includes('href="/jobs/b.test-20261014T171505Z-3f9c1a7e2b4d"') && html.includes('<time class="muted" datetime="2026-10-14T17:15:05.000Z">'));
+        assert.ok(!html.includes("a.test"), "expired entry left out");
+        assert.deepEqual(dropped, ["a.test"]);
+    });
+
+    it("lists no reports when the setting is zero, nothing is stored or Redis fails", async () => {
+        const asked: string[] = [];
+        const redis = {
+            zrevrange: async () => {
+                asked.push("zrevrange");
+                return [];
+            },
+        };
+        const off = await api({} as Queue, redis as unknown as Redis, () => settingsOf({ recent: 0 })).request("/");
+        const offHtml = await off.text();
+        assert.ok(!offHtml.includes("Latest reports"));
+        assert.deepEqual(asked, []);
+        const empty = await api({} as Queue, redis as unknown as Redis, () => SETTINGS).request("/");
+        const emptyHtml = await empty.text();
+        assert.ok(!emptyHtml.includes("Latest reports"));
+        assert.deepEqual(asked, ["zrevrange"]);
+        const broken = await app.request("/");
+        assert.equal(broken.status, 200);
     });
 
     it("tells search engines to skip a hidden scan’s page", async () => {
@@ -595,7 +638,7 @@ describe("server over Redis", { skip: process.env.SPIDERLINT_TEST_REDIS === unde
     let site: Fixture;
     const [redis, workerRedis] = [connect(process.env.SPIDERLINT_TEST_REDIS ?? ""), connect(process.env.SPIDERLINT_TEST_REDIS ?? "")];
     const queue = scanQueue(redis, 60);
-    const worker = startWorker(workerRedis, 1, 60);
+    const worker = startWorker(workerRedis, 1, 60, () => 16);
     let settings = settingsOf({ "allow-private": true, policies: [{ name: "fixture", hosts: ["127.0.0.1"], rate: { jobs: 1, per: 60 }, caps: { "max-pages": 3 } }] });
     const app = api(queue, redis, () => settings);
     let first = "";
@@ -656,6 +699,13 @@ describe("server over Redis", { skip: process.env.SPIDERLINT_TEST_REDIS === unde
         }
         assert.ok(svg.includes(`href="/jobs/${first}"`));
         assert.match(svg, /<text[^>]*>[SA-F]<\/text>/);
+    });
+
+    it("lists the finished scan among the latest reports on the form", async () => {
+        const response = await app.request("/");
+        const html = await response.text();
+        assert.ok(html.includes(`href="/jobs/${first}"`), html);
+        assert.ok(html.includes("<h2>Latest reports</h2>"));
     });
 
     it("returns the same job for a repeat inside the policy’s window", async () => {

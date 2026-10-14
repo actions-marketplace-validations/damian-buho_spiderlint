@@ -40,6 +40,7 @@ redis: redis://valkey:6379/0
 redis-password-file: /run/secrets/o9s.vlky.password # the password, kept out of this file
 listen: { host: 0.0.0.0, port: 8080 }
 retention: 7d # jobs and reports are deleted this long after they settle
+recent: 16 # latest reports the form lists, one per host; 0 lists none
 workers: 2 # scans one worker process runs at a time
 max-queued: 100 # a new job is refused with 503 while this many wait
 allow-private: false # true lets scans reach loopback and private networks, and allows the browser
@@ -203,12 +204,12 @@ checked before any window is charged.
 
 ## Pages
 
-| Route                   | Page                                                                                     |
-| ----------------------- | ---------------------------------------------------------------------------------------- |
-| `GET /`                 | A form taking a domain (`https://` is assumed) or a URL, with a “Hide from results” box  |
-| `POST /`                | Queues the scan and redirects to its page with `303`, or shows the form with the refusal |
-| `GET /jobs/<id>`        | Progress while queued or running, then the report, its downloads and the badge           |
-| `GET /badge/<host>.svg` | The grade of the host’s latest finished scan, linking to it; `not scanned` otherwise     |
+| Route                   | Page                                                                                                              |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `GET /`                 | A form taking a domain (`https://` is assumed) or a URL, with a “Hide from results” box, above the latest reports |
+| `POST /`                | Queues the scan and redirects to its page with `303`, or shows the form with the refusal                          |
+| `GET /jobs/<id>`        | Progress while queued or running, then the report, its downloads and the badge                                    |
+| `GET /badge/<host>.svg` | The grade of the host’s latest finished scan, linking to it; `not scanned` otherwise                              |
 
 Pages are rendered on the server and work without JavaScript: a waiting page
 refreshes itself every 5 s, and with scripts it follows the job’s events instead.
@@ -220,6 +221,11 @@ style sheet and script by hash.
 
 A finished host is the badge’s for `retention`, so its latest report is public to
 anyone who knows the hostname. A hidden scan never becomes the host’s latest.
+
+The form lists the latest reports under `recent`: one per host, so a rescan replaces
+the host’s entry, newest first, each with its grade and its finish time in UTC. An
+entry lives as long as its report and a hidden scan is never listed. `recent: 0` turns
+the list off; an unreachable Redis shows the form without it.
 
 ## Customising pages
 
