@@ -415,7 +415,7 @@ export function web(jobs: Jobs): Hono {
         const grade = job?.returnvalue?.summary.rating?.grade;
         log.debug({ host, job: id, grade }, "badge served");
         c.header("content-type", "image/svg+xml; charset=utf-8");
-        c.header("content-security-policy", "default-src 'none'");
+        c.header("content-security-policy", "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; upgrade-insecure-requests");
         c.header("cache-control", `max-age=${BADGE_MAX_AGE_S}`);
         c.header("vary", "accept-language");
         const value = job ? (grade ?? "–") : translate(c)._("not scanned");

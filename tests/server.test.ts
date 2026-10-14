@@ -517,7 +517,7 @@ describe("server page customisation", () => {
 
     it("leaves the badge alone and serves no assets when none are set", async () => {
         const badge = await read(api({} as Queue, { get: async () => "" } as unknown as Redis, () => settingsOf({ page: { directory: path.join(directory, "page") } })).request("/badge/example.com.svg"), "content-security-policy");
-        assert.equal(badge.header, "default-src 'none'");
+        assert.equal(badge.header, "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; upgrade-insecure-requests");
         assert.ok(!badge.text.includes("Footer"));
         const bare = api({} as Queue, {} as Redis, () => SETTINGS);
         const missing = await read(bare.request("/assets/app.js"));
