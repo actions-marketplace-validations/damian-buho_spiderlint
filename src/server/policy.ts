@@ -43,6 +43,8 @@ export interface Admitted {
     policy: Policy;
     // The `org.spiderlint` subtree the scan runs with.
     settings: Record<string, unknown>;
+    // True when the requester keeps the scan out of the latest reports and the badge.
+    hidden: boolean;
 }
 
 // The http or https seed, without credentials, and its lowercase host without a trailing dot.
@@ -120,8 +122,9 @@ function checkFetch(settings: Record<string, unknown>, policy: Policy): Record<s
 
 // The request as the scan will run it, or the Refusal naming why it may not run.
 export function admit(body: unknown, server: ServerSettings): Admitted {
-    const { url: rawUrl, settings: requested = {} } = (body ?? {}) as { url?: unknown; settings?: unknown };
+    const { url: rawUrl, settings: requested = {}, hidden = false } = (body ?? {}) as { url?: unknown; settings?: unknown; hidden?: unknown };
     const { url, host } = seedOf(rawUrl);
+    if (typeof hidden !== "boolean") throw new Refusal(400, "invalid-body", "hidden: expected true or false");
     const policy = policyFor(host, server.policies);
     log.info({ host, policy: policy?.name, isBanned: policy?.ban !== undefined }, "policy matched");
     if (!policy) throw new Refusal(403, "no-policy", `${host}: no policy admits this host`);
@@ -140,7 +143,7 @@ export function admit(body: unknown, server: ServerSettings): Admitted {
     settings = checkFetch(settings, policy);
     const caps = Object.fromEntries(CAPPED.map((key) => [key, capped(settings[key], policy.caps[key])]).filter(([, value]) => value !== undefined));
     log.debug({ host, policy: policy.name, caps, denied: policy.rules.deny.length }, "request clamped");
-    return { url, host, policy, settings: { ...settings, ...caps, robots: true, "allow-private": server.allowPrivate, "browser-install": false } };
+    return { url, host, policy, hidden, settings: { ...settings, ...caps, robots: true, "allow-private": server.allowPrivate, "browser-install": false } };
 }
 
 // Refuses a scan naming a ruleset or rule no configured plugin defines, before any window is charged.

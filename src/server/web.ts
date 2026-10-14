@@ -169,11 +169,16 @@ function presetChoice(t: Translator, offered: string[], chosen?: string): string
     return `<fieldset><legend class="muted">${escape(t._("Checks"))}</legend>${options.join("")}</fieldset>`;
 }
 
-// The form, with the address typed, the preset chosen and the refusal it met, if any.
-function formPage(c: Context, t: Translator, offered: string[], typed = "", refusal?: Refusal, chosen?: string): Response {
+// The box that keeps a scan out of the latest reports and the badge.
+function hideChoice(t: Translator, isHidden: boolean): string {
+    return `<label class="check" for="hidden"><input id="hidden" type="checkbox" name="hidden" value="1"${isHidden ? " checked" : ""}> ${escape(t._("Hide from results"))} <small class="muted">${escape(t._("The scan stays out of the latest reports and the badge. Anyone with its link can still open it."))}</small></label>`;
+}
+
+// The form, with the address typed, the preset chosen, the hide box and the refusal it met, if any.
+function formPage(c: Context, t: Translator, offered: string[], typed = "", refusal?: Refusal, chosen?: string, isHidden = false): Response {
     if (refusal?.retryAfter !== undefined) c.header("retry-after", String(refusal.retryAfter));
     const alert = refusal ? `<p class="alert" role="alert">${escape(refusalText(t, refusal))}${refusal.code === "banned" ? `<br><small>${escape(refusal.message)}</small>` : ""}</p>` : "";
-    const body = `<main id="main"><h1>spiderlint</h1><p>${escape(t._("Checks every page of a site: search engine tags, security headers, TLS, links and more."))}</p>${alert}<form method="post" action="/"><label for="url" class="muted">${escape(t._("Site address"))}</label><input id="url" name="url" type="text" inputmode="url" autocomplete="url" required spellcheck="false" placeholder="example.com" value="${escape(typed)}"${refusal ? ' aria-invalid="true"' : ""}><button type="submit">${escape(t._("Scan"))}</button>${presetChoice(t, offered, chosen)}</form><p class="muted"><small>${escape(t._("Scans obey robots.txt and identify themselves as spiderlint. A finished report is public: its link and the site’s badge lead to it."))}</small></p></main>`;
+    const body = `<main id="main"><h1>spiderlint</h1><p>${escape(t._("Checks every page of a site: search engine tags, security headers, TLS, links and more."))}</p>${alert}<form method="post" action="/"><label for="url" class="muted">${escape(t._("Site address"))}</label><input id="url" name="url" type="text" inputmode="url" autocomplete="url" required spellcheck="false" placeholder="example.com" value="${escape(typed)}"${refusal ? ' aria-invalid="true"' : ""}><button type="submit">${escape(t._("Scan"))}</button>${presetChoice(t, offered, chosen)}${hideChoice(t, isHidden)}</form><p class="muted"><small>${escape(t._("Scans obey robots.txt and identify themselves as spiderlint. A finished report is public: its link and the site’s badge lead to it."))}</small></p></main>`;
     return respond(c, t, t._("spiderlint — scan every page of a website"), body, refusal?.status ?? 200);
 }
 
@@ -231,7 +236,9 @@ function doneBody(t: Translator, job: ScanJob, wait: number, isRepeat: boolean):
         .map((name) => `<a href="/v1/jobs/${escape(job.id)}/report/${escape(name)}">${escape(name)}</a>`)
         .join(" · ");
     const badge = `/badge/${escape(job.data.host)}.svg`;
-    return `${scanNote(t, job, wait, isRepeat)}${reportBody(job.returnvalue, t, shown(job.data.url), new URL(job.data.url).origin)}<h2>${escape(t._("Downloads"))}</h2><p>${downloads}</p><h2>${escape(t._("Badge"))}</h2><p><a href="${badge}"><img src="${badge}" alt="${escape(t._("Rating badge"))}"></a></p>`;
+    const badged = job.data.hidden ? "" : `<h2>${escape(t._("Badge"))}</h2><p><a href="${badge}"><img src="${badge}" alt="${escape(t._("Rating badge"))}"></a></p>`;
+    const hiding = job.data.hidden ? `<p class="muted">${escape(t._("Hidden from results: only people with this link can open this report."))}</p>` : "";
+    return `${scanNote(t, job, wait, isRepeat)}${hiding}${reportBody(job.returnvalue, t, shown(job.data.url), new URL(job.data.url).origin)}<h2>${escape(t._("Downloads"))}</h2><p>${downloads}</p>${badged}`;
 }
 
 // Pixels a badge half needs for `text` in 11px Verdana, roughly.
@@ -340,15 +347,16 @@ export function web(jobs: Jobs): Hono {
         const form = await formOf(c);
         const typed = typeof form.url === "string" ? form.url : "";
         const preset = typeof form.preset === "string" ? form.preset : undefined;
+        const isHidden = form.hidden !== undefined;
         try {
             if (c.req.header("sec-fetch-site") === "cross-site") throw new Refusal(403, "cross-site", "form sent from another site");
-            const { job, isRepeat } = await submit(jobs, { url: seedOf(typed), ...(preset !== undefined && { settings: presetSettings(preset) }) }, c);
-            log.debug({ job: job.id, isRepeat, preset }, "form submitted");
+            const { job, isRepeat } = await submit(jobs, { url: seedOf(typed), ...(preset !== undefined && { settings: presetSettings(preset) }), ...(isHidden && { hidden: true }) }, c);
+            log.debug({ job: job.id, isRepeat, preset, isHidden }, "form submitted");
             return c.redirect(isRepeat ? `/jobs/${job.id}?repeat` : `/jobs/${job.id}`, 303);
         } catch (error) {
             if (!(error instanceof Refusal)) throw error;
-            log.info({ code: error.code, status: error.status, preset }, "form refused");
-            return formPage(c, t, offered(), typed, error, preset);
+            log.info({ code: error.code, status: error.status, preset, isHidden }, "form refused");
+            return formPage(c, t, offered(), typed, error, preset, isHidden);
         }
     });
 
@@ -365,11 +373,12 @@ export function web(jobs: Jobs): Hono {
         const title = shown(job.data.url);
         const isRepeat = c.req.query("repeat") !== undefined;
         const wait = job.data.repeatKey ? await jobs.redis.ttl(job.data.repeatKey) : 0;
-        log.debug({ job: job.id, state, isRepeat, wait }, "job page rendered");
-        if (state === "completed") return respond(c, t, title, `<main id="main">${doneBody(t, job, wait, isRepeat)}</main>`);
-        if (state === "failed") return respond(c, t, title, `<main id="main"><h1>${escape(title)}</h1><p class="alert" role="alert">${escape(t._("The scan failed."))}</p><p><code>${escape(job.failedReason)}</code></p><p><a href="/">${escape(t._("Start a new scan"))}</a></p></main>`);
+        const noindex = job.data.hidden ? '<meta name="robots" content="noindex">' : "";
+        log.debug({ job: job.id, state, isRepeat, wait, hidden: job.data.hidden === true }, "job page rendered");
+        if (state === "completed") return respond(c, t, title, `<main id="main">${doneBody(t, job, wait, isRepeat)}</main>`, 200, noindex);
+        if (state === "failed") return respond(c, t, title, `<main id="main"><h1>${escape(title)}</h1><p class="alert" role="alert">${escape(t._("The scan failed."))}</p><p><code>${escape(job.failedReason)}</code></p><p><a href="/">${escape(t._("Start a new scan"))}</a></p></main>`, 200, noindex);
         const body = `<main id="main"><h1>${escape(title)}</h1>${isRepeat ? `<p class="notice">${escape(t._("This site was scanned recently, so this is the existing scan."))}</p>` : ""}${progressBody(t, job, state === "active" ? "running" : "queued")}</main><script>${SCRIPT}</script>`;
-        return respond(c, t, title, body, 200, `<noscript><meta http-equiv="refresh" content="${REFRESH_S}"></noscript>`);
+        return respond(c, t, title, body, 200, `<noscript><meta http-equiv="refresh" content="${REFRESH_S}"></noscript>${noindex}`);
     });
 
     app.get("/badge/:file", async (c) => {

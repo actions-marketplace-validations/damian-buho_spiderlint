@@ -119,6 +119,12 @@ msgstr "Grupo"
 msgid "Group: {name} · Pages: {count}"
 msgstr "Grupo: {name} · Páginas: {count}"
 
+msgid "Hidden from results: only people with this link can open this report."
+msgstr "Oculto de los resultados: solo quien tenga este enlace puede abrir este informe."
+
+msgid "Hide from results"
+msgstr "Ocultar de los resultados"
+
 msgid "Hint"
 msgstr "Sugerencia"
 
@@ -331,6 +337,9 @@ msgstr "El modo de descarga pedido no está disponible en esta instancia."
 
 msgid "The scan failed."
 msgstr "El análisis falló."
+
+msgid "The scan stays out of the latest reports and the badge. Anyone with its link can still open it."
+msgstr "El análisis no aparece en los últimos informes ni en la insignia. Quien tenga su enlace aún puede abrirlo."
 
 msgid "This instance does not scan this site."
 msgstr "Esta instancia no analiza este sitio."

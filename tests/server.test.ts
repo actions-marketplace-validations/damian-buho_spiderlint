@@ -19,7 +19,7 @@ import { api } from "../src/server/api.ts";
 import { Buckets, clientOf } from "../src/server/clients.ts";
 import { admit, policyFor, presetSettings, presetsOffered, Refusal, resolveRules } from "../src/server/policy.ts";
 import { addRanges } from "../src/server/providers.ts";
-import { connect, jobId, scanQueue } from "../src/server/queue.ts";
+import { connect, jobId, repeatKey, scanQueue } from "../src/server/queue.ts";
 import { hostSuffix, settingsOf } from "../src/server/settings.ts";
 import { startWorker } from "../src/server/worker.ts";
 import { serveFixture, type Fixture } from "./fixtures/server.ts";
@@ -189,6 +189,21 @@ describe("server pages without Redis", () => {
         assert.match(html, /<input id="preset-recommended" type="radio" name="preset" value="recommended" checked> Estándar/);
         assert.ok(html.indexOf('value="web-quick"') > html.indexOf('value="recommended"') && html.indexOf('value="web-comprehensive"') > html.indexOf('value="web-quick"'));
         assert.equal(html.match(/ checked>/g)?.length, 1);
+    });
+
+    it("offers a box that hides the scan from results, unchecked at first and kept after a refusal", async () => {
+        const form = await app.request("/", { headers: { "accept-language": "es" } });
+        const html = await form.text();
+        assert.match(html, /<input id="hidden" type="checkbox" name="hidden" value="1"> Ocultar de los resultados/);
+        const refused = await app.request("/", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ url: "", hidden: "1" }).toString() });
+        assert.match(await refused.text(), /<input id="hidden" type="checkbox" name="hidden" value="1" checked>/);
+    });
+
+    it("tells search engines to skip a hidden scan’s page", async () => {
+        const job = { id: "j4", data: { url: "https://a.test/", host: "a.test", hidden: true }, progress: {}, getState: async () => "active" };
+        const response = await api({ getJob: async () => job } as unknown as Queue, {} as Redis, () => SETTINGS).request("/jobs/j4");
+        const html = await response.text();
+        assert.ok(html.includes('<meta name="robots" content="noindex">'));
     });
 
     it("labels every preset radio with a for attribute its input answers", async () => {
@@ -545,6 +560,22 @@ describe("server policy", () => {
     });
 });
 
+describe("hidden scans", () => {
+    const SEO = { rules: ["seo"] };
+
+    it("are admitted only with a boolean", () => {
+        assert.equal(admit({ url: "https://a.ua/", hidden: true, settings: SEO }, SETTINGS).hidden, true);
+        assert.equal(admit({ url: "https://a.ua/", settings: SEO }, SETTINGS).hidden, false);
+        assert.throws(() => admit({ url: "https://a.ua/", hidden: "yes", settings: SEO }, SETTINGS), { code: "invalid-body" });
+    });
+
+    it("never share a repeat window with a public scan of the same site", () => {
+        const [shown, hidden] = [admit({ url: "https://a.ua/", settings: SEO }, SETTINGS), admit({ url: "https://a.ua/", hidden: true, settings: SEO }, SETTINGS)];
+        assert.notEqual(repeatKey(shown), repeatKey(hidden));
+        assert.equal(repeatKey(hidden), repeatKey(admit({ url: "https://a.ua/", hidden: true, settings: SEO }, SETTINGS)));
+    });
+});
+
 describe("job IDs", () => {
     it("name the host and the queue time, then 48 random bits", () => {
         assert.match(jobId("example.org", new Date("2026-10-14T17:15:05.123Z")), /^example\.org-20261014T171505Z-[\da-f]{12}$/);
@@ -634,6 +665,23 @@ describe("server over Redis", { skip: process.env.SPIDERLINT_TEST_REDIS === unde
         const two = await app.request("/v1/jobs", { method: "POST", body });
         assert.deepEqual([one.status, two.status], [202, 200]);
         assert.equal(((await one.json()) as { id: string }).id, ((await two.json()) as { id: string }).id);
+    });
+
+    it("keeps a hidden scan out of the host’s latest", async () => {
+        const latest = await redis.get("spiderlint:latest:127.0.0.1");
+        const created = await app.request("/v1/jobs", { method: "POST", body: JSON.stringify({ url: `${site.origin}/?hidden=${Date.now()}`, hidden: true, settings: { rules: ["seo"] } }) });
+        assert.equal(created.status, 202);
+        const { id, hidden } = (await created.json()) as { id: string; hidden?: boolean };
+        assert.equal(hidden, true);
+        let status = "queued";
+        for (let tries = 0; tries < 120 && !["done", "failed"].includes(status); tries += 1) {
+            await sleep(500);
+            const response = await app.request(`/v1/jobs/${id}`);
+            status = ((await response.json()) as { status: string }).status;
+        }
+        assert.equal(status, "done");
+        await sleep(300);
+        assert.equal(await redis.get("spiderlint:latest:127.0.0.1"), latest);
     });
 
     it("queues from the form and sends the reader to the job page", async () => {

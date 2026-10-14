@@ -81,7 +81,8 @@ form { display: flex; flex-wrap: wrap; gap: .75rem; margin-block: 2rem; }
 form label.muted { flex: 1 1 100%; }
 fieldset { flex: 1 1 100%; border: 0; padding: 0; margin: 1rem 0 0; display: grid; gap: .5rem; } fieldset label { display: block; padding: .75rem 1rem; background: var(--surface); border: 1px solid var(--line); }
 legend { padding: 0; }
-input[type=radio] { flex: none; inline-size: auto; margin-inline-end: .5rem; }
+input[type=radio], input[type=checkbox] { flex: none; inline-size: auto; margin-inline-end: .5rem; }
+.check { flex: 1 1 100%; }
 input { flex: 1 1 20rem; font: inherit; padding: .75rem 1rem; border: 1px solid var(--line); color: inherit; background: var(--surface); }
 progress { inline-size: 100%; block-size: .75rem; accent-color: var(--accent); }
 .alert { border-inline-start: .25rem solid var(--error); padding: 1rem 1.25rem; background: light-dark(#fdecea, #2c1614); }

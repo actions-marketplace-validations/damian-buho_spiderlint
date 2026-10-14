@@ -157,6 +157,11 @@ The request body carries the target and, optionally, `org.spiderlint` keys:
 }
 ```
 
+`"hidden": true` keeps the scan out of the host’s badge and out of the latest reports.
+The job reports `hidden`, its page asks search engines to skip it, and it has a repeat
+window of its own, so a public request for the same site never receives it. Anyone
+holding the report’s address can still open it.
+
 A job:
 
 ```json
@@ -200,7 +205,7 @@ checked before any window is charged.
 
 | Route                   | Page                                                                                     |
 | ----------------------- | ---------------------------------------------------------------------------------------- |
-| `GET /`                 | A form taking a domain (`https://` is assumed) or a URL                                  |
+| `GET /`                 | A form taking a domain (`https://` is assumed) or a URL, with a “Hide from results” box  |
 | `POST /`                | Queues the scan and redirects to its page with `303`, or shows the form with the refusal |
 | `GET /jobs/<id>`        | Progress while queued or running, then the report, its downloads and the badge           |
 | `GET /badge/<host>.svg` | The grade of the host’s latest finished scan, linking to it; `not scanned` otherwise     |
@@ -214,7 +219,7 @@ refused. Every page carries a content security policy allowing only its own
 style sheet and script by hash.
 
 A finished host is the badge’s for `retention`, so its latest report is public to
-anyone who knows the hostname.
+anyone who knows the hostname. A hidden scan never becomes the host’s latest.
 
 ## Customising pages
 

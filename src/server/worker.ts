@@ -106,12 +106,16 @@ async function runScan(job: ScanJob): Promise<ScanResult> {
     return JSON.parse(Buffer.concat(chunks).toString("utf8")) as ScanResult;
 }
 
-// Takes `concurrency` scans at a time off the queue until `close`, which kills the runners in flight; a finished scan becomes its host’s latest for `retention` seconds.
+// Takes `concurrency` scans at a time off the queue until `close`, which kills the runners in flight; a finished scan, unless hidden, becomes its host’s latest for `retention` seconds.
 export function startWorker(redis: Redis, concurrency: number, retention: number): { close(): Promise<void> } {
     const worker = new Worker<ScanData, ScanResult>(QUEUE, tracedScan, { connection: redis, prefix: PREFIX, concurrency });
     worker.on("failed", (job, error) => log.warn({ job: job?.id, host: job?.data.host, error: error.message }, "scan failed"));
     worker.on("completed", async (job) => {
         log.info({ job: job.id, host: job.data.host, findings: job.returnvalue.findings.length, grade: job.returnvalue.summary.rating?.grade }, "scan completed");
+        if (job.data.hidden) {
+            log.info({ job: job.id, host: job.data.host }, "hidden scan left out of the latest");
+            return;
+        }
         try {
             await redis.set(latestKey(job.data.host), job.id as string, "EX", retention);
         } catch (error) {

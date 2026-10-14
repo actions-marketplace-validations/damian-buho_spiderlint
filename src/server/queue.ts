@@ -28,6 +28,8 @@ export interface ScanData {
     via: string;
     // The key holding the repeat window, so the job page can say when a fresh scan may start.
     repeatKey?: string;
+    // Set when the scan stays out of the latest reports and the badge.
+    hidden?: boolean;
     // The submitting request’s trace context as W3C headers, empty when telemetry is off.
     trace?: Record<string, string>;
 }
@@ -71,10 +73,12 @@ export async function charge(redis: Redis, admitted: Admitted): Promise<void> {
     if (used > rate.jobs) throw new Refusal(429, "rate-limited", `${admitted.host}: ${rate.jobs} scans per ${rate.seconds} s under policy ${admitted.policy.name}`, Math.max(1, left));
 }
 
-// The key a repeat of this scan finds its job under: the policy, the seed and the settings with keys sorted.
+// The key a repeat of this scan finds its job under: the policy, the seed, the settings with keys sorted and whether it is hidden.
 export function repeatKey(admitted: Admitted): string {
     const sorted = JSON.stringify(admitted.settings, (_key, value: unknown) => (value && typeof value === "object" && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).toSorted(([a], [b]) => a.localeCompare(b))) : value));
-    return `${PREFIX}:repeat:${admitted.policy.name}:${createHash("sha256").update(`${admitted.url}\n${sorted}`).digest("hex")}`;
+    return `${PREFIX}:repeat:${admitted.policy.name}:${createHash("sha256")
+        .update(`${admitted.url}\n${sorted}${admitted.hidden ? "\nhidden" : ""}`)
+        .digest("hex")}`;
 }
 
 // A job ID that names its host and queue time, closed by 48 random bits: `example.org-20261014T171505Z-3f9c1a7e2b4d`.

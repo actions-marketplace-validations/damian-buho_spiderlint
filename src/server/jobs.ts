@@ -40,6 +40,7 @@ export async function view(job: ScanJob): Promise<Record<string, unknown> & { st
         id: job.id,
         url: job.data.url,
         policy: job.data.policy,
+        ...(job.data.hidden && { hidden: true }),
         status,
         ...(typeof job.progress === "object" && { progress: job.progress }),
         created: iso(job.timestamp),
@@ -92,9 +93,20 @@ export async function submit(jobs: Jobs, body: unknown, c: Context): Promise<{ j
     if (rate && wait > 0) throw new Refusal(429, "client-rate-limited", `a client may queue ${rate.jobs} scans per ${rate.seconds} s`, wait);
     await charge(jobs.redis, admitted);
     const via = normalizeVia(c.req.header("host"));
-    const data: ScanData = { url: admitted.url, host: admitted.host, policy: admitted.policy.name, settings: admitted.settings, scanTimeout: admitted.policy.scanTimeout, deny: admitted.policy.rules.deny, via, ...(admitted.policy.repeat && { repeatKey: key }), trace: traceCarrier() };
+    const data: ScanData = {
+        url: admitted.url,
+        host: admitted.host,
+        policy: admitted.policy.name,
+        settings: admitted.settings,
+        scanTimeout: admitted.policy.scanTimeout,
+        deny: admitted.policy.rules.deny,
+        via,
+        ...(admitted.policy.repeat && { repeatKey: key }),
+        ...(admitted.hidden && { hidden: true }),
+        trace: traceCarrier(),
+    };
     const job = (await jobs.queue.add("scan", data, { jobId: jobId(admitted.host) })) as ScanJob;
     if (admitted.policy.repeat) await jobs.redis.set(key, job.id as string, "EX", admitted.policy.repeat);
-    log.info({ job: job.id, host: admitted.host, policy: admitted.policy.name, repeat: admitted.policy.repeat }, "scan queued");
+    log.info({ job: job.id, host: admitted.host, policy: admitted.policy.name, repeat: admitted.policy.repeat, hidden: admitted.hidden }, "scan queued");
     return { job, isRepeat: false };
 }
