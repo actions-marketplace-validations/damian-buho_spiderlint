@@ -256,7 +256,8 @@ function doneBody(t: Translator, job: ScanJob, wait: number, isRepeat: boolean):
         .map((name) => `<a href="/v1/jobs/${escape(job.id)}/report/${escape(name)}">${escape(name)}</a>`)
         .join(" · ");
     const badge = `/badge/${escape(job.data.host)}.svg`;
-    const badged = job.data.hidden ? "" : `<h2>${escape(t._("Badge"))}</h2><p><a href="${badge}"><img src="${badge}" alt="${escape(t._("Rating badge"))}"></a></p>`;
+    const value = job.returnvalue.summary.rating?.grade ?? "–";
+    const badged = job.data.hidden ? "" : `<h2>${escape(t._("Badge"))}</h2><p><a href="${badge}"><img src="${badge}" alt="${escape(t._("Rating badge"))}" width="${width("spiderlint") + width(value)}" height="20" loading="lazy"></a></p>`;
     const hiding = job.data.hidden ? `<p class="muted">${escape(t._("Hidden from results: only people with this link can open this report."))}</p>` : "";
     return `${scanNote(t, job, wait, isRepeat)}${hiding}${reportBody(job.returnvalue, t, shown(job.data.url), new URL(job.data.url).origin)}<h2>${escape(t._("Downloads"))}</h2><p>${downloads}</p>${badged}`;
 }

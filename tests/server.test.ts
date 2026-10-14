@@ -174,6 +174,7 @@ describe("server pages without Redis", () => {
         assert.ok(html.includes("31.536.000"), "German digits");
         assert.ok(html.includes("<h2>Statistics</h2>") && html.includes("Resources"), "English strings");
         assert.ok(!html.includes("html.text"), "unlabelled fact left to json");
+        assert.match(html, /<img src="\/badge\/a\.test\.svg" alt="Rating badge" width="\d+" height="20" loading="lazy">/, "badge sized and lazy");
     });
 
     it("names the phase after the last page with its count and a time left without a fraction", async () => {
