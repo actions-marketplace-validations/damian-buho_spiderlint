@@ -355,6 +355,7 @@ describe("server pages without Redis", () => {
         const response = await app.request("/");
         assert.ok(!response.headers.has("x-xss-protection"));
         assert.match(response.headers.get("content-security-policy") ?? "", /upgrade-insecure-requests/);
+        assert.match(response.headers.get("content-security-policy") ?? "", /require-trusted-types-for 'script'/);
     });
 
     it("answers a missing page as HTML and a missing API route as JSON", async () => {
@@ -517,7 +518,7 @@ describe("server page customisation", () => {
 
     it("leaves the badge alone and serves no assets when none are set", async () => {
         const badge = await read(api({} as Queue, { get: async () => "" } as unknown as Redis, () => settingsOf({ page: { directory: path.join(directory, "page") } })).request("/badge/example.com.svg"), "content-security-policy");
-        assert.equal(badge.header, "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; upgrade-insecure-requests");
+        assert.equal(badge.header, "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'");
         assert.ok(!badge.text.includes("Footer"));
         const bare = api({} as Queue, {} as Redis, () => SETTINGS);
         const missing = await read(bare.request("/assets/app.js"));
