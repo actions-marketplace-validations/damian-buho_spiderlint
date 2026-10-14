@@ -48,6 +48,7 @@ export class Router {
 
     // Resolves once `group` settles.
     #verdict(group: string): PromiseWithResolvers<void> {
+        // eslint-disable-next-line @typescript-eslint/no-invalid-void-type -- withResolvers infers unknown without its explicit void
         const known = this.#verdicts.get(group) ?? Promise.withResolvers<void>();
         this.#verdicts.set(group, known);
         return known;

@@ -9,7 +9,7 @@ import { log } from "../logger.ts";
 import { ConfigError } from "../config/index.ts";
 import { ruleMaker } from "../plugins/index.ts";
 import { compileRule } from "./declarative.ts";
-import { fixFor, fixesOf } from "./fix.ts";
+import { fixFor } from "./fix.ts";
 import { compileRulesets, lookup, presetNames, resolveRuleset } from "./rulesets.ts";
 import type { RuleMeta, RuleSpec, Scope, Severity } from "./types.ts";
 

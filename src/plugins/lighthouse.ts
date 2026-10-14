@@ -31,6 +31,7 @@ const lane = { tail: Promise.resolve() };
 // Runs `audit` once every earlier call has settled.
 async function queued<T>(audit: () => Promise<T>): Promise<T> {
     const previous = lane.tail;
+    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type -- withResolvers infers unknown without its explicit void
     const { promise, resolve } = Promise.withResolvers<void>();
     lane.tail = promise;
     await previous;

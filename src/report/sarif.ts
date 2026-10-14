@@ -4,7 +4,7 @@
 
 import { VERSION } from "../agent.ts";
 import type { Report } from "../index.ts";
-import { fixFor, fixesOf } from "../rules/fix.ts";
+import { fixFor } from "../rules/fix.ts";
 import { inEnglish, valuesAt, writtenAll } from "../rules/message.ts";
 import { scoreOf } from "../rules/score.ts";
 import type { Finding, RuleGuide, Severity } from "../rules/types.ts";

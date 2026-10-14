@@ -17,8 +17,10 @@ describe("progress ETA", () => {
     });
 
     it("brackets the mean and narrows as the window fills", () => {
-        const few = eta([1, 3, 2], 100)!;
-        const many = eta(Array.from({ length: 16 }, () => [1, 3, 2]).flat(), 100)!;
+        const few = eta([1, 3, 2], 100);
+        const many = eta(Array.from({ length: 16 }, () => [1, 3, 2]).flat(), 100);
+        assert.ok(few);
+        assert.ok(many);
         assert.ok(few[0] < 200 && few[1] > 200);
         assert.ok(many[1] - many[0] < few[1] - few[0]);
         assert.ok(few[0] >= 0);

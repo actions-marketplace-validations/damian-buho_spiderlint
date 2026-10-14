@@ -103,9 +103,9 @@ function sameOrigin(value: unknown, name: string, accepted: string[], errors: st
 }
 
 // A check of a JSON body of one shape; any other shape is its one defect.
-function json(shape: "object", inspect: (data: Record<string, unknown>, errors: string[], file: File, context: SiteContext) => Record<string, unknown> | void | Promise<Record<string, unknown> | void>): Check;
-function json(shape: "array", inspect: (data: unknown[], errors: string[], file: File, context: SiteContext) => Record<string, unknown> | void | Promise<Record<string, unknown> | void>): Check;
-function json(shape: "object" | "array", inspect: (data: never, errors: string[], file: File, context: SiteContext) => Record<string, unknown> | void | Promise<Record<string, unknown> | void>): Check {
+function json(shape: "object", inspect: (data: Record<string, unknown>, errors: string[], file: File, context: SiteContext) => Record<string, unknown> | undefined | Promise<Record<string, unknown> | undefined>): Check;
+function json(shape: "array", inspect: (data: unknown[], errors: string[], file: File, context: SiteContext) => Record<string, unknown> | undefined | Promise<Record<string, unknown> | undefined>): Check;
+function json(shape: "object" | "array", inspect: (data: never, errors: string[], file: File, context: SiteContext) => Record<string, unknown> | undefined | Promise<Record<string, unknown> | undefined>): Check {
     return async (text, file, context) => {
         const errors: string[] = [];
         const data = parse(text, errors);
