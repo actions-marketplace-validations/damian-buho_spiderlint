@@ -166,7 +166,7 @@ function presetChoice(t: Translator, offered: string[], chosen?: string): string
     if (offered.length === 0) return "";
     const checked = chosen !== undefined && offered.includes(chosen) ? chosen : offered[0];
     const text = presetText(t);
-    const options = offered.map((name) => `<label for="preset-${escape(name)}"><input id="preset-${escape(name)}" type="radio" name="preset" value="${escape(name)}"${name === checked ? " checked" : ""}> ${escape(text[name]?.[0] ?? name)} <small class="muted">${escape(text[name]?.[1] ?? "")}</small></label>`);
+    const options = offered.map((name) => `<label><input id="preset-${escape(name)}" type="radio" name="preset" value="${escape(name)}"${name === checked ? " checked" : ""}> ${escape(text[name]?.[0] ?? name)} <small class="muted">${escape(text[name]?.[1] ?? "")}</small></label>`);
     return `<fieldset><legend class="muted">${escape(t._("Checks"))}</legend>${options.join("")}</fieldset>`;
 }
 
@@ -183,7 +183,7 @@ function recentBlock(t: Translator, recent: Recent[]): string {
 
 // The box that keeps a scan out of the latest reports and the badge.
 function hideChoice(t: Translator, isHidden: boolean): string {
-    return `<label class="check" for="hidden"><input id="hidden" type="checkbox" name="hidden" value="1"${isHidden ? " checked" : ""}> ${escape(t._("Hide from results"))} <small class="muted">${escape(t._("The scan stays out of the latest reports and the badge. Anyone with its link can still open it."))}</small></label>`;
+    return `<label class="check"><input id="hidden" type="checkbox" name="hidden" value="1"${isHidden ? " checked" : ""}> ${escape(t._("Hide from results"))} <small class="muted">${escape(t._("The scan stays out of the latest reports and the badge. Anyone with its link can still open it."))}</small></label>`;
 }
 
 // The form, with the address typed, the preset chosen, the hide box and the refusal it met, if any.

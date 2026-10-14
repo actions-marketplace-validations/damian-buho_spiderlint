@@ -255,10 +255,11 @@ describe("server pages without Redis", () => {
         assert.ok(html.includes('<meta name="robots" content="noindex">'));
     });
 
-    it("labels every preset radio with a for attribute its input answers", async () => {
+    it("wraps every preset radio in its label with no redundant for attribute", async () => {
         const response = await app.request("/");
         const html = await response.text();
-        for (const name of ["recommended", "web-quick", "web-comprehensive"]) assert.ok(html.includes(`<label for="preset-${name}"><input id="preset-${name}"`), name);
+        for (const name of ["recommended", "web-quick", "web-comprehensive"]) assert.ok(html.includes(`<label><input id="preset-${name}"`), name);
+        assert.ok(!html.includes('for="preset-'), "no redundant for");
     });
 
     it("heads every page with a description, a self canonical, Open Graph and a theme-color pair", async () => {
