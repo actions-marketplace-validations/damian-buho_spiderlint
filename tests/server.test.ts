@@ -242,6 +242,12 @@ describe("server pages without Redis", () => {
         assert.equal(broken.status, 200);
     });
 
+    it("sends the self-host button to the how-to on GitHub", async () => {
+        const response = await app.request("/");
+        const html = await response.text();
+        assert.match(html, /<a href="https:\/\/github\.com\/damian-buho\/spiderlint\/blob\/main\/docs\/how-to\/SELFHOST\.md" rel="noopener noreferrer">Self-host<\/a>/);
+    });
+
     it("tells search engines to skip a hidden scan’s page", async () => {
         const job = { id: "j4", data: { url: "https://a.test/", host: "a.test", hidden: true }, progress: {}, getState: async () => "active" };
         const response = await api({ getJob: async () => job } as unknown as Queue, {} as Redis, () => SETTINGS).request("/jobs/j4");

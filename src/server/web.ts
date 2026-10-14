@@ -43,6 +43,7 @@ const LINKS: [name: string, href: string][] = [
     ["GitHub", "https://github.com/damian-buho/spiderlint"],
     ["Codeberg", "https://codeberg.org/damian-buho/spiderlint"],
 ];
+const SELF_HOST = "https://github.com/damian-buho/spiderlint/blob/main/docs/how-to/SELFHOST.md";
 // Resolves from src/ and dist/ alike, since the package ships both.
 const LOGO = readFileSync(new URL("../../src/server/logo.png", import.meta.url));
 const TOUCH = readFileSync(new URL("../../src/server/apple-touch-icon.png", import.meta.url));
@@ -141,7 +142,7 @@ function respond(c: Context, t: Translator, title: string, body: string, status:
     const description = t._("Check every page of a site: SEO tags, security headers, TLS, links and more.");
     const seo = `<meta name="description" content="${escape(description)}"><link rel="canonical" href="${escape(self)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><meta property="og:image" content="${escape(`${origin}/logo.png`)}"><meta property="og:url" content="${escape(self)}"><meta property="og:type" content="website">`;
     const skip = `<a class="skip" href="#main">${escape(t._("Skip to main content"))}</a>`;
-    const nav = `<header class="site"><a class="brand" href="/"><img src="/logo.png" srcset="/logo-36.png 36w, /logo-72.png 72w" sizes="36px" alt="" width="36" height="36">spiderlint</a><nav><a href="/">${escape(t._("New scan"))}</a><a href="${LINKS[0]?.[1]}" rel="noopener noreferrer">${escape(t._("Self-host"))}</a></nav></header>`;
+    const nav = `<header class="site"><a class="brand" href="/"><img src="/logo.png" srcset="/logo-36.png 36w, /logo-72.png 72w" sizes="36px" alt="" width="36" height="36">spiderlint</a><nav><a href="/">${escape(t._("New scan"))}</a><a href="${SELF_HOST}" rel="noopener noreferrer">${escape(t._("Self-host"))}</a></nav></header>`;
     const links = LINKS.map(([name, href]) => `<a href="${escape(href)}" rel="noopener noreferrer">${escape(name)}</a>`).join("");
     const foot = `<footer class="foot"><p>${escape(t._("Self-host spiderlint: free software under the {license} licence.", { license: LICENSE }))}</p>${links}${privacy}</footer>`;
     c.header("content-security-policy", pageCsp(sources, owner.assets !== undefined));
