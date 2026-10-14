@@ -148,8 +148,14 @@ describe("formatHtml", () => {
         const rules = { "resources/status": { facts: ["resources"], fix: "Serve the image.", docs: "https://example.test/status" } };
         const input = { ...report, findings: [resource, own], rules };
         const html = formatHtml(input, undefined, false, "en");
-        assert.ok(html.includes('href="https://other.test/pixel.php?id=3"'), "resource named");
-        assert.ok(html.includes(">/a</a>") && html.includes(">/c</a>"), "same-origin URLs trimmed");
+        assert.ok(html.includes("https://other.test/pixel.php?id=3"), "resource named");
+        assert.ok(html.includes(">/a</a>") && html.includes("— /c</span>"), "same-origin URLs trimmed");
+        const heads = html.split('<summary class="rule-head">').slice(1);
+        for (const part of heads) {
+            const head = part.split("</summary>", 1)[0] ?? "";
+            assert.ok(!head.includes("<a"), "no nested link in a card head");
+        }
+        assert.ok(html.includes(" — https://other.test/pixel.php?id=3</span>"), "subject still named as text");
         assert.ok(html.includes("Fix: Serve the image.") && html.includes('href="https://example.test/status"'), "fix and docs");
         for (const text of [formatHuman(input), formatAgent(input)]) {
             assert.ok(text.includes("https://other.test/pixel.php?id=3"), text);

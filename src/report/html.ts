@@ -63,7 +63,7 @@ main { padding-block: 2.5rem; }
 .rule-head { display: flex; align-items: baseline; gap: .75rem; padding: 1rem 1.25rem; list-style: none; }
 .rule-card summary::marker { content: ""; } .rule-card summary::-webkit-details-marker { display: none; }
 .rule-head .badge { flex: none; font-weight: 700; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
-.rule-head code, .rule-head > a { flex: none; }
+.rule-head code { flex: none; }
 .rule-head .rule-message { overflow-wrap: anywhere; }
 .rule-head .rule-arrow { margin-inline-start: auto; flex: none; color: var(--muted); }
 .rule-findings { padding: 0 1.25rem .5rem; } .rule-findings .data { color: var(--muted); font-variant-numeric: tabular-nums; margin-inline-start: .75em; } .rule-findings p { margin-block: .5rem 0; }
@@ -110,9 +110,14 @@ function severityName(t: Translator, severity: Finding["severity"]): string {
     return { error: t._("Error"), warning: t._("Warning"), info: t._("Info"), hint: t._("Hint") }[severity];
 }
 
+// A URL as text, shown relative to the shared origin; a summary stays link-free, since an anchor inside one nests interactive controls.
+function subjectText(url: string, origin: string): string {
+    return escape(relative(url, origin) || url);
+}
+
 // A link to a crawled http(s) URL, shown relative to the shared origin; anything else is plain text.
 function link(url: string, origin: string): string {
-    const text = escape(relative(url, origin) || url);
+    const text = subjectText(url, origin);
     return /^https?:\/\//i.test(url) ? `<a href="${escape(url)}" rel="nofollow noopener noreferrer">${text}</a>` : text;
 }
 
@@ -195,7 +200,7 @@ function entry(t: Translator, same: Finding[], origin: string, guides: Report["r
     const pageCount = same.reduce((sum, finding) => sum + pagesOf(finding, total), 0);
     const scope = isWhole || (total > 0 && pageCount >= total) ? t._("Whole site") : t._("Pages: {count}", { count: t.number(pageCount) });
     const foot = `<code>${escape(first.rule)}</code><span>${escape(t._("Impact"))}: ${escape(t.number(bundleImpact(same, total), { maximumFractionDigits: 1 }))}</span><span>${escape(t._("Scope"))}: ${escape(scope)}</span>`;
-    return `<article class="rule-card ${first.severity}"><details><summary class="rule-head"><span class="badge ${first.severity}">${escape(severityName(t, first.severity))} ${scoreOf(first).toFixed(1)}</span><span class="rule-message">${escape(message)}${subject ? ` — ${link(subject, origin)}` : ""}</span><span class="rule-arrow" aria-hidden="true">▾</span></summary><div class="rule-findings">${share}${listed}${own}${cached(t, same, origin)}${remedy(t, guides?.[first.rule], first)}</div></details><footer class="rule-foot">${foot}</footer></article>`;
+    return `<article class="rule-card ${first.severity}"><details><summary class="rule-head"><span class="badge ${first.severity}">${escape(severityName(t, first.severity))} ${scoreOf(first).toFixed(1)}</span><span class="rule-message">${escape(message)}${subject ? ` — ${subjectText(subject, origin)}` : ""}</span><span class="rule-arrow" aria-hidden="true">▾</span></summary><div class="rule-findings">${share}${listed}${own}${cached(t, same, origin)}${remedy(t, guides?.[first.rule], first)}</div></details><footer class="rule-foot">${foot}</footer></article>`;
 }
 
 // One flat card per bundle, the highest impact first, a rule’s bundles in its own order on a tie.
