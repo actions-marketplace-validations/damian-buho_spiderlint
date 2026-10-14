@@ -288,6 +288,7 @@ describe("server pages without Redis", () => {
         assert.ok(html.includes('<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">'), "180 px touch icon");
         assert.ok(html.includes('<a class="skip" href="#main">'), "skip link");
         assert.ok(html.includes("<main id="), "main has an id");
+        assert.ok(html.includes("@media (prefers-contrast: more)"), "more-contrast theme");
     });
 
     it("compresses the form for a client asking for gzip, with a Vary", async () => {

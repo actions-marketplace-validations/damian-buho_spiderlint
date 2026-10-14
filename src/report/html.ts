@@ -93,6 +93,7 @@ progress { inline-size: 100%; block-size: .75rem; accent-color: var(--accent); }
 .alert { border-inline-start: .25rem solid var(--error); padding: 1rem 1.25rem; background: light-dark(#fdecea, #2c1614); }
 .skip { position: absolute; inset-inline-start: 1rem; inset-block-start: -4rem; padding: .5rem 1rem; background: var(--surface); z-index: 1; } .skip:focus { inset-block-start: 1rem; }
 @media (max-width: 40rem) { .hero { flex-direction: column; align-items: flex-start; padding: 1.5rem; } body { padding-inline: 1rem; } .rule-foot { grid-template-columns: minmax(0, 1fr); } .rule-foot > :nth-last-child(2), .rule-foot > :last-child { grid-column: auto; text-align: start; } }
+@media (prefers-contrast: more) { :root { --muted: light-dark(#453f31, #d8cdae); --line: light-dark(#6f695a, #8a8474); } }
 `;
 
 // `value` as HTML text or a quoted attribute.
