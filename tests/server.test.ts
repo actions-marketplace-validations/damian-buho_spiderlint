@@ -303,6 +303,31 @@ describe("server pages without Redis", () => {
         assert.ok(!none.headers.has("content-encoding"));
     });
 
+    it("compresses a report download for a client asking for gzip", async () => {
+        const summary = {
+            started: "2026-10-03T00:00:00Z",
+            durationMs: 1000,
+            pages: 2,
+            bytes: 10,
+            groups: { default: 2 },
+            statuses: {},
+            findings: { total: 0, error: 0, warning: 0, info: 0, hint: 0 },
+            rules: 0,
+            checks: { total: 0, passed: 0, failed: 0, errored: 0 },
+            byRule: {},
+            cost: {},
+            stats: {},
+        };
+        const job = { id: "j5", data: { url: "https://a.test/", host: "a.test" }, returnvalue: { summary, findings: [] }, getState: async () => "completed" };
+        const gzipped = await api({ getJob: async () => job } as unknown as Queue, {} as Redis, () => SETTINGS).request("/v1/jobs/j5/report/html", { headers: { "accept-encoding": "gzip" } });
+        assert.equal(gzipped.headers.get("content-encoding"), "gzip");
+        const raw = Buffer.from(await gzipped.arrayBuffer());
+        const uncompressed = await api({ getJob: async () => job } as unknown as Queue, {} as Redis, () => SETTINGS).request("/v1/jobs/j5/report/html");
+        const plain = await uncompressed.text();
+        assert.ok(raw.length < plain.length, "gzip shrinks the report");
+        assert.equal(gunzipSync(raw).toString("utf8"), plain, "gzip round-trips");
+    });
+
     it("sends no X-XSS-Protection, and upgrades insecure requests in the policy", async () => {
         const response = await app.request("/");
         assert.ok(!response.headers.has("x-xss-protection"));

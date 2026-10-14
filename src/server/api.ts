@@ -17,6 +17,7 @@ import { formatNames, formatter } from "../plugins/index.ts";
 import { BlockList } from "node:net";
 import { Buckets } from "./clients.ts";
 import { clientAddress, jobOf, submit, view, type Jobs } from "./jobs.ts";
+import { compress } from "./compress.ts";
 import { Refusal } from "./policy.ts";
 import { edgeRanges } from "./providers.ts";
 import type { ScanData, ScanJob, ScanResult } from "./queue.ts";
@@ -67,6 +68,8 @@ export function api(queue: Queue<ScanData, ScanResult>, redis: Redis, settings: 
         c.header("cross-origin-resource-policy", "cross-origin");
     });
     app.use(secureHeaders({ xXssProtection: false }));
+    // Report downloads are text over 1 KB, so they leave compressed; scoped off the event stream, which must stay unbuffered.
+    app.use("/v1/jobs/:id/report/:format", compress());
     app.use(async (c, next) => {
         const started = performance.now();
         await next();
