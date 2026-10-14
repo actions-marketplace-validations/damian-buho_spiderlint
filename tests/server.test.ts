@@ -174,6 +174,10 @@ describe("server pages without Redis", () => {
         assert.ok(html.includes("31.536.000"), "German digits");
         assert.ok(html.includes("<h2>Statistics</h2>") && html.includes("Resources"), "English strings");
         assert.ok(!html.includes("html.text"), "unlabelled fact left to json");
+        assert.ok(html.includes("<title>https://a.test/ — spiderlint report</title>"), "report title names the scan");
+        const jobDescription = "https://a.test/ — Check every page of a site: SEO tags, security headers, TLS, links and more.";
+        assert.ok(html.includes(`<meta name="description" content="${jobDescription}">`), "report description names the scan");
+        assert.ok(html.includes(`<meta property="og:description" content="${jobDescription}">`), "og:description names the scan");
         assert.match(html, /<img src="\/badge\/a\.test\.svg" alt="Rating badge" width="\d+" height="20" loading="lazy">/, "badge sized and lazy");
     });
 

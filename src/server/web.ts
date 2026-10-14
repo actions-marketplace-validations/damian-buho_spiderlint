@@ -140,7 +140,7 @@ function publicOrigin(c: Context): string {
 }
 
 // The page in the reader’s language with the owner’s fragments, never cached, under the page policy they extend; the view is reported to Matomo when one is set.
-function respond(c: Context, t: Translator, title: string, body: string, status: ContentfulStatusCode = 200, head = ""): Response {
+function respond(c: Context, t: Translator, title: string, body: string, status: ContentfulStatusCode = 200, head = "", extra: { description?: string; host?: string } = {}): Response {
     const { page: owner, matomo } = c.get("settings");
     const slots = (["head", "header", "footer"] as const).map((slot) => owner.fragments?.slot(slot, t.lang) ?? { html: "", sources: { script: [], style: [] } });
     const [fromHead, fromHeader, fromFooter] = slots as [Fragment, Fragment, Fragment];
@@ -148,7 +148,7 @@ function respond(c: Context, t: Translator, title: string, body: string, status:
     const privacy = matomo ? `<a href="${escape(matomo.privacy)}" rel="noopener noreferrer">${escape(t._("Privacy"))}</a>` : "";
     const origin = publicOrigin(c);
     const self = new URL(c.req.path, origin).href;
-    const description = t._("Check every page of a site: SEO tags, security headers, TLS, links and more.");
+    const description = extra.description ?? t._("Check every page of a site: SEO tags, security headers, TLS, links and more.");
     const seo = `<meta name="description" content="${escape(description)}"><link rel="canonical" href="${escape(self)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><meta property="og:image" content="${escape(`${origin}/logo.png`)}"><meta property="og:url" content="${escape(self)}"><meta property="og:type" content="website">`;
     const skip = `<a class="skip" href="#main">${escape(t._("Skip to main content"))}</a>`;
     const nav = `<header class="site"><a class="brand" href="/"><img src="/logo.png" srcset="/logo-36.png 36w, /logo-72.png 72w" sizes="36px" alt="" width="36" height="36">spiderlint</a><nav><a href="/">${escape(t._("New scan"))}</a><a href="${SELF_HOST}" rel="noopener noreferrer">${escape(t._("Self-host"))}</a></nav></header>`;
@@ -157,7 +157,7 @@ function respond(c: Context, t: Translator, title: string, body: string, status:
     c.header("content-security-policy", pageCsp(sources, owner.assets !== undefined));
     c.header("cache-control", "no-cache");
     c.header("vary", "accept-language");
-    track(matomo, c, routePath(c), URL.canParse(title) ? new URL(title).hostname : undefined);
+    track(matomo, c, routePath(c), extra.host ?? (URL.canParse(title) ? new URL(title).hostname : undefined));
     return c.html(page(t, title, `${skip}${fromHeader.html}${nav}${body}${foot}${fromFooter.html}`, ICONS + seo + head + fromHead.html), status);
 }
 
@@ -395,15 +395,17 @@ export function web(jobs: Jobs): Hono {
             return respond(c, t, t._("Scan not found"), `<main id="main"><h1>${escape(t._("Scan not found"))}</h1><p>${escape(refusalText(t, error))}</p><p><a href="/">${escape(t._("Start a new scan"))}</a></p></main>`, 404);
         }
         const state = await job.getState();
-        const title = shown(job.data.url);
+        const scanned = shown(job.data.url);
+        const title = `${scanned} — spiderlint report`.slice(0, 60);
+        const extra = { description: `${scanned} — ${t._("Check every page of a site: SEO tags, security headers, TLS, links and more.")}`.slice(0, 160), host: job.data.host };
         const isRepeat = c.req.query("repeat") !== undefined;
         const wait = job.data.repeatKey ? await jobs.redis.ttl(job.data.repeatKey) : 0;
         const noindex = job.data.hidden ? '<meta name="robots" content="noindex">' : "";
         log.debug({ job: job.id, state, isRepeat, wait, hidden: job.data.hidden === true }, "job page rendered");
-        if (state === "completed") return respond(c, t, title, `<main id="main">${doneBody(t, job, wait, isRepeat)}</main>`, 200, noindex);
-        if (state === "failed") return respond(c, t, title, `<main id="main"><h1>${escape(title)}</h1><p class="alert" role="alert">${escape(t._("The scan failed."))}</p><p><code>${escape(job.failedReason)}</code></p><p><a href="/">${escape(t._("Start a new scan"))}</a></p></main>`, 200, noindex);
-        const body = `<main id="main"><h1>${escape(title)}</h1>${isRepeat ? `<p class="notice">${escape(t._("This site was scanned recently, so this is the existing scan."))}</p>` : ""}${progressBody(t, job, state === "active" ? "running" : "queued")}</main><script>${SCRIPT}</script>`;
-        return respond(c, t, title, body, 200, `<noscript><meta http-equiv="refresh" content="${REFRESH_S}"></noscript>${noindex}`);
+        if (state === "completed") return respond(c, t, title, `<main id="main">${doneBody(t, job, wait, isRepeat)}</main>`, 200, noindex, extra);
+        if (state === "failed") return respond(c, t, title, `<main id="main"><h1>${escape(scanned)}</h1><p class="alert" role="alert">${escape(t._("The scan failed."))}</p><p><code>${escape(job.failedReason)}</code></p><p><a href="/">${escape(t._("Start a new scan"))}</a></p></main>`, 200, noindex, extra);
+        const body = `<main id="main"><h1>${escape(scanned)}</h1>${isRepeat ? `<p class="notice">${escape(t._("This site was scanned recently, so this is the existing scan."))}</p>` : ""}${progressBody(t, job, state === "active" ? "running" : "queued")}</main><script>${SCRIPT}</script>`;
+        return respond(c, t, title, body, 200, `<noscript><meta http-equiv="refresh" content="${REFRESH_S}"></noscript>${noindex}`, extra);
     });
 
     app.get("/badge/:file", async (c) => {
