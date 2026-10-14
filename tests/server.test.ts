@@ -262,6 +262,17 @@ describe("server pages without Redis", () => {
         assert.ok(!html.includes('for="preset-'), "no redundant for");
     });
 
+    it("names the public scheme a terminating proxy reports in the self canonical and Open Graph URLs", async () => {
+        const response = await app.request("/", { headers: { "x-forwarded-proto": "https" } });
+        const html = await response.text();
+        assert.ok(html.includes('<link rel="canonical" href="https://localhost/">'), "proxied canonical");
+        assert.ok(html.includes('<meta property="og:url" content="https://localhost/">'), "proxied og:url");
+        assert.ok(html.includes('<meta property="og:image" content="https://localhost/logo.png">'), "proxied og:image");
+        const spoofed = await app.request("/", { headers: { "x-forwarded-proto": "gopher" } });
+        const plain = await spoofed.text();
+        assert.ok(plain.includes('<link rel="canonical" href="http://localhost/">'), "unknown scheme ignored");
+    });
+
     it("heads every page with a description, a self canonical, Open Graph and a theme-color pair", async () => {
         const response = await app.request("/");
         const html = await response.text();

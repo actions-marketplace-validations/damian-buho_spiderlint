@@ -130,6 +130,14 @@ function seedOf(raw: unknown): string {
     return typed === "" || /^[a-z][\d+.a-z-]*:\/\//i.test(typed) ? typed : `https://${typed}`;
 }
 
+// The origin readers asked for: the request’s own, with the scheme a terminating proxy names, since internal traffic is plain http.
+function publicOrigin(c: Context): string {
+    const url = new URL(c.req.url);
+    const scheme = c.req.header("x-forwarded-proto")?.split(",", 1)[0]?.trim().toLowerCase();
+    if (scheme === "http" || scheme === "https") url.protocol = `${scheme}:`;
+    return url.origin;
+}
+
 // The page in the reader’s language with the owner’s fragments, never cached, under the page policy they extend; the view is reported to Matomo when one is set.
 function respond(c: Context, t: Translator, title: string, body: string, status: ContentfulStatusCode = 200, head = ""): Response {
     const { page: owner, matomo } = c.get("settings");
@@ -137,7 +145,7 @@ function respond(c: Context, t: Translator, title: string, body: string, status:
     const [fromHead, fromHeader, fromFooter] = slots as [Fragment, Fragment, Fragment];
     const sources = { script: slots.flatMap((slot) => slot.sources.script), style: slots.flatMap((slot) => slot.sources.style) };
     const privacy = matomo ? `<a href="${escape(matomo.privacy)}" rel="noopener noreferrer">${escape(t._("Privacy"))}</a>` : "";
-    const origin = new URL(c.req.url).origin;
+    const origin = publicOrigin(c);
     const self = new URL(c.req.path, origin).href;
     const description = t._("Check every page of a site: SEO tags, security headers, TLS, links and more.");
     const seo = `<meta name="description" content="${escape(description)}"><link rel="canonical" href="${escape(self)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><meta property="og:image" content="${escape(`${origin}/logo.png`)}"><meta property="og:url" content="${escape(self)}"><meta property="og:type" content="website">`;
