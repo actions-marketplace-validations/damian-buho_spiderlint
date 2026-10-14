@@ -758,3 +758,7 @@ projectfile.yaml
 ## Open decisions
 
 - Fold threshold `0.8` and minimum `3` are guesses. The fixture site and the first audit of f.dbuho.me decide.
+
+## Notes
+
+- ESLint runs the fleet plugin baseline (n, import-x, promise, unicorn, tsdoc, prettier) with tseslint strict. `Promise.withResolvers` keeps its explicit `void` under a one-line disable, since inference gives `unknown`; the `json` helper types speak `undefined`, never `void`.
