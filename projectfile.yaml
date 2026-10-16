@@ -192,6 +192,9 @@ repositories:
   - role: mirror
     type: git
     url: git@codeberg.org:damian-buho/spiderlint.git
+  - role: mirror
+    type: git
+    url: ssh://git@codeberg.org/damian-buho/spiderlint.git
 requirements:
   runtime:
     node: '>=26'
