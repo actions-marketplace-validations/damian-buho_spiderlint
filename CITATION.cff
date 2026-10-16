@@ -25,12 +25,26 @@ contact:
     website: https://dbuho.me
 version: 0.143.1
 keywords:
-  - spiderlint
-  - linter
+  - accessibility
+  - cookies
   - crawler
-  - seo
-  - security-headers
+  - dns
+  - dmarc
+  - favicon
+  - json-ld
+  - lighthouse
+  - link-checker
+  - linter
+  - privacy
+  - robots-txt
+  - rss
   - sarif
+  - security-headers
+  - seo
+  - sitemap
+  - sustainability
+  - tls
+  - web-performance
 license: AGPL-3.0-only
 repository-code: https://kiota.ch/damian-buho/spiderlint
 url: https://dbuho.me/project/spiderlint/

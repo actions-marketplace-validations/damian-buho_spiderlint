@@ -18,6 +18,7 @@ identity:
     uk: Spiderlint обходить кожну сторінку сайту, збирає факти про кожен запит (HTML, заголовки, TLS, таймінги, розміри) і перевіряє їх за наборами правил для груп URL, тож шаблон без заголовка — це один результат, а не по одному на сторінку. Побудовано на Node і Crawlee.
   version: 0.143.1
   released: "2026-10-12"
+  modified: "2026-10-16"
 includes:
   - .makefile/b19/ci.yaml
   - .makefile/b19/images/node.yaml
@@ -27,10 +28,10 @@ includes:
   - .makefile/container/traits/image/malware-scan.yaml
   - .makefile/container/traits/readme/tool-image.yaml
   - .makefile/core/traits/github-action.yaml
-  - .makefile/library/traits/node/publish.yaml
-  - .makefile/library/traits/node/prettier.yaml
   - .makefile/library/images/valkey.yaml
   - .makefile/library/languages/node.yaml
+  - .makefile/library/traits/node/prettier.yaml
+  - .makefile/library/traits/node/publish.yaml
   - .makefile/library/vulnerabilities/npm/stream-json.yaml
   - .projectfile/vulnerabilities.yaml
   - https://kiota.ch/damian-buho/metadata/raw/branch/main/forge/codeberg.yaml
@@ -39,12 +40,26 @@ includes:
   - https://kiota.ch/damian-buho/metadata/raw/branch/main/registry/dockerhub.yaml
   - https://kiota.ch/damian-buho/metadata/raw/branch/main/traits/personal-image.yaml
 keywords:
-  - spiderlint
-  - linter
+  - accessibility
+  - cookies
   - crawler
-  - seo
-  - security-headers
+  - dns
+  - dmarc
+  - favicon
+  - json-ld
+  - lighthouse
+  - link-checker
+  - linter
+  - privacy
+  - robots-txt
+  - rss
   - sarif
+  - security-headers
+  - seo
+  - sitemap
+  - sustainability
+  - tls
+  - web-performance
 kind: SoftwareSourceCode
 license:
   covers: project
@@ -58,17 +73,17 @@ links:
     type: homepage
     url: https://dbuho.me/project/spiderlint/
   - label:
-      en: Spiderlint on kiota.ch
-      es: Spiderlint en kiota.ch
-      uk: Spiderlint на kiota.ch
+      en: Repository on kiota.ch
+      es: Repositorio en kiota.ch
+      uk: Репозиторій на kiota.ch
     preferred: true
     priority: 10
     type: source-code
     url: https://kiota.ch/damian-buho/spiderlint
   - label:
-      en: Spiderlint on GitHub
-      es: Spiderlint en GitHub
-      uk: Spiderlint на GitHub
+      en: Repository on GitHub
+      es: Repositorio en GitHub
+      uk: Репозиторій на GitHub
     priority: 80
     tags:
       - public
@@ -87,9 +102,9 @@ links:
     type: bugs
     url: https://github.com/damian-buho/spiderlint/issues
   - label:
-      en: Spiderlint on Codeberg
-      es: Spiderlint en Codeberg
-      uk: Spiderlint на Codeberg
+      en: Repository on Codeberg
+      es: Repositorio en Codeberg
+      uk: Репозиторій на Codeberg
     priority: 90
     tags:
       - public
@@ -104,6 +119,7 @@ links:
     priority: 90
     tags:
       - support
+      - readme
     type: bugs
     url: https://codeberg.org/damian-buho/spiderlint/issues
   - label:
@@ -179,6 +195,3 @@ repositories:
 requirements:
   runtime:
     node: '>=26'
-technologies:
-  - node
-  - typescript

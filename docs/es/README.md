@@ -239,6 +239,7 @@ Puntos de entrada de la canalización:
 
 ## Enlaces
 
+- [Incidencias en Codeberg](https://codeberg.org/damian-buho/spiderlint/issues)
 - [Incidencias en GitHub](https://github.com/damian-buho/spiderlint/issues)
 - [Especificación de Projectfile](https://projectfile.org)
 

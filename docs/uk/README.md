@@ -239,6 +239,7 @@ make container-build
 
 ## Посилання
 
+- [Задачі на Codeberg](https://codeberg.org/damian-buho/spiderlint/issues)
 - [Задачі на GitHub](https://github.com/damian-buho/spiderlint/issues)
 - [Специфікація Projectfile](https://projectfile.org)
 

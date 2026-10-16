@@ -237,6 +237,7 @@ Pipeline entry points:
 
 ## Links
 
+- [Issues on Codeberg](https://codeberg.org/damian-buho/spiderlint/issues)
 - [Issues on GitHub](https://github.com/damian-buho/spiderlint/issues)
 - [Projectfile Specification](https://projectfile.org)
 

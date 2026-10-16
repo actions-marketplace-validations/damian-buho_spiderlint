@@ -104,12 +104,26 @@
     "typescript-eslint": "8.71.2"
   },
   "keywords": [
-    "spiderlint",
-    "linter",
+    "accessibility",
+    "cookies",
     "crawler",
-    "seo",
+    "dns",
+    "dmarc",
+    "favicon",
+    "json-ld",
+    "lighthouse",
+    "link-checker",
+    "linter",
+    "privacy",
+    "robots-txt",
+    "rss",
+    "sarif",
     "security-headers",
-    "sarif"
+    "seo",
+    "sitemap",
+    "sustainability",
+    "tls",
+    "web-performance"
   ],
   "author": {
     "email": "damian.buho@proton.me",
