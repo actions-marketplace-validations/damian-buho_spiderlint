@@ -30,7 +30,7 @@
     "postpack": "rm --recursive --force dist"
   },
   "dependencies": {
-    "@axe-core/playwright": "4.13.0",
+    "@axe-core/playwright": "4.14.0",
     "@hono/node-server": "2.1.5",
     "@opentelemetry/api": "1.9.1",
     "@opentelemetry/exporter-metrics-otlp-http": "0.223.0",
