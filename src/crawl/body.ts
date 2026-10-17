@@ -10,7 +10,7 @@ import { log } from "../logger.ts";
 const FIELDS = ["statusCode", "statusMessage", "headers", "httpVersion", "rawHeaders", "url", "request", "complete"];
 
 // Types whose body becomes facts; any other type is judged by its headers alone.
-const PARSED = /^(?:text\/html|application\/xhtml\+xml|(?:text|application)\/xml|application\/json|application\/[\w.-]+\+(?:xml|json))$/;
+const PARSED = /^(?:text\/html|application\/xhtml\+xml|(?:text|application)\/xml|application\/json|application\/[\w.-]+\+(?:xml|json)|text\/(?:x-)?markdown)$/;
 
 export interface Capped {
     stream: Readable;

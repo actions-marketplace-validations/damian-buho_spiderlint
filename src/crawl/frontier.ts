@@ -16,8 +16,8 @@ import type { CrawlerMode, GroupMode, Router } from "./route.ts";
 import { isInScope, STRATEGY } from "./scope.ts";
 import { loadSitemap, type SitemapBucket, type Sitemaps } from "./sitemap.ts";
 
-// Feed media types a head `rel=alternate` names; such a feed is crawled as a page.
-const FEED_TYPES = new Set(["application/rss+xml", "application/atom+xml", "application/feed+json"]);
+// Media types of a head `rel=alternate` crawled as a page: feeds and Markdown twins.
+const ALTERNATE_TYPES = new Set(["application/rss+xml", "application/atom+xml", "application/feed+json", "text/markdown", "text/x-markdown"]);
 
 // Item links, the stylesheet and the archive pages a feed names, which its rules judge against the crawl.
 function feedTargets(facts: Facts): string[] {
@@ -387,8 +387,8 @@ export class Frontier {
         };
         const options = { strategy: STRATEGY[this.#config.scope], transformRequestFunction };
         const heads = facts.html?.head.links ?? [];
-        const feeds = heads.filter((link) => /\balternate\b/i.test(link.rel ?? "") && FEED_TYPES.has(link.type?.toLowerCase() ?? "")).flatMap((link) => (link.href ? [link.href] : []));
-        log.debug({ url: facts.url.href, feeds }, "head feeds found");
+        const feeds = heads.filter((link) => /\balternate\b/i.test(link.rel ?? "") && ALTERNATE_TYPES.has(link.type?.toLowerCase() ?? "")).flatMap((link) => (link.href ? [link.href] : []));
+        log.debug({ url: facts.url.href, feeds }, "head alternates found");
         const batches = facts.html ? [await enqueueLinks(options), ...(feeds.length > 0 ? [await enqueueLinks({ ...options, urls: feeds })] : [])] : [];
         const targets = feedTargets(facts).filter((url) => URL.canParse(url) && isInScope(new URL(url), new URL(facts.url.href), this.#config.scope) && this.transformRequestFunction({ url } as Parameters<RequestTransform>[0]) !== false);
         log.debug({ url: facts.url.href, targets: targets.length }, "feed targets queued");
