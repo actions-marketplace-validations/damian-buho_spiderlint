@@ -19,6 +19,7 @@ identity:
   version: 0.143.1
   released: "2026-10-12"
   modified: "2026-10-16"
+  visibility: public
 includes:
   - .makefile/b19/ci.yaml
   - .makefile/b19/images/node.yaml
