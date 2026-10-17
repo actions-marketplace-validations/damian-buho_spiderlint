@@ -661,6 +661,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     env:
       RELEASE_TAG: ${{ github.ref_name }}
+      RELEASE_TARGET: main
       RELEASE_URL: ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -670,7 +671,7 @@ jobs:
           persist-credentials: false
       - name: gh-release
         if: vars.CI_SKIP_RELEASE_IS_PUBLISHED != 'true' && vars.CI_SKIP_GH_RELEASE != 'true'
-        run: .makefile/core/scripts/gh-release.sh "$RELEASE_TAG"
+        uses: projectfile-org/actions/gh-release@dce815a0d5ead4bbc1047c298252472a65433207 # v1
   release-notes-are-published:
     runs-on: ubuntu-26.04
     needs: ["release-is-published"]
