@@ -166,7 +166,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 - Una regla es una ruta de hecho más un JSON Schema, así que una comprobación nueva no requiere código.
 - Los preajustes incluidos cubren buscadores, cabeceras de seguridad, TLS, DNS, cookies, rendimiento, accesibilidad, privacidad, sostenibilidad, enlaces, redirecciones, sitemaps, robots.txt, archivos well-known y archivos para agentes de IA.
 - Cada grupo de URL ejecuta sus propios conjuntos de reglas, y la severidad de cualquier regla se puede cambiar o desactivar desde la línea de órdenes, el entorno o el projectfile.
-- axe-core, html-validate y htmlhint se ejecutan dentro del mismo rastreo, cada una de sus comprobaciones es una regla que se puede ajustar o desactivar como cualquier otra, y las puntuaciones de Lighthouse se suman en las páginas renderizadas.
+- axe-core, html-validate, htmlhint y markdownlint se ejecutan dentro del mismo rastreo, cada una de sus comprobaciones es una regla que se puede ajustar o desactivar como cualquier otra, y las puntuaciones de Lighthouse se suman en las páginas renderizadas.
 - Los complementos añaden sus propios hechos, reglas, preajustes, formatos de informe y fuentes de URL junto a los incluidos, y una simple lista de URL se puede auditar por sí sola.
 
 ### Visibilidad en buscadores revisada en todo el sitio
@@ -232,7 +232,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 - Se informa de un `security.txt` ausente o caducado, para que quien investiga la seguridad siempre tenga cómo contactarte.
 - Un sitio con un campo de contraseña debe llevar `/.well-known/change-password` a algún sitio, para que los gestores de contraseñas lleven al usuario directamente al formulario correcto.
 - Cualquier otro archivo conocido (señales de privacidad, metadatos de OpenID y OAuth, enlaces de aplicaciones, información de nodos del Fediverso, condiciones para rastreadores de IA) se comprueba solo si existe, así que publicar uno roto nunca pasa desapercibido.
-- Los archivos para agentes de IA (`llms.txt`, tarjetas de agente, índices de MCP y de habilidades) se comprueban en su propio preset opcional, incluidos los enlaces de `llms.txt` que llevan a páginas rotas y si las páginas ofrecen una versión en Markdown.
+- Los archivos para agentes de IA (`llms.txt`, tarjetas de agente, índices de MCP y de habilidades) se comprueban en su propio preset opcional, incluidos los enlaces de `llms.txt` que llevan a páginas rotas, el Markdown que los renderizadores y los agentes malinterpretan, y si las páginas ofrecen una versión en Markdown.
 - Una página inexistente servida como HTML cuenta como ausencia, así que un sitio que responde a cualquier URL no inunda el informe.
 
 ## Heredado de B19 / Ubuntu

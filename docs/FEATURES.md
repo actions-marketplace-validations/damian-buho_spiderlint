@@ -164,7 +164,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 - A rule is a fact path plus a JSON Schema, so a new check needs no code.
 - Bundled presets cover search, security headers, TLS, DNS, cookies, performance, accessibility, privacy, sustainability, links, redirects, sitemaps, robots.txt, well-known files and files for AI agents.
 - Each URL group runs its own rule sets, and any rule’s severity can be changed or switched off from the command line, the environment or the projectfile.
-- axe-core, html-validate and htmlhint run inside the same crawl, each of their checks a rule you can tune or switch off like any other, and Lighthouse scores join them on rendered pages.
+- axe-core, html-validate, htmlhint and markdownlint run inside the same crawl, each of their checks a rule you can tune or switch off like any other, and Lighthouse scores join them on rendered pages.
 - Plugins add their own facts, rules, presets, report formats and URL sources beside the bundled ones, and a plain list of URLs can be audited on its own.
 
 ### Search visibility checked across the whole site
@@ -230,7 +230,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 - A missing or expired `security.txt` is reported, so security researchers always have a way to reach you.
 - A site with a password field must lead `/.well-known/change-password` somewhere, so password managers can send users straight to the right form.
 - Every other known file (privacy signals, OpenID and OAuth metadata, app links, Fediverse node info, AI crawler terms) is checked only when present, so publishing one never goes unnoticed as broken.
-- Files for AI agents (`llms.txt`, agent cards, MCP and skill indices) are checked in their own opt-in preset, including links in `llms.txt` that lead to broken pages and whether pages offer a Markdown version.
+- Files for AI agents (`llms.txt`, agent cards, MCP and skill indices) are checked in their own opt-in preset, including links in `llms.txt` that lead to broken pages, Markdown that renderers and agents misread, and whether pages offer a Markdown version.
 - A missing page served as HTML counts as absent, so a site that answers every URL does not flood the report.
 
 ## Inherited from B19 / Ubuntu
