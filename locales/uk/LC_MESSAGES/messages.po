@@ -870,6 +870,12 @@ msgstr "/llms.txt не має двійника /llms-full.txt з усім вмі
 msgid "/llms-full.txt is malformed: {got}"
 msgstr "/llms-full.txt неправильно сформовано: {got}"
 
+msgid "/llms.txt carries Markdown a renderer or agent misreads: {got}"
+msgstr "/llms.txt містить Markdown, який рендерер або агент читає хибно: {got}"
+
+msgid "/llms-full.txt carries Markdown a renderer or agent misreads: {got}"
+msgstr "/llms-full.txt містить Markdown, який рендерер або агент читає хибно: {got}"
+
 msgid "/.well-known/agent-card.json is malformed: {got}"
 msgstr "/.well-known/agent-card.json неправильно сформовано: {got}"
 

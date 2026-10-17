@@ -49,7 +49,9 @@ describe("well-known plugin", () => {
             "assetlinks",
             "change-password",
             "gpc",
+            "llms-full-txt-markdown",
             "llms-full-txt-valid",
+            "llms-txt-markdown",
             "llms-txt-valid",
             "markdown-source",
             "mcp-server-card",
@@ -73,6 +75,8 @@ describe("well-known plugin", () => {
         const message = (id: string): string => report.findings.find((finding) => finding.rule === `well-known/${id}`)?.message ?? "";
         assert.match(message("security-txt-valid"), /line 2 is not a field.*Contact nope is not a URI/);
         assert.match(message("registered"), /“made-up”/);
+        assert.match(message("llms-txt-markdown"), /4:1 no-alt-text/);
+        assert.match(message("llms-full-txt-markdown"), /5:1 no-reversed-links/);
         const agents = report.site.origins?.[broken.origin]?.agents as Record<string, { errors: string[] }>;
         const errors = (key: string): string => agents[key]?.errors.join("\n") ?? "";
         for (const key of ["llms-txt", "llms-full-txt"]) for (const link of ["/missing", "/gone-ref", "/gone-auto"]) assert.match(errors(key), new RegExp(`${link} answers 404`), `${key} names ${link}`);

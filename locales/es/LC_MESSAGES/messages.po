@@ -870,6 +870,12 @@ msgstr "/llms.txt no tiene un gemelo /llms-full.txt con todo el contenido"
 msgid "/llms-full.txt is malformed: {got}"
 msgstr "/llms-full.txt está mal formado: {got}"
 
+msgid "/llms.txt carries Markdown a renderer or agent misreads: {got}"
+msgstr "/llms.txt contiene Markdown que un renderizador o un agente malinterpreta: {got}"
+
+msgid "/llms-full.txt carries Markdown a renderer or agent misreads: {got}"
+msgstr "/llms-full.txt contiene Markdown que un renderizador o un agente malinterpreta: {got}"
+
 msgid "/.well-known/agent-card.json is malformed: {got}"
 msgstr "/.well-known/agent-card.json está mal formado: {got}"
 
