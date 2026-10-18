@@ -111,7 +111,25 @@ export function groupsOf(config: Config): Record<string, Required<Pick<GroupConf
     const groups = { ...config.groups };
     groups.default ??= { sample: "all" };
     if (config.rules) log.debug({ rules: config.rules, groups: Object.keys(groups) }, "rules replace every group's rulesets");
-    return Object.fromEntries(Object.entries(groups).map(([name, group]) => [name, { ...group, rules: config.rules ?? group.rules ?? ["recommended"] }]));
+    const chosen = Object.values(groups).flatMap((group) => config.rules ?? group.rules ?? ["recommended"]);
+    const required = requiredRules(config, chosen);
+    return Object.fromEntries(Object.entries(groups).map(([name, group]) => [name, { ...group, rules: [...(config.rules ?? group.rules ?? ["recommended"]), ...required] }]));
+}
+
+const requiredCache = new WeakMap<Config, string[]>();
+
+// Severity overrides naming a shipped rule no group runs; each enables its rule, with one warning per config.
+function requiredRules(config: Config, chosen: string[]): string[] {
+    const cached = requiredCache.get(config);
+    if (cached) return cached;
+    const patterns = Object.keys(config.overrides);
+    const chosenIds = patterns.length > 0 ? ruleIds(chosen, config.rulesets) : new Set<string>();
+    const absent = patterns.filter((pattern) => [...chosenIds].every((id) => !isRuleMatch(id, pattern)));
+    const shipped = absent.length > 0 ? ruleIds(["all"], config.rulesets) : new Set<string>();
+    const required = absent.filter((pattern) => [...shipped].some((id) => isRuleMatch(id, pattern)));
+    if (required.length > 0) log.warn({ rules: required }, `${required.join(", ")} enabled because a severity option names it, though --rules or the config does not select it`);
+    requiredCache.set(config, required);
+    return required;
 }
 
 // A page's referrers are the stored pages linking to it, directly or through a redirect, by URL whatever the crawl order; recomputed from scratch on every lint.
@@ -222,17 +240,23 @@ function closest(pattern: string, known: Set<string>): string | undefined {
     return best !== undefined && best.cost <= Math.max(2, Math.floor(pattern.length / 4)) ? best.candidate : undefined;
 }
 
-// An --exclude-rules or severity override naming no rule of any group is a typo; refuse to start.
+// An --exclude-rules or severity override naming no shipped rule is a typo; refuse to start.
 function refuseUnknown(config: Config, groups: Record<string, GroupConfig>): void {
     const known = new Set(Object.values(groups).flatMap((group) => [...ruleIds(group.rules ?? [], config.rulesets)]));
     const unknown = [...config.excludeRules, ...Object.keys(config.overrides)].filter((pattern) => [...known].every((id) => !isRuleMatch(id, pattern)));
     log.debug({ known: known.size, unknown }, "rule options matched");
     if (unknown.length === 0) return;
-    const named = unknown.map((pattern) => {
-        const guess = closest(pattern, known);
-        return guess === undefined ? pattern : `${pattern} (did you mean ${guess}?)`;
-    });
-    throw new ConfigError(`rule option names no known rule: ${named.join(", ")}; see spiderlint list-rules`);
+    const shipped = ruleIds(["all"], config.rulesets);
+    const isShipped = (pattern: string): boolean => [...shipped].some((id) => isRuleMatch(id, pattern));
+    const unselected = unknown.filter((pattern) => isShipped(pattern));
+    if (unselected.length > 0) log.warn({ rules: unselected }, `${unselected.join(", ")} excluded, but no ruleset of this run enables it; the option has no effect`);
+    const missing = unknown
+        .filter((pattern) => !isShipped(pattern))
+        .map((pattern) => {
+            const guess = closest(pattern, shipped);
+            return guess === undefined ? pattern : `${pattern} (did you mean ${guess}?)`;
+        });
+    if (missing.length > 0) throw new ConfigError(`rule option names no known rule: ${missing.join(", ")}; see spiderlint list-rules`);
 }
 
 // Each group’s rules, flags applied.
