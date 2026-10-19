@@ -75,7 +75,7 @@ describe("telemetry off", () => {
     });
 
     it("creates no exporter and registers no provider without the variables", async () => {
-        for (const name of Object.keys(process.env)) if (name.startsWith("OTEL_")) delete process.env[name];
+        for (const name of Object.keys(process.env)) if (name.startsWith("OTEL_")) Reflect.deleteProperty(process.env, name);
         assert.equal(await startTelemetry("spiderlint"), undefined);
         const registry = (globalThis as Record<symbol, Record<string, unknown> | undefined>)[Symbol.for("opentelemetry.js.api.1")];
         assert.equal(registry?.trace, undefined);

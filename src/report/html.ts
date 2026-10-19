@@ -4,7 +4,7 @@
 
 import { relative, singleOrigin } from "../crawl/scope.ts";
 import { shippedRules } from "../rules/catalog.ts";
-import { fixFor } from "../rules/fix.ts";
+import { fixFor, fixesOf } from "../rules/fix.ts";
 import { cachedReads, sentence, valuesAt } from "../rules/message.ts";
 import { bytes, isLabelled, label, withUnit } from "../facts/labels.ts";
 import { utc } from "../facts/read-note.ts";
@@ -63,7 +63,7 @@ main { padding-block: 2.5rem; }
 .rule-head { display: flex; align-items: baseline; gap: .75rem; padding: 1rem 1.25rem; list-style: none; }
 .rule-card summary::marker { content: ""; } .rule-card summary::-webkit-details-marker { display: none; }
 .rule-head .badge { flex: none; font-weight: 700; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
-.rule-head code, .rule-head > a { flex: none; }
+.rule-head code { flex: none; }
 .rule-head .rule-message { overflow-wrap: anywhere; }
 .rule-head .rule-arrow { margin-inline-start: auto; flex: none; color: var(--muted); }
 .rule-findings { padding: 0 1.25rem .5rem; } .rule-findings .data { color: var(--muted); font-variant-numeric: tabular-nums; margin-inline-start: .75em; } .rule-findings p { margin-block: .5rem 0; }
@@ -81,12 +81,19 @@ form { display: flex; flex-wrap: wrap; gap: .75rem; margin-block: 2rem; }
 form label.muted { flex: 1 1 100%; }
 fieldset { flex: 1 1 100%; border: 0; padding: 0; margin: 1rem 0 0; display: grid; gap: .5rem; } fieldset label { display: block; padding: .75rem 1rem; background: var(--surface); border: 1px solid var(--line); }
 legend { padding: 0; }
-input[type=radio] { flex: none; inline-size: auto; margin-inline-end: .5rem; }
+input[type=radio], input[type=checkbox] { flex: none; inline-size: auto; margin-inline-end: .5rem; }
+.check { flex: 1 1 100%; }
+.recent { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: .5rem; }
+.recent a { display: flex; gap: .75rem; align-items: center; padding: .5rem .75rem; background: var(--surface); border: 1px solid var(--line); color: var(--fg); text-decoration: none; }
+.recent a:hover { border-color: var(--accent); }
+.recent .grade { inline-size: 2.25rem; block-size: 2.25rem; font-size: 1.15rem; }
+.recent time { font-size: .85rem; }
 input { flex: 1 1 20rem; font: inherit; padding: .75rem 1rem; border: 1px solid var(--line); color: inherit; background: var(--surface); }
 progress { inline-size: 100%; block-size: .75rem; accent-color: var(--accent); }
 .alert { border-inline-start: .25rem solid var(--error); padding: 1rem 1.25rem; background: light-dark(#fdecea, #2c1614); }
 .skip { position: absolute; inset-inline-start: 1rem; inset-block-start: -4rem; padding: .5rem 1rem; background: var(--surface); z-index: 1; } .skip:focus { inset-block-start: 1rem; }
 @media (max-width: 40rem) { .hero { flex-direction: column; align-items: flex-start; padding: 1.5rem; } body { padding-inline: 1rem; } .rule-foot { grid-template-columns: minmax(0, 1fr); } .rule-foot > :nth-last-child(2), .rule-foot > :last-child { grid-column: auto; text-align: start; } }
+@media (prefers-contrast: more) { :root { --muted: light-dark(#453f31, #d8cdae); --line: light-dark(#6f695a, #8a8474); } }
 `;
 
 // `value` as HTML text or a quoted attribute.
@@ -104,9 +111,14 @@ function severityName(t: Translator, severity: Finding["severity"]): string {
     return { error: t._("Error"), warning: t._("Warning"), info: t._("Info"), hint: t._("Hint") }[severity];
 }
 
+// A URL as text, shown relative to the shared origin; a summary stays link-free, since an anchor inside one nests interactive controls.
+function subjectText(url: string, origin: string): string {
+    return escape(relative(url, origin) || url);
+}
+
 // A link to a crawled http(s) URL, shown relative to the shared origin; anything else is plain text.
 function link(url: string, origin: string): string {
-    const text = escape(relative(url, origin) || url);
+    const text = subjectText(url, origin);
     return /^https?:\/\//i.test(url) ? `<a href="${escape(url)}" rel="nofollow noopener noreferrer">${text}</a>` : text;
 }
 
@@ -159,9 +171,11 @@ function cached(t: Translator, same: Finding[], origin: string): string {
     )}`;
 }
 
-// The rule’s fix filled for this finding, then its docs link; nothing when the rule has neither.
+// The rule’s fixes filled for this finding, then its docs link; nothing when the rule has neither.
 function remedy(t: Translator, guide: RuleGuide | undefined, finding: Finding): string {
-    const fix = guide?.fix ? `<p>${escape(t._("Fix: {fix}", { fix: fixFor(guide.fix, finding) }))}</p>` : "";
+    const fix = fixesOf(guide)
+        .map((text) => `<p>${escape(t._("Fix: {fix}", { fix: fixFor(text, finding) }))}</p>`)
+        .join("");
     const documentation = guide?.docs && /^https?:\/\//i.test(guide.docs) ? `<p><a href="${escape(guide.docs)}" rel="noopener noreferrer">${escape(t._("Documentation"))}</a></p>` : "";
     return fix + documentation;
 }
@@ -187,7 +201,7 @@ function entry(t: Translator, same: Finding[], origin: string, guides: Report["r
     const pageCount = same.reduce((sum, finding) => sum + pagesOf(finding, total), 0);
     const scope = isWhole || (total > 0 && pageCount >= total) ? t._("Whole site") : t._("Pages: {count}", { count: t.number(pageCount) });
     const foot = `<code>${escape(first.rule)}</code><span>${escape(t._("Impact"))}: ${escape(t.number(bundleImpact(same, total), { maximumFractionDigits: 1 }))}</span><span>${escape(t._("Scope"))}: ${escape(scope)}</span>`;
-    return `<article class="rule-card ${first.severity}"><details><summary class="rule-head"><span class="badge ${first.severity}">${escape(severityName(t, first.severity))} ${scoreOf(first).toFixed(1)}</span><span class="rule-message">${escape(message)}${subject ? ` — ${link(subject, origin)}` : ""}</span><span class="rule-arrow" aria-hidden="true">▾</span></summary><div class="rule-findings">${share}${listed}${own}${cached(t, same, origin)}${remedy(t, guides?.[first.rule], first)}</div></details><footer class="rule-foot">${foot}</footer></article>`;
+    return `<article class="rule-card ${first.severity}"><details><summary class="rule-head"><span class="badge ${first.severity}">${escape(severityName(t, first.severity))} ${scoreOf(first).toFixed(1)}</span><span class="rule-message">${escape(message)}${subject ? ` — ${subjectText(subject, origin)}` : ""}</span><span class="rule-arrow" aria-hidden="true">▾</span></summary><div class="rule-findings">${share}${listed}${own}${cached(t, same, origin)}${remedy(t, guides?.[first.rule], first)}</div></details><footer class="rule-foot">${foot}</footer></article>`;
 }
 
 // One flat card per bundle, the highest impact first, a rule’s bundles in its own order on a tie.
@@ -217,8 +231,10 @@ function statistics(t: Translator, stats: Report["summary"]["stats"] = {}): stri
 function passed(t: Translator, report: Pick<Report, "summary" | "rules">): string {
     const clean = passing(report.summary.checked);
     const rows = clean.map(([id, rule]) => {
-        const fix = report.rules?.[id]?.fix;
-        const body = fix ? `<div class="rule-findings"><p class="muted">${escape(fixFor(fix))}</p></div>` : "";
+        const fix = fixesOf(report.rules?.[id])
+            .map((text) => fixFor(text))
+            .join(" ");
+        const body = fix ? `<div class="rule-findings"><p class="muted">${escape(fix)}</p></div>` : "";
         const foot = `<span>${escape(t._("Impact"))}: ${escape(t.number(0))}</span><span>${escape(t._("Scope"))}: ${escape(t._("Pages: {count}", { count: t.number(rule.pages) }))}</span>`;
         return `<details class="rule-card passed"><summary class="rule-head"><span class="tick" aria-hidden="true">✓</span><code>${escape(id)}</code><span class="rule-arrow" aria-hidden="true">▾</span></summary>${body}<footer class="rule-foot">${foot}</footer></details>`;
     });

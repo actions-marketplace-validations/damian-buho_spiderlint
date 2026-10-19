@@ -27,6 +27,7 @@ class PinoLogger extends Logger {
 
 // Crawlee stays at WARNING unless spiderlint itself is at debug or below.
 export function bridgeCrawleeLog(): void {
-    const isVerbose = log.levelVal <= log.levels.values.debug!;
+    const debug = log.levels.values.debug;
+    const isVerbose = debug !== undefined && log.levelVal <= debug;
     crawleeLog.setOptions({ logger: new PinoLogger({}), level: isVerbose ? LogLevel.DEBUG : LogLevel.WARNING });
 }

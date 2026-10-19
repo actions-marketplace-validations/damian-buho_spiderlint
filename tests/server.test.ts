@@ -19,7 +19,7 @@ import { api } from "../src/server/api.ts";
 import { Buckets, clientOf } from "../src/server/clients.ts";
 import { admit, policyFor, presetSettings, presetsOffered, Refusal, resolveRules } from "../src/server/policy.ts";
 import { addRanges } from "../src/server/providers.ts";
-import { connect, scanQueue } from "../src/server/queue.ts";
+import { connect, jobId, repeatKey, scanQueue } from "../src/server/queue.ts";
 import { hostSuffix, settingsOf } from "../src/server/settings.ts";
 import { startWorker } from "../src/server/worker.ts";
 import { serveFixture, type Fixture } from "./fixtures/server.ts";
@@ -54,6 +54,11 @@ describe("server settings", () => {
     it("defaults to one policy admitting every host, http only, 100 pages", () => {
         const [policy] = settingsOf({}).policies;
         assert.deepEqual([policy?.hosts, policy?.fetch, policy?.caps["max-pages"], policy?.scanTimeout], [["*"], ["http"], 100, 600]);
+    });
+
+    it("lists 16 latest reports unless told otherwise, 0 for none, and refuses a negative count", () => {
+        assert.deepEqual([settingsOf({}).recent, settingsOf({ recent: 0 }).recent, settingsOf({ recent: 5 }).recent], [16, 0, 5]);
+        assert.throws(() => settingsOf({ recent: -1 }), ConfigError);
     });
 
     it("refuses the browser while private addresses are refused", () => {
@@ -169,6 +174,11 @@ describe("server pages without Redis", () => {
         assert.ok(html.includes("31.536.000"), "German digits");
         assert.ok(html.includes("<h2>Statistics</h2>") && html.includes("Resources"), "English strings");
         assert.ok(!html.includes("html.text"), "unlabelled fact left to json");
+        assert.ok(html.includes("<title>https://a.test/ — spiderlint report</title>"), "report title names the scan");
+        const jobDescription = "https://a.test/ — Check every page of a site: SEO tags, security headers, TLS, links and more.";
+        assert.ok(html.includes(`<meta name="description" content="${jobDescription}">`), "report description names the scan");
+        assert.ok(html.includes(`<meta property="og:description" content="${jobDescription}">`), "og:description names the scan");
+        assert.match(html, /<img src="\/badge\/a\.test\.svg" alt="Rating badge" width="\d+" height="20" loading="lazy">/, "badge sized and lazy");
     });
 
     it("names the phase after the last page with its count and a time left without a fraction", async () => {
@@ -191,10 +201,81 @@ describe("server pages without Redis", () => {
         assert.equal(html.match(/ checked>/g)?.length, 1);
     });
 
-    it("labels every preset radio with a for attribute its input answers", async () => {
+    it("offers a box that hides the scan from results, unchecked at first and kept after a refusal", async () => {
+        const form = await app.request("/", { headers: { "accept-language": "es" } });
+        const html = await form.text();
+        assert.match(html, /<input id="hidden" type="checkbox" name="hidden" value="1"> Ocultar de los resultados/);
+        const refused = await app.request("/", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ url: "", hidden: "1" }).toString() });
+        assert.match(await refused.text(), /<input id="hidden" type="checkbox" name="hidden" value="1" checked>/);
+    });
+
+    it("lists the latest reports newest first in the reader’s language and drops one whose scan expired", async () => {
+        const entry = JSON.stringify({ id: "b.test-20261014T171505Z-3f9c1a7e2b4d", host: "b.test", grade: "A", finished: Date.UTC(2026, 9, 14, 17, 15, 5) });
+        const dropped: string[] = [];
+        const redis = {
+            zrevrange: async () => ["b.test", "a.test"],
+            mget: async () => [entry, undefined],
+            zrem: async (_key: string, ...hosts: string[]) => {
+                dropped.push(...hosts);
+            },
+        };
+        const response = await api({} as Queue, redis as unknown as Redis, () => SETTINGS).request("/", { headers: { "accept-language": "es" } });
+        const html = await response.text();
+        assert.ok(html.includes("<h2>Últimos informes</h2>"), html);
+        assert.ok(html.includes('href="/jobs/b.test-20261014T171505Z-3f9c1a7e2b4d"') && html.includes('<time class="muted" datetime="2026-10-14T17:15:05.000Z">'));
+        assert.ok(!html.includes("a.test"), "expired entry left out");
+        assert.deepEqual(dropped, ["a.test"]);
+    });
+
+    it("lists no reports when the setting is zero, nothing is stored or Redis fails", async () => {
+        const asked: string[] = [];
+        const redis = {
+            zrevrange: async () => {
+                asked.push("zrevrange");
+                return [];
+            },
+        };
+        const off = await api({} as Queue, redis as unknown as Redis, () => settingsOf({ recent: 0 })).request("/");
+        const offHtml = await off.text();
+        assert.ok(!offHtml.includes("Latest reports"));
+        assert.deepEqual(asked, []);
+        const empty = await api({} as Queue, redis as unknown as Redis, () => SETTINGS).request("/");
+        const emptyHtml = await empty.text();
+        assert.ok(!emptyHtml.includes("Latest reports"));
+        assert.deepEqual(asked, ["zrevrange"]);
+        const broken = await app.request("/");
+        assert.equal(broken.status, 200);
+    });
+
+    it("sends the self-host button to the how-to on GitHub", async () => {
         const response = await app.request("/");
         const html = await response.text();
-        for (const name of ["recommended", "web-quick", "web-comprehensive"]) assert.ok(html.includes(`<label for="preset-${name}"><input id="preset-${name}"`), name);
+        assert.match(html, /<a href="https:\/\/github\.com\/damian-buho\/spiderlint\/blob\/main\/docs\/how-to\/SELFHOST\.md" rel="noopener noreferrer">Self-host<\/a>/);
+    });
+
+    it("tells search engines to skip a hidden scan’s page", async () => {
+        const job = { id: "j4", data: { url: "https://a.test/", host: "a.test", hidden: true }, progress: {}, getState: async () => "active" };
+        const response = await api({ getJob: async () => job } as unknown as Queue, {} as Redis, () => SETTINGS).request("/jobs/j4");
+        const html = await response.text();
+        assert.ok(html.includes('<meta name="robots" content="noindex">'));
+    });
+
+    it("wraps every preset radio in its label with no redundant for attribute", async () => {
+        const response = await app.request("/");
+        const html = await response.text();
+        for (const name of ["recommended", "web-quick", "web-comprehensive"]) assert.ok(html.includes(`<label><input id="preset-${name}"`), name);
+        assert.ok(!html.includes('for="preset-'), "no redundant for");
+    });
+
+    it("names the public scheme a terminating proxy reports in the self canonical and Open Graph URLs", async () => {
+        const response = await app.request("/", { headers: { "x-forwarded-proto": "https" } });
+        const html = await response.text();
+        assert.ok(html.includes('<link rel="canonical" href="https://localhost/">'), "proxied canonical");
+        assert.ok(html.includes('<meta property="og:url" content="https://localhost/">'), "proxied og:url");
+        assert.ok(html.includes('<meta property="og:image" content="https://localhost/logo.png">'), "proxied og:image");
+        const spoofed = await app.request("/", { headers: { "x-forwarded-proto": "gopher" } });
+        const plain = await spoofed.text();
+        assert.ok(plain.includes('<link rel="canonical" href="http://localhost/">'), "unknown scheme ignored");
     });
 
     it("heads every page with a description, a self canonical, Open Graph and a theme-color pair", async () => {
@@ -211,6 +292,7 @@ describe("server pages without Redis", () => {
         assert.ok(html.includes('<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">'), "180 px touch icon");
         assert.ok(html.includes('<a class="skip" href="#main">'), "skip link");
         assert.ok(html.includes("<main id="), "main has an id");
+        assert.ok(html.includes("@media (prefers-contrast: more)"), "more-contrast theme");
     });
 
     it("compresses the form for a client asking for gzip, with a Vary", async () => {
@@ -238,10 +320,66 @@ describe("server pages without Redis", () => {
         assert.ok(!none.headers.has("content-encoding"));
     });
 
+    it("compresses a report download for a client asking for gzip", async () => {
+        const summary = {
+            started: "2026-10-03T00:00:00Z",
+            durationMs: 1000,
+            pages: 2,
+            bytes: 10,
+            groups: { default: 2 },
+            statuses: {},
+            findings: { total: 0, error: 0, warning: 0, info: 0, hint: 0 },
+            rules: 0,
+            checks: { total: 0, passed: 0, failed: 0, errored: 0 },
+            byRule: {},
+            cost: {},
+            stats: {},
+        };
+        const job = { id: "j5", data: { url: "https://a.test/", host: "a.test" }, returnvalue: { summary, findings: [] }, getState: async () => "completed" };
+        const gzipped = await api({ getJob: async () => job } as unknown as Queue, {} as Redis, () => SETTINGS).request("/v1/jobs/j5/report/html", { headers: { "accept-encoding": "gzip" } });
+        assert.equal(gzipped.headers.get("content-encoding"), "gzip");
+        const raw = Buffer.from(await gzipped.arrayBuffer());
+        const uncompressed = await api({ getJob: async () => job } as unknown as Queue, {} as Redis, () => SETTINGS).request("/v1/jobs/j5/report/html");
+        const plain = await uncompressed.text();
+        assert.ok(raw.length < plain.length, "gzip shrinks the report");
+        assert.equal(gunzipSync(raw).toString("utf8"), plain, "gzip round-trips");
+    });
+
+    it("tags the form with an ETag a revalidation answers with 304", async () => {
+        const first = await app.request("/");
+        const tag = first.headers.get("etag") ?? "";
+        assert.ok(tag.length > 0, "ETag present");
+        const fresh = await app.request("/", { headers: { "if-none-match": tag } });
+        assert.equal(fresh.status, 304);
+        const stale = await app.request("/", { headers: { "if-none-match": '"no-such-tag"' } });
+        assert.equal(stale.status, 200);
+    });
+
+    it("serves report downloads for revalidation, not from a cache", async () => {
+        const summary = {
+            started: "2026-10-03T00:00:00Z",
+            durationMs: 1000,
+            pages: 1,
+            bytes: 10,
+            groups: { default: 1 },
+            statuses: {},
+            findings: { total: 0, error: 0, warning: 0, info: 0, hint: 0 },
+            rules: 0,
+            checks: { total: 0, passed: 0, failed: 0, errored: 0 },
+            byRule: {},
+            cost: {},
+            stats: {},
+        };
+        const job = { id: "j6", data: { url: "https://a.test/", host: "a.test" }, returnvalue: { summary, findings: [] }, getState: async () => "completed" };
+        const response = await api({ getJob: async () => job } as unknown as Queue, {} as Redis, () => SETTINGS).request("/v1/jobs/j6/report/json");
+        assert.equal(response.headers.get("cache-control"), "no-cache");
+    });
+
     it("sends no X-XSS-Protection, and upgrades insecure requests in the policy", async () => {
         const response = await app.request("/");
         assert.ok(!response.headers.has("x-xss-protection"));
         assert.match(response.headers.get("content-security-policy") ?? "", /upgrade-insecure-requests/);
+        assert.match(response.headers.get("content-security-policy") ?? "", /require-trusted-types-for 'script'/);
     });
 
     it("answers a missing page as HTML and a missing API route as JSON", async () => {
@@ -404,7 +542,7 @@ describe("server page customisation", () => {
 
     it("leaves the badge alone and serves no assets when none are set", async () => {
         const badge = await read(api({} as Queue, { get: async () => "" } as unknown as Redis, () => settingsOf({ page: { directory: path.join(directory, "page") } })).request("/badge/example.com.svg"), "content-security-policy");
-        assert.equal(badge.header, "default-src 'none'");
+        assert.equal(badge.header, "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'");
         assert.ok(!badge.text.includes("Footer"));
         const bare = api({} as Queue, {} as Redis, () => SETTINGS);
         const missing = await read(bare.request("/assets/app.js"));
@@ -545,11 +683,42 @@ describe("server policy", () => {
     });
 });
 
+describe("hidden scans", () => {
+    const SEO = { rules: ["seo"] };
+
+    it("are admitted only with a boolean", () => {
+        assert.equal(admit({ url: "https://a.ua/", hidden: true, settings: SEO }, SETTINGS).hidden, true);
+        assert.equal(admit({ url: "https://a.ua/", settings: SEO }, SETTINGS).hidden, false);
+        assert.throws(() => admit({ url: "https://a.ua/", hidden: "yes", settings: SEO }, SETTINGS), { code: "invalid-body" });
+    });
+
+    it("never share a repeat window with a public scan of the same site", () => {
+        const [shown, hidden] = [admit({ url: "https://a.ua/", settings: SEO }, SETTINGS), admit({ url: "https://a.ua/", hidden: true, settings: SEO }, SETTINGS)];
+        assert.notEqual(repeatKey(shown), repeatKey(hidden));
+        assert.equal(repeatKey(hidden), repeatKey(admit({ url: "https://a.ua/", hidden: true, settings: SEO }, SETTINGS)));
+    });
+});
+
+describe("job IDs", () => {
+    it("name the host and the queue time, then 48 random bits", () => {
+        assert.match(jobId("example.org", new Date("2026-10-14T17:15:05.123Z")), /^example\.org-20261014T171505Z-[\da-f]{12}$/);
+    });
+
+    it("keep a host with a colon or bracket to characters a queue accepts", () => {
+        assert.match(jobId("[::1]", new Date("2026-10-14T17:15:05Z")), /^---1--20261014T171505Z-[\da-f]{12}$/);
+    });
+
+    it("differ for one host at one instant", () => {
+        const at = new Date();
+        assert.notEqual(jobId("example.org", at), jobId("example.org", at));
+    });
+});
+
 describe("server over Redis", { skip: process.env.SPIDERLINT_TEST_REDIS === undefined && "SPIDERLINT_TEST_REDIS unset" }, () => {
     let site: Fixture;
     const [redis, workerRedis] = [connect(process.env.SPIDERLINT_TEST_REDIS ?? ""), connect(process.env.SPIDERLINT_TEST_REDIS ?? "")];
     const queue = scanQueue(redis, 60);
-    const worker = startWorker(workerRedis, 1, 60);
+    const worker = startWorker(workerRedis, 1, 60, () => 16);
     let settings = settingsOf({ "allow-private": true, policies: [{ name: "fixture", hosts: ["127.0.0.1"], rate: { jobs: 1, per: 60 }, caps: { "max-pages": 3 } }] });
     const app = api(queue, redis, () => settings);
     let first = "";
@@ -612,6 +781,13 @@ describe("server over Redis", { skip: process.env.SPIDERLINT_TEST_REDIS === unde
         assert.match(svg, /<text[^>]*>[SA-F]<\/text>/);
     });
 
+    it("lists the finished scan among the latest reports on the form", async () => {
+        const response = await app.request("/");
+        const html = await response.text();
+        assert.ok(html.includes(`href="/jobs/${first}"`), html);
+        assert.ok(html.includes("<h2>Latest reports</h2>"));
+    });
+
     it("returns the same job for a repeat inside the policy’s window", async () => {
         settings = settingsOf({ "allow-private": true, policies: [{ name: "repeat", hosts: ["127.0.0.1"], repeat: "1h", caps: { "max-pages": 1 } }] });
         const body = JSON.stringify({ url: `${site.origin}/?repeat=${Date.now()}`, settings: { rules: ["seo"] } });
@@ -619,6 +795,23 @@ describe("server over Redis", { skip: process.env.SPIDERLINT_TEST_REDIS === unde
         const two = await app.request("/v1/jobs", { method: "POST", body });
         assert.deepEqual([one.status, two.status], [202, 200]);
         assert.equal(((await one.json()) as { id: string }).id, ((await two.json()) as { id: string }).id);
+    });
+
+    it("keeps a hidden scan out of the host’s latest", async () => {
+        const latest = await redis.get("spiderlint:latest:127.0.0.1");
+        const created = await app.request("/v1/jobs", { method: "POST", body: JSON.stringify({ url: `${site.origin}/?hidden=${Date.now()}`, hidden: true, settings: { rules: ["seo"] } }) });
+        assert.equal(created.status, 202);
+        const { id, hidden } = (await created.json()) as { id: string; hidden?: boolean };
+        assert.equal(hidden, true);
+        let status = "queued";
+        for (let tries = 0; tries < 120 && !["done", "failed"].includes(status); tries += 1) {
+            await sleep(500);
+            const response = await app.request(`/v1/jobs/${id}`);
+            status = ((await response.json()) as { status: string }).status;
+        }
+        assert.equal(status, "done");
+        await sleep(300);
+        assert.equal(await redis.get("spiderlint:latest:127.0.0.1"), latest);
     });
 
     it("queues from the form and sends the reader to the job page", async () => {

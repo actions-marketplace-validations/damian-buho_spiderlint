@@ -99,7 +99,7 @@ function ruleGuides(findings: Finding[], rulesByGroup: Map<string, Rule[]>, chec
     const guides = new Map<string, RuleGuide>();
     for (const { meta } of rulesByGroup.values().toArray().flat()) {
         if (!found.has(meta.id) || guides.has(meta.id)) continue;
-        guides.set(meta.id, { facts: meta.facts, ...(meta.expect && { expect: meta.expect }), ...(meta.fix && { fix: meta.fix }), ...(meta.docs && { docs: meta.docs }) });
+        guides.set(meta.id, { facts: meta.facts, ...(meta.expect && { expect: meta.expect }), ...(meta.fix && { fix: meta.fix }), ...(meta.extra && { extra: meta.extra }), ...(meta.docs && { docs: meta.docs }) });
     }
     if (found.has("groups/heterogeneous")) guides.set("groups/heterogeneous", HETEROGENEOUS_GUIDE);
     log.debug({ rules: guides.size, found: found.size }, "rule guides collected");

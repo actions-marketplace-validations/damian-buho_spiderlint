@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { domainToUnicode } from "node:url";
 import { Hono, type Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
+import { etag } from "hono/etag";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { routePath } from "hono/route";
 import { LICENSE } from "../agent.ts";
@@ -21,7 +22,7 @@ import { compress } from "./compress.ts";
 import { jobOf, submit, type Jobs } from "./jobs.ts";
 import { asset, type Sources } from "./page.ts";
 import { presetSettings, presetsOffered, Refusal } from "./policy.ts";
-import { latestKey, type ScanJob } from "./queue.ts";
+import { latestKey, recentReports, type Recent, type ScanJob } from "./queue.ts";
 import type { ServerSettings } from "./settings.ts";
 
 declare module "hono" {
@@ -43,6 +44,7 @@ const LINKS: [name: string, href: string][] = [
     ["GitHub", "https://github.com/damian-buho/spiderlint"],
     ["Codeberg", "https://codeberg.org/damian-buho/spiderlint"],
 ];
+const SELF_HOST = "https://github.com/damian-buho/spiderlint/blob/main/docs/how-to/SELFHOST.md";
 // Resolves from src/ and dist/ alike, since the package ships both.
 const LOGO = readFileSync(new URL("../../src/server/logo.png", import.meta.url));
 const TOUCH = readFileSync(new URL("../../src/server/apple-touch-icon.png", import.meta.url));
@@ -84,7 +86,7 @@ const hash = (source: string) => `'sha256-${createHash("sha256").update(source).
 // The policy of a page: its own stylesheet and script by hash, what the owner’s fragments ask for, same-origin images, events and forms, nothing else; `self` joins scripts and styles only while the owner serves assets.
 export function pageCsp(sources?: Sources, hasAssets = false): string {
     const list = (own: string, asked: string[]) => [...new Set([own, ...(hasAssets ? ["'self'"] : []), ...asked])].join(" ");
-    return `default-src 'none'; style-src ${list(hash(STYLE), sources?.style ?? [])}; script-src ${list(hash(SCRIPT), sources?.script ?? [])}; img-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'; upgrade-insecure-requests`;
+    return `default-src 'none'; style-src ${list(hash(STYLE), sources?.style ?? [])}; script-src ${list(hash(SCRIPT), sources?.script ?? [])}; img-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'`;
 }
 
 // The policy of every page without fragments.
@@ -129,25 +131,33 @@ function seedOf(raw: unknown): string {
     return typed === "" || /^[a-z][\d+.a-z-]*:\/\//i.test(typed) ? typed : `https://${typed}`;
 }
 
+// The origin readers asked for: the request’s own, with the scheme a terminating proxy names, since internal traffic is plain http.
+function publicOrigin(c: Context): string {
+    const url = new URL(c.req.url);
+    const scheme = c.req.header("x-forwarded-proto")?.split(",", 1)[0]?.trim().toLowerCase();
+    if (scheme === "http" || scheme === "https") url.protocol = `${scheme}:`;
+    return url.origin;
+}
+
 // The page in the reader’s language with the owner’s fragments, never cached, under the page policy they extend; the view is reported to Matomo when one is set.
-function respond(c: Context, t: Translator, title: string, body: string, status: ContentfulStatusCode = 200, head = ""): Response {
+function respond(c: Context, t: Translator, title: string, body: string, status: ContentfulStatusCode = 200, head = "", extra: { description?: string; host?: string } = {}): Response {
     const { page: owner, matomo } = c.get("settings");
     const slots = (["head", "header", "footer"] as const).map((slot) => owner.fragments?.slot(slot, t.lang) ?? { html: "", sources: { script: [], style: [] } });
     const [fromHead, fromHeader, fromFooter] = slots as [Fragment, Fragment, Fragment];
     const sources = { script: slots.flatMap((slot) => slot.sources.script), style: slots.flatMap((slot) => slot.sources.style) };
     const privacy = matomo ? `<a href="${escape(matomo.privacy)}" rel="noopener noreferrer">${escape(t._("Privacy"))}</a>` : "";
-    const origin = new URL(c.req.url).origin;
+    const origin = publicOrigin(c);
     const self = new URL(c.req.path, origin).href;
-    const description = t._("Check every page of a site: SEO tags, security headers, TLS, links and more.");
+    const description = extra.description ?? t._("Check every page of a site: SEO tags, security headers, TLS, links and more.");
     const seo = `<meta name="description" content="${escape(description)}"><link rel="canonical" href="${escape(self)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><meta property="og:image" content="${escape(`${origin}/logo.png`)}"><meta property="og:url" content="${escape(self)}"><meta property="og:type" content="website">`;
     const skip = `<a class="skip" href="#main">${escape(t._("Skip to main content"))}</a>`;
-    const nav = `<header class="site"><a class="brand" href="/"><img src="/logo.png" srcset="/logo-36.png 36w, /logo-72.png 72w" sizes="36px" alt="" width="36" height="36">spiderlint</a><nav><a href="/">${escape(t._("New scan"))}</a><a href="${LINKS[0]?.[1]}" rel="noopener noreferrer">${escape(t._("Self-host"))}</a></nav></header>`;
+    const nav = `<header class="site"><a class="brand" href="/"><img src="/logo.png" srcset="/logo-36.png 36w, /logo-72.png 72w" sizes="36px" alt="" width="36" height="36">spiderlint</a><nav><a href="/">${escape(t._("New scan"))}</a><a href="${SELF_HOST}" rel="noopener noreferrer">${escape(t._("Self-host"))}</a></nav></header>`;
     const links = LINKS.map(([name, href]) => `<a href="${escape(href)}" rel="noopener noreferrer">${escape(name)}</a>`).join("");
     const foot = `<footer class="foot"><p>${escape(t._("Self-host spiderlint: free software under the {license} licence.", { license: LICENSE }))}</p>${links}${privacy}</footer>`;
     c.header("content-security-policy", pageCsp(sources, owner.assets !== undefined));
     c.header("cache-control", "no-cache");
     c.header("vary", "accept-language");
-    track(matomo, c, routePath(c), URL.canParse(title) ? new URL(title).hostname : undefined);
+    track(matomo, c, routePath(c), extra.host ?? (URL.canParse(title) ? new URL(title).hostname : undefined));
     return c.html(page(t, title, `${skip}${fromHeader.html}${nav}${body}${foot}${fromFooter.html}`, ICONS + seo + head + fromHead.html), status);
 }
 
@@ -165,15 +175,31 @@ function presetChoice(t: Translator, offered: string[], chosen?: string): string
     if (offered.length === 0) return "";
     const checked = chosen !== undefined && offered.includes(chosen) ? chosen : offered[0];
     const text = presetText(t);
-    const options = offered.map((name) => `<label for="preset-${escape(name)}"><input id="preset-${escape(name)}" type="radio" name="preset" value="${escape(name)}"${name === checked ? " checked" : ""}> ${escape(text[name]?.[0] ?? name)} <small class="muted">${escape(text[name]?.[1] ?? "")}</small></label>`);
+    const options = offered.map((name) => `<label><input id="preset-${escape(name)}" type="radio" name="preset" value="${escape(name)}"${name === checked ? " checked" : ""}> ${escape(text[name]?.[0] ?? name)} <small class="muted">${escape(text[name]?.[1] ?? "")}</small></label>`);
     return `<fieldset><legend class="muted">${escape(t._("Checks"))}</legend>${options.join("")}</fieldset>`;
 }
 
-// The form, with the address typed, the preset chosen and the refusal it met, if any.
-function formPage(c: Context, t: Translator, offered: string[], typed = "", refusal?: Refusal, chosen?: string): Response {
+// The latest reports as a list of grade, domain and finish time, newest first; nothing while there are none.
+function recentBlock(t: Translator, recent: Recent[]): string {
+    if (recent.length === 0) return "";
+    const when = new Intl.DateTimeFormat(t.locale, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC", timeZoneName: "short" });
+    const items = recent.map(
+        (entry) =>
+            `<li><a href="/jobs/${escape(entry.id)}"><span class="grade grade-${escape(entry.grade ?? "none")}" title="${escape(t._("Rating"))}">${escape(entry.grade ?? "–")}</span><span>${escape(domainToUnicode(entry.host) || entry.host)}<br><time class="muted" datetime="${new Date(entry.finished).toISOString()}">${escape(when.format(entry.finished))}</time></span></a></li>`,
+    );
+    return `<section><h2>${escape(t._("Latest reports"))}</h2><ul class="recent">${items.join("")}</ul></section>`;
+}
+
+// The box that keeps a scan out of the latest reports and the badge.
+function hideChoice(t: Translator, isHidden: boolean): string {
+    return `<label class="check"><input id="hidden" type="checkbox" name="hidden" value="1"${isHidden ? " checked" : ""}> ${escape(t._("Hide from results"))} <small class="muted">${escape(t._("The scan stays out of the latest reports and the badge. Anyone with its link can still open it."))}</small></label>`;
+}
+
+// The form, with the address typed, the preset chosen, the hide box and the refusal it met, if any.
+function formPage(c: Context, t: Translator, offered: string[], recent: Recent[], typed = "", refusal?: Refusal, chosen?: string, isHidden = false): Response {
     if (refusal?.retryAfter !== undefined) c.header("retry-after", String(refusal.retryAfter));
     const alert = refusal ? `<p class="alert" role="alert">${escape(refusalText(t, refusal))}${refusal.code === "banned" ? `<br><small>${escape(refusal.message)}</small>` : ""}</p>` : "";
-    const body = `<main id="main"><h1>spiderlint</h1><p>${escape(t._("Checks every page of a site: search engine tags, security headers, TLS, links and more."))}</p>${alert}<form method="post" action="/"><label for="url" class="muted">${escape(t._("Site address"))}</label><input id="url" name="url" type="text" inputmode="url" autocomplete="url" required spellcheck="false" placeholder="example.com" value="${escape(typed)}"${refusal ? ' aria-invalid="true"' : ""}><button type="submit">${escape(t._("Scan"))}</button>${presetChoice(t, offered, chosen)}</form><p class="muted"><small>${escape(t._("Scans obey robots.txt and identify themselves as spiderlint. A finished report is public: its link and the site’s badge lead to it."))}</small></p></main>`;
+    const body = `<main id="main"><h1>spiderlint</h1><p>${escape(t._("Checks every page of a site: search engine tags, security headers, TLS, links and more."))}</p>${alert}<form method="post" action="/"><label for="url" class="muted">${escape(t._("Site address"))}</label><input id="url" name="url" type="text" inputmode="url" autocomplete="url" required spellcheck="false" placeholder="example.com" value="${escape(typed)}"${refusal ? ' aria-invalid="true"' : ""}><button type="submit">${escape(t._("Scan"))}</button>${presetChoice(t, offered, chosen)}${hideChoice(t, isHidden)}</form><p class="muted"><small>${escape(t._("Scans obey robots.txt and identify themselves as spiderlint. A finished report is public: its link and the site’s badge lead to it."))}</small></p>${recentBlock(t, recent)}</main>`;
     return respond(c, t, t._("spiderlint — scan every page of a website"), body, refusal?.status ?? 200);
 }
 
@@ -199,7 +225,7 @@ function progressBody(t: Translator, job: ScanJob, status: string): string {
     const names = phaseNames(t);
     const named = phase && names[phase];
     const phaseText = named ? (step ? t._("{phase}: {done} of {total}", { phase: named, done: t.number(step.done), total: t.number(step.total) }) : named) : "";
-    const state = status === "running" ? t._("Scanning…") : t._("Waiting in the queue…");
+    const state = t._(status === "running" ? "Scanning…" : "Waiting in the queue…");
     const values = total === undefined ? "" : ` max="${total}" value="${done}"`;
     const attributes = [
         ["events", `/v1/jobs/${job.id}/events`],
@@ -231,7 +257,10 @@ function doneBody(t: Translator, job: ScanJob, wait: number, isRepeat: boolean):
         .map((name) => `<a href="/v1/jobs/${escape(job.id)}/report/${escape(name)}">${escape(name)}</a>`)
         .join(" · ");
     const badge = `/badge/${escape(job.data.host)}.svg`;
-    return `${scanNote(t, job, wait, isRepeat)}${reportBody(job.returnvalue, t, shown(job.data.url), new URL(job.data.url).origin)}<h2>${escape(t._("Downloads"))}</h2><p>${downloads}</p><h2>${escape(t._("Badge"))}</h2><p><a href="${badge}"><img src="${badge}" alt="${escape(t._("Rating badge"))}"></a></p>`;
+    const value = job.returnvalue.summary.rating?.grade ?? "–";
+    const badged = job.data.hidden ? "" : `<h2>${escape(t._("Badge"))}</h2><p><a href="${badge}"><img src="${badge}" alt="${escape(t._("Rating badge"))}" width="${width("spiderlint") + width(value)}" height="20" loading="lazy"></a></p>`;
+    const hiding = job.data.hidden ? `<p class="muted">${escape(t._("Hidden from results: only people with this link can open this report."))}</p>` : "";
+    return `${scanNote(t, job, wait, isRepeat)}${hiding}${reportBody(job.returnvalue, t, shown(job.data.url), new URL(job.data.url).origin)}<h2>${escape(t._("Downloads"))}</h2><p>${downloads}</p>${badged}`;
 }
 
 // Pixels a badge half needs for `text` in 11px Verdana, roughly.
@@ -301,9 +330,12 @@ export function web(jobs: Jobs): Hono {
     });
 
     const offered = () => presetsOffered(jobs.settings());
+    const recent = async () => recentReports(jobs.redis, jobs.settings().recent);
 
     // Text answers leave compressed when the client asks for gzip.
     app.use(compress());
+    // Every page carries a validator, so a revalidation is a 304.
+    app.use(etag());
 
     app.get("/logo.png", (c) => {
         log.debug({ bytes: LOGO.length }, "logo served");
@@ -333,22 +365,23 @@ export function web(jobs: Jobs): Hono {
         return c.body(`Contact: mailto:damian.buho@proton.me\nExpires: ${expires}\nPreferred-Languages: en\n`);
     });
 
-    app.get("/", (c) => formPage(c, translate(c), offered(), c.req.query("url") ?? ""));
+    app.get("/", async (c) => formPage(c, translate(c), offered(), await recent(), c.req.query("url") ?? ""));
 
-    app.post("/", bodyLimit({ maxSize: BODY_MAX, onError: (c) => formPage(c, translate(c), offered(), "", new Refusal(400, "invalid-body", "form too large")) }), async (c) => {
+    app.post("/", bodyLimit({ maxSize: BODY_MAX, onError: async (c) => formPage(c, translate(c), offered(), await recent(), "", new Refusal(400, "invalid-body", "form too large")) }), async (c) => {
         const t = translate(c);
         const form = await formOf(c);
         const typed = typeof form.url === "string" ? form.url : "";
         const preset = typeof form.preset === "string" ? form.preset : undefined;
+        const isHidden = form.hidden !== undefined;
         try {
             if (c.req.header("sec-fetch-site") === "cross-site") throw new Refusal(403, "cross-site", "form sent from another site");
-            const { job, isRepeat } = await submit(jobs, { url: seedOf(typed), ...(preset !== undefined && { settings: presetSettings(preset) }) }, c);
-            log.debug({ job: job.id, isRepeat, preset }, "form submitted");
+            const { job, isRepeat } = await submit(jobs, { url: seedOf(typed), ...(preset !== undefined && { settings: presetSettings(preset) }), ...(isHidden && { hidden: true }) }, c);
+            log.debug({ job: job.id, isRepeat, preset, isHidden }, "form submitted");
             return c.redirect(isRepeat ? `/jobs/${job.id}?repeat` : `/jobs/${job.id}`, 303);
         } catch (error) {
             if (!(error instanceof Refusal)) throw error;
-            log.info({ code: error.code, status: error.status, preset }, "form refused");
-            return formPage(c, t, offered(), typed, error, preset);
+            log.info({ code: error.code, status: error.status, preset, isHidden }, "form refused");
+            return formPage(c, t, offered(), await recent(), typed, error, preset, isHidden);
         }
     });
 
@@ -362,14 +395,17 @@ export function web(jobs: Jobs): Hono {
             return respond(c, t, t._("Scan not found"), `<main id="main"><h1>${escape(t._("Scan not found"))}</h1><p>${escape(refusalText(t, error))}</p><p><a href="/">${escape(t._("Start a new scan"))}</a></p></main>`, 404);
         }
         const state = await job.getState();
-        const title = shown(job.data.url);
+        const scanned = shown(job.data.url);
+        const title = `${scanned} — spiderlint report`.slice(0, 60);
+        const extra = { description: `${scanned} — ${t._("Check every page of a site: SEO tags, security headers, TLS, links and more.")}`.slice(0, 160), host: job.data.host };
         const isRepeat = c.req.query("repeat") !== undefined;
         const wait = job.data.repeatKey ? await jobs.redis.ttl(job.data.repeatKey) : 0;
-        log.debug({ job: job.id, state, isRepeat, wait }, "job page rendered");
-        if (state === "completed") return respond(c, t, title, `<main id="main">${doneBody(t, job, wait, isRepeat)}</main>`);
-        if (state === "failed") return respond(c, t, title, `<main id="main"><h1>${escape(title)}</h1><p class="alert" role="alert">${escape(t._("The scan failed."))}</p><p><code>${escape(job.failedReason)}</code></p><p><a href="/">${escape(t._("Start a new scan"))}</a></p></main>`);
-        const body = `<main id="main"><h1>${escape(title)}</h1>${isRepeat ? `<p class="notice">${escape(t._("This site was scanned recently, so this is the existing scan."))}</p>` : ""}${progressBody(t, job, state === "active" ? "running" : "queued")}</main><script>${SCRIPT}</script>`;
-        return respond(c, t, title, body, 200, `<noscript><meta http-equiv="refresh" content="${REFRESH_S}"></noscript>`);
+        const noindex = job.data.hidden ? '<meta name="robots" content="noindex">' : "";
+        log.debug({ job: job.id, state, isRepeat, wait, hidden: job.data.hidden === true }, "job page rendered");
+        if (state === "completed") return respond(c, t, title, `<main id="main">${doneBody(t, job, wait, isRepeat)}</main>`, 200, noindex, extra);
+        if (state === "failed") return respond(c, t, title, `<main id="main"><h1>${escape(scanned)}</h1><p class="alert" role="alert">${escape(t._("The scan failed."))}</p><p><code>${escape(job.failedReason)}</code></p><p><a href="/">${escape(t._("Start a new scan"))}</a></p></main>`, 200, noindex, extra);
+        const body = `<main id="main"><h1>${escape(scanned)}</h1>${isRepeat ? `<p class="notice">${escape(t._("This site was scanned recently, so this is the existing scan."))}</p>` : ""}${progressBody(t, job, state === "active" ? "running" : "queued")}</main><script>${SCRIPT}</script>`;
+        return respond(c, t, title, body, 200, `<noscript><meta http-equiv="refresh" content="${REFRESH_S}"></noscript>${noindex}`, extra);
     });
 
     app.get("/badge/:file", async (c) => {
@@ -381,7 +417,7 @@ export function web(jobs: Jobs): Hono {
         const grade = job?.returnvalue?.summary.rating?.grade;
         log.debug({ host, job: id, grade }, "badge served");
         c.header("content-type", "image/svg+xml; charset=utf-8");
-        c.header("content-security-policy", "default-src 'none'");
+        c.header("content-security-policy", "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; upgrade-insecure-requests; require-trusted-types-for 'script'");
         c.header("cache-control", `max-age=${BADGE_MAX_AGE_S}`);
         c.header("vary", "accept-language");
         const value = job ? (grade ?? "–") : translate(c)._("not scanned");

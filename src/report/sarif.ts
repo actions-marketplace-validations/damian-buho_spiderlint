@@ -70,10 +70,11 @@ function messageStrings(findings: Finding[]): { ids: Map<string, string>; byRule
     return { ids, byRule };
 }
 
-// The rule’s generic fix and docs link, which code scanning shows beside each alert.
-function help({ fix, docs }: RuleGuide) {
-    const text = [fix && fixFor(fix), docs].filter(Boolean);
-    const markdown = [fix && fixFor(fix), docs && `[Documentation](${docs})`].filter(Boolean);
+// The rule’s generic fixes and docs link, which code scanning shows beside each alert.
+function help({ fix, extra, docs }: RuleGuide) {
+    const all = [fix, ...(extra ?? [])].filter((text): text is string => text !== undefined).map((text) => fixFor(text));
+    const text = [...all, docs].filter(Boolean);
+    const markdown = [...all, docs && `[Documentation](${docs})`].filter(Boolean);
     return text.length === 0 ? {} : { help: { text: text.join("\n\n"), markdown: markdown.join("\n\n") }, ...(docs && { helpUri: docs }) };
 }
 

@@ -2,11 +2,12 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { Queue, type Job } from "bullmq";
 import { Redis } from "ioredis";
 import type { Report, Summary } from "../index.ts";
 import { log } from "../logger.ts";
+import type { Grade } from "../report/rating.ts";
 import type { Finding } from "../rules/types.ts";
 import { Refusal, type Admitted } from "./policy.ts";
 
@@ -28,6 +29,8 @@ export interface ScanData {
     via: string;
     // The key holding the repeat window, so the job page can say when a fresh scan may start.
     repeatKey?: string;
+    // Set when the scan stays out of the latest reports and the badge.
+    hidden?: boolean;
     // The submitting request’s trace context as W3C headers, empty when telemetry is off.
     trace?: Record<string, string>;
 }
@@ -71,13 +74,63 @@ export async function charge(redis: Redis, admitted: Admitted): Promise<void> {
     if (used > rate.jobs) throw new Refusal(429, "rate-limited", `${admitted.host}: ${rate.jobs} scans per ${rate.seconds} s under policy ${admitted.policy.name}`, Math.max(1, left));
 }
 
-// The key a repeat of this scan finds its job under: the policy, the seed and the settings with keys sorted.
+// The key a repeat of this scan finds its job under: the policy, the seed, the settings with keys sorted and whether it is hidden.
 export function repeatKey(admitted: Admitted): string {
     const sorted = JSON.stringify(admitted.settings, (_key, value: unknown) => (value && typeof value === "object" && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).toSorted(([a], [b]) => a.localeCompare(b))) : value));
-    return `${PREFIX}:repeat:${admitted.policy.name}:${createHash("sha256").update(`${admitted.url}\n${sorted}`).digest("hex")}`;
+    return `${PREFIX}:repeat:${admitted.policy.name}:${createHash("sha256")
+        .update(`${admitted.url}\n${sorted}${admitted.hidden ? "\nhidden" : ""}`)
+        .digest("hex")}`;
+}
+
+// A job ID that names its host and queue time, closed by 48 random bits: `example.org-20261014T171505Z-3f9c1a7e2b4d`.
+export function jobId(host: string, at = new Date()): string {
+    const stamp = at.toISOString().replaceAll(/[-:]|\.\d+/g, "");
+    return `${host.replaceAll(/[^\da-z.-]/g, "-")}-${stamp}-${randomBytes(6).toString("hex")}`;
 }
 
 // The key naming the last finished scan of `host`, which the badge reads.
 export function latestKey(host: string): string {
     return `${PREFIX}:latest:${host}`;
+}
+
+// What the form lists of a host’s latest finished scan.
+export interface Recent {
+    id: string;
+    host: string;
+    grade?: Grade;
+    finished: number;
+}
+
+// The hosts of the latest reports by finish time; each host’s entry sits under its own key.
+const RECENT = `${PREFIX}:recent`;
+
+// Points the host’s badge at the finished scan and, while `limit` is above zero, lists it among the latest reports, dropping the oldest past `limit`.
+export async function recordLatest(redis: Redis, job: ScanJob, retention: number, limit: number): Promise<void> {
+    const { host } = job.data;
+    const grade = job.returnvalue.summary.rating?.grade;
+    const entry: Recent = { id: job.id as string, host, finished: job.finishedOn ?? Date.now(), ...(grade && { grade }) };
+    const pending = redis.multi().set(latestKey(host), entry.id, "EX", retention);
+    if (limit > 0)
+        pending
+            .set(`${RECENT}:${host}`, JSON.stringify(entry), "EX", retention)
+            .zadd(RECENT, entry.finished, host)
+            .zremrangebyrank(RECENT, 0, -(limit + 1));
+    await pending.exec();
+    log.debug({ job: entry.id, host, grade, limit }, "latest scan recorded");
+}
+
+// The latest reports, newest first and at most `limit`; an entry whose scan expired is dropped, and a Redis that fails reads as none.
+export async function recentReports(redis: Redis, limit: number): Promise<Recent[]> {
+    if (limit <= 0) return [];
+    try {
+        const hosts = await redis.zrevrange(RECENT, 0, limit - 1);
+        const raw = hosts.length > 0 ? await redis.mget(hosts.map((host) => `${RECENT}:${host}`)) : [];
+        const gone = hosts.filter((_host, index) => !raw.at(index));
+        if (gone.length > 0) await redis.zrem(RECENT, ...gone);
+        log.debug({ hosts: hosts.length, gone: gone.length, limit }, "latest reports read");
+        return raw.flatMap((entry) => (entry ? [JSON.parse(entry) as Recent] : []));
+    } catch (error) {
+        log.warn({ limit, error: String(error) }, "latest reports not read");
+        return [];
+    }
 }

@@ -40,6 +40,7 @@ redis: redis://valkey:6379/0
 redis-password-file: /run/secrets/o9s.vlky.password # the password, kept out of this file
 listen: { host: 0.0.0.0, port: 8080 }
 retention: 7d # jobs and reports are deleted this long after they settle
+recent: 16 # latest reports the form lists, one per host; 0 lists none
 workers: 2 # scans one worker process runs at a time
 max-queued: 100 # a new job is refused with 503 while this many wait
 allow-private: false # true lets scans reach loopback and private networks, and allows the browser
@@ -157,11 +158,16 @@ The request body carries the target and, optionally, `org.spiderlint` keys:
 }
 ```
 
+`"hidden": true` keeps the scan out of the host’s badge and out of the latest reports.
+The job reports `hidden`, its page asks search engines to skip it, and it has a repeat
+window of its own, so a public request for the same site never receives it. Anyone
+holding the report’s address can still open it.
+
 A job:
 
 ```json
 {
-  "id": "0b1e…",
+  "id": "example.ua-20260927T090000Z-3f9c1a7e2b4d",
   "url": "https://example.ua/",
   "policy": "ua",
   "status": "running",
@@ -169,9 +175,9 @@ A job:
   "created": "2026-09-27T09:00:00.000Z",
   "started": "2026-09-27T09:00:01.000Z",
   "links": {
-    "self": "/v1/jobs/0b1e…",
-    "page": "/jobs/0b1e…",
-    "events": "/v1/jobs/0b1e…/events"
+    "self": "/v1/jobs/example.ua-20260927T090000Z-3f9c1a7e2b4d",
+    "page": "/jobs/example.ua-20260927T090000Z-3f9c1a7e2b4d",
+    "events": "/v1/jobs/example.ua-20260927T090000Z-3f9c1a7e2b4d/events"
   }
 }
 ```
@@ -179,7 +185,7 @@ A job:
 `status` is `queued`, `running`, `done` or `failed`. `eta` is a range in seconds,
 absent until a few pages are timed. A `done` job adds `summary`, as the `json`
 report carries it with the rating, and `links.reports`. A `failed` job adds `error`.
-The ID is random and unguessable; nothing lists jobs.
+The ID is the host, the UTC time the job was queued and 48 random bits, so a report’s address says what and when; the random part keeps it unguessable.
 
 A refusal is `{ "error": { "code": "…", "message": "…" } }`. Clients translate the
 `code`; the message is for logs:
@@ -198,12 +204,12 @@ checked before any window is charged.
 
 ## Pages
 
-| Route                   | Page                                                                                     |
-| ----------------------- | ---------------------------------------------------------------------------------------- |
-| `GET /`                 | A form taking a domain (`https://` is assumed) or a URL                                  |
-| `POST /`                | Queues the scan and redirects to its page with `303`, or shows the form with the refusal |
-| `GET /jobs/<id>`        | Progress while queued or running, then the report, its downloads and the badge           |
-| `GET /badge/<host>.svg` | The grade of the host’s latest finished scan, linking to it; `not scanned` otherwise     |
+| Route                   | Page                                                                                                              |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `GET /`                 | A form taking a domain (`https://` is assumed) or a URL, with a “Hide from results” box, above the latest reports |
+| `POST /`                | Queues the scan and redirects to its page with `303`, or shows the form with the refusal                          |
+| `GET /jobs/<id>`        | Progress while queued or running, then the report, its downloads and the badge                                    |
+| `GET /badge/<host>.svg` | The grade of the host’s latest finished scan, linking to it; `not scanned` otherwise                              |
 
 Pages are rendered on the server and work without JavaScript: a waiting page
 refreshes itself every 5 s, and with scripts it follows the job’s events instead.
@@ -214,7 +220,12 @@ refused. Every page carries a content security policy allowing only its own
 style sheet and script by hash.
 
 A finished host is the badge’s for `retention`, so its latest report is public to
-anyone who knows the hostname.
+anyone who knows the hostname. A hidden scan never becomes the host’s latest.
+
+The form lists the latest reports under `recent`: one per host, so a rescan replaces
+the host’s entry, newest first, each with its grade and its finish time in UTC. An
+entry lives as long as its report and a hidden scan is never listed. `recent: 0` turns
+the list off; an unreachable Redis shows the form without it.
 
 ## Customising pages
 

@@ -396,7 +396,7 @@ const dates = pageRule(
             return [
                 ...invalid,
                 ...(published > modified ? [`${type} dateModified ${String(node.dateModified)} is before datePublished ${String(node.datePublished)}`] : []),
-                ...(published !== shown && !Number.isNaN(published) && !Number.isNaN(shown) ? [`${type} datePublished ${String(node.datePublished)} disagrees with article:published_time ${meta["article:published_time"]}`] : []),
+                ...(published === shown || Number.isNaN(published) || Number.isNaN(shown) ? [] : [`${type} datePublished ${String(node.datePublished)} disagrees with article:published_time ${meta["article:published_time"]}`]),
             ];
         });
         log.debug({ url: page.url.href, invalid: locations.length }, "dates judged");

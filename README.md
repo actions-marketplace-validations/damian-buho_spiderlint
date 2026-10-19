@@ -57,7 +57,7 @@ It also inherits the features of B19 / Ubuntu — see [Features](docs/FEATURES.m
 
 ## What this provides
 
-- **CI action** `damian-buho/spiderlint@0.143.1`
+- **CI action** `damian-buho/spiderlint@0.144.0`
 - **Container image** `ghcr.io/damian-buho/spiderlint:latest`
 - **Container image** `damianbuho/spiderlint:latest`
 - **npm package** `spiderlint` — command `spiderlint`
@@ -114,7 +114,7 @@ Needs Node.js >=26.
 Run it as a step in a GitHub Actions workflow:
 
 ```yaml
-- uses: damian-buho/spiderlint@0.143.1
+- uses: damian-buho/spiderlint@0.144.0
 ```
 
 The action takes these inputs:
@@ -225,6 +225,7 @@ Pipeline entry points:
 ## Documentation
 
 - [Run spiderlint from a checkout](docs/how-to/RUN-FROM-A-CHECKOUT.md)
+- [Self-host the scan server](docs/how-to/SELFHOST.md)
 
 ## Policies
 
@@ -236,6 +237,7 @@ Pipeline entry points:
 
 ## Links
 
+- [Issues on Codeberg](https://codeberg.org/damian-buho/spiderlint/issues)
 - [Issues on GitHub](https://github.com/damian-buho/spiderlint/issues)
 - [Projectfile Specification](https://projectfile.org)
 

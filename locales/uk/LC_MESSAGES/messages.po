@@ -116,6 +116,12 @@ msgstr "Група"
 msgid "Group: {name} · Pages: {count}"
 msgstr "Група: {name} · Сторінки: {count}"
 
+msgid "Hidden from results: only people with this link can open this report."
+msgstr "Приховано з результатів: цей звіт відкриє лише той, хто має посилання."
+
+msgid "Hide from results"
+msgstr "Приховати з результатів"
+
 msgid "Hint"
 msgstr "Порада"
 
@@ -142,6 +148,9 @@ msgstr "Внутрішні посилання"
 
 msgid "Largest Contentful Paint"
 msgstr "Largest Contentful Paint"
+
+msgid "Latest reports"
+msgstr "Останні звіти"
 
 msgid "Less than {range} left"
 msgstr "Залишилося менше ніж {range}"
@@ -328,6 +337,9 @@ msgstr "Запитаний режим завантаження недоступ�
 
 msgid "The scan failed."
 msgstr "Перевірка не вдалася."
+
+msgid "The scan stays out of the latest reports and the badge. Anyone with its link can still open it."
+msgstr "Перевірка не потрапить до останніх звітів і на значок. Той, хто має посилання, усе одно зможе її відкрити."
 
 msgid "This instance does not scan this site."
 msgstr "Цей сервер не перевіряє цей сайт."

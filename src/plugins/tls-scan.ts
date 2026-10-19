@@ -270,7 +270,7 @@ export async function scan(target: Target, isFull: boolean): Promise<ScanFacts> 
     const hasModern = modern.length > 0;
     const certified = hasModern ? await modernCertificates(target) : undefined;
     const supported = LEGACY_HELLOS.filter((protocol) => protocols.includes(protocol));
-    const fallen = hasModern ? supported.at(-1) : supported.at(-2);
+    const fallen = supported.at(hasModern ? -1 : -2);
     const legacyFlights = classic.flat();
     const isCompressed = legacyFlights.some((flight) => flight.compression === 1);
     const facts: ScanFacts = {

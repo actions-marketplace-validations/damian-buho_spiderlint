@@ -190,7 +190,7 @@ function rssItem(node: Node, position: number, isRdf: boolean): Item {
     const contents: Content[] = [childOf(node, "description", ns), childOf(node, "encoded", NS.content)].flatMap((child) => (child && child.text.trim() ? { field: child.uri === NS.content ? "content:encoded" : "description", type: "html" as const, value: child.text, ...(child.base && { base: child.base }) } : []));
     const title = childOf(node, "title", ns);
     const link = textOf(childOf(node, "link", ns));
-    const missing = [...(!title && !childOf(node, "description", ns) ? ["title or description"] : []), ...(isRdf && !link ? ["link"] : [])];
+    const missing = [...(title || childOf(node, "description", ns) ? [] : ["title or description"]), ...(isRdf && !link ? ["link"] : [])];
     const enclosures = childrenOf(node, "enclosure").map((child) => ({ url: child.attributes.url, length: child.attributes.length, type: child.attributes.type }));
     return {
         position,
@@ -217,7 +217,7 @@ function readRss(root: Node, namespaces: Set<string>, base: string): Model {
     const channel = childOf(root, "channel", ns);
     const items = isRdf ? childrenOf(root, "item", NS.rss1) : childrenOf(channel, "item");
     const links = atomLinks(channel, base);
-    const missing = [...(channel ? ["title", "link", "description"].filter((name) => !childOf(channel, name, ns)) : ["channel"]), ...(!isRdf && !root.attributes.version ? ["version attribute"] : [])];
+    const missing = [...(channel ? ["title", "link", "description"].filter((name) => !childOf(channel, name, ns)) : ["channel"]), ...(isRdf || root.attributes.version ? [] : ["version attribute"])];
     const podcastGuid = textOf(childOf(channel, "guid", NS.podcast));
     const locked = textOf(childOf(channel, "locked", NS.podcast));
     // RSS 2.0 names the channel date `lastBuildDate`, and `pubDate` where it means the content date.

@@ -8,7 +8,7 @@ import type { Facts, ResourceFacts } from "../src/facts/types.ts";
 import { parseLink } from "../src/facts/headers.ts";
 import { builtin } from "../src/rules/builtin.ts";
 import { compileRule, describe as describeValue } from "../src/rules/declarative.ts";
-import { fixFor } from "../src/rules/fix.ts";
+import { fixFor, fixesOf } from "../src/rules/fix.ts";
 import type { AggregateRule, Finding, PageRule, Rule } from "../src/rules/types.ts";
 import { resolveRuleset } from "../src/rules/rulesets.ts";
 import { exempt } from "../src/plugins/html-validate.ts";
@@ -207,11 +207,20 @@ describe("rule fixes", () => {
             if (exemptList.has(id)) return;
             const rule = compileRule(id, spec.severity === "off" ? { ...spec, severity: "warning" } : spec) as Rule;
             assert.ok(rule.meta.fix, `rule ${id} is missing a fix`);
-            assert.ok(!rule.meta.fix.includes("\n"), `rule ${id} has a multi-line fix`);
-            if (!/^(axe|htmlhint|html-validate)\//.test(id)) assert.match(rule.meta.fix, /^[^a-z].*[.?!]$/su, `rule ${id} fix is not a sentence`);
-            assert.doesNotMatch(rule.meta.fix, /<(host|domain|origin|url)>|\{(?!(host|domain|origin|url)\})[a-z]+\}/, `rule ${id} fix has a placeholder fixFor does not fill`);
+            for (const fix of [rule.meta.fix, ...(rule.meta.extra ?? [])]) {
+                assert.ok(!fix.includes("\n"), `rule ${id} has a multi-line fix`);
+                if (!/^(axe|htmlhint|html-validate)\//.test(id)) assert.match(fix, /^[^a-z].*[.?!]$/su, `rule ${id} fix is not a sentence`);
+                assert.doesNotMatch(fix, /<(host|domain|origin|url)>|\{(?!(host|domain|origin|url)\})[a-z]+\}/, `rule ${id} fix has a placeholder fixFor does not fill`);
+            }
         });
     }
+
+    it("lists fix before extra, in order", () => {
+        assert.deepEqual(fixesOf({ fix: "First.", extra: ["Second.", "Third."] }), ["First.", "Second.", "Third."]);
+        assert.deepEqual(fixesOf({ fix: "Only." }), ["Only."]);
+        assert.deepEqual(fixesOf({ extra: ["Extra."] }), ["Extra."]);
+        assert.deepEqual(fixesOf(undefined), []);
+    });
 
     it("fills placeholders from a page URL or a bare host, and shows them generic without a finding", () => {
         const fix = "Add `_dmarc.{domain}` for {host} on {origin}, see {url}.";

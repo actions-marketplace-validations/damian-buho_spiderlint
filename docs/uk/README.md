@@ -59,7 +59,7 @@ Spiderlint обходить кожну сторінку сайту, збирає
 
 ## Що надає цей проєкт
 
-- **CI-дія** `damian-buho/spiderlint@0.143.1`
+- **CI-дія** `damian-buho/spiderlint@0.144.0`
 - **Образ контейнера** `ghcr.io/damian-buho/spiderlint:latest`
 - **Образ контейнера** `damianbuho/spiderlint:latest`
 - **Пакунок npm** `spiderlint` — команда `spiderlint`
@@ -116,7 +116,7 @@ npm install --global spiderlint
 Запускайте його як крок робочого процесу GitHub Actions:
 
 ```yaml
-- uses: damian-buho/spiderlint@0.143.1
+- uses: damian-buho/spiderlint@0.144.0
 ```
 
 Дія приймає такі вхідні параметри:
@@ -227,6 +227,7 @@ make container-build
 ## Документація
 
 - [Run spiderlint from a checkout](../how-to/RUN-FROM-A-CHECKOUT.md)
+- [Self-host the scan server](../how-to/SELFHOST.md)
 
 ## Політики
 
@@ -238,6 +239,7 @@ make container-build
 
 ## Посилання
 
+- [Задачі на Codeberg](https://codeberg.org/damian-buho/spiderlint/issues)
 - [Задачі на GitHub](https://github.com/damian-buho/spiderlint/issues)
 - [Специфікація Projectfile](https://projectfile.org)
 

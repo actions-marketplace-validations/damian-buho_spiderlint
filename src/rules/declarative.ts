@@ -98,7 +98,7 @@ function compilePage(id: string, spec: RuleSpec, fact: string, validate: Validat
     const root = fact.split(".", 1)[0] as string;
     const isSkipped = guard(id, spec.when);
     return {
-        meta: { id, severity, scope: "page", facts: [fact], docs: spec.docs, fix: spec.fix, expect: spec.expect },
+        meta: { id, severity, scope: "page", facts: [fact], docs: spec.docs, fix: spec.fix, extra: spec.extra, expect: spec.expect },
         check(page, site) {
             if (isSkipped(page, page.url.href, site)) return;
             if (get(page, root) === undefined) {
@@ -119,7 +119,7 @@ function compileUnique(id: string, spec: RuleSpec, fact: string): AggregateRule 
     const scope = spec.scope === "group" ? "group" : "site";
     const isSkipped = guard(id, spec.when);
     return {
-        meta: { id, severity, scope, facts: [fact], docs: spec.docs, fix: spec.fix },
+        meta: { id, severity, scope, facts: [fact], docs: spec.docs, fix: spec.fix, extra: spec.extra },
         check(pages, group, site) {
             const byValue = new Map<string, string[]>();
             for (const page of pages) {
@@ -157,7 +157,7 @@ function compileSubject(id: string, spec: RuleSpec, fact: string, subject: NonNu
     const isSiteSkipped = guard(id, siteWhen(spec.when));
     const needs = [...when.map(([path]) => path), ...(spec.hints ? [`${prefix}stack`] : [])].filter((path) => subjectPath(path)?.id !== subject.id);
     return {
-        meta: { id, severity, scope: "site", facts: [fact, ...new Set(needs)], docs: spec.docs, fix: spec.fix, expect: spec.expect, ...(spec.linked === true && subject.kind === "hosts" && { linked: true }) },
+        meta: { id, severity, scope: "site", facts: [fact, ...new Set(needs)], docs: spec.docs, fix: spec.fix, extra: spec.extra, expect: spec.expect, ...(spec.linked === true && subject.kind === "hosts" && { linked: true }) },
         check(_pages, _group, site) {
             if (isSiteSkipped({}, "site", site)) return;
             const unjudged = new Set(spec.linked === true ? [] : (site?.linked ?? []));
@@ -224,8 +224,8 @@ function compileUnscored(id: string, spec: RuleSpec): Rule {
     if (!spec.fact && (make || !spec.expect)) {
         if (!make) throw new ConfigError(`rule ${id}: needs fact and expect, or unique, or a built-in ID`);
         const rule = make(severityOf(id, spec), spec.expect);
-        // A ruleset entry’s `docs` and `fix` win over the built-in’s own.
-        Object.assign(rule.meta, spec.docs && { docs: spec.docs }, spec.fix && { fix: spec.fix });
+        // A ruleset entry’s `docs`, `fix` and `extra` win over the built-in’s own.
+        Object.assign(rule.meta, spec.docs && { docs: spec.docs }, spec.fix && { fix: spec.fix }, spec.extra && { extra: spec.extra });
         return guarded(rule, spec.when);
     }
     if (!spec.fact || !spec.expect) throw new ConfigError(`rule ${id}: needs both fact and expect`);

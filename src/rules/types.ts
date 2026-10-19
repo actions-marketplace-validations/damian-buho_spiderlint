@@ -62,6 +62,8 @@ export interface RuleMeta {
     facts: string[];
     docs?: string;
     fix?: string;
+    // Ordered extra notes beyond `fix`, rendered after it in every format.
+    extra?: string[];
     // The score a finding gets when nothing measured it; absent when `scale` computes it.
     score?: number;
     // How a dynamic score follows the finding’s value.
@@ -73,7 +75,7 @@ export interface RuleMeta {
 }
 
 // What a finding’s rule reads, expects and how to fix it, carried in the report for formatters.
-export type RuleGuide = Pick<RuleMeta, "facts" | "expect" | "fix" | "docs">;
+export type RuleGuide = Pick<RuleMeta, "facts" | "expect" | "fix" | "extra" | "docs">;
 
 // `undefined` from a page rule means the `when` guard skipped it; `site` answers `when` paths under `site.`.
 export interface PageRule {
@@ -111,6 +113,8 @@ export interface RuleSpec {
     pinned?: true;
     docs?: string;
     fix?: string;
+    // Ordered extra notes beyond `fix`, rendered after it in every format.
+    extra?: string[];
     // A fix per service in the subject’s `stack`, which replaces `fix` on a finding about a subject running on it.
     hints?: Record<string, string>;
     message?: string;

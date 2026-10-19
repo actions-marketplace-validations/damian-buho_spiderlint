@@ -17,7 +17,7 @@ export default tseslint.config(
         ignores: ["coverage/", "node_modules/", "tmp/", "out/", "dist/", "**/*.tmp.*"],
     },
     js.configs.recommended,
-    ...tseslint.configs.recommended,
+    ...tseslint.configs.strict,
     nPlugin.configs["flat/recommended-module"],
     flatConfigs.recommended,
     promisePlugin.configs["flat/recommended"],

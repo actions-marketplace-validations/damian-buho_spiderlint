@@ -23,15 +23,29 @@ contact:
     email: damian.buho@proton.me
     orcid: https://orcid.org/0009-0004-8579-7633
     website: https://dbuho.me
-version: 0.143.1
+version: 0.144.0
 keywords:
-  - spiderlint
-  - linter
+  - accessibility
+  - cookies
   - crawler
-  - seo
-  - security-headers
+  - dns
+  - dmarc
+  - favicon
+  - json-ld
+  - lighthouse
+  - link-checker
+  - linter
+  - privacy
+  - robots-txt
+  - rss
   - sarif
+  - security-headers
+  - seo
+  - sitemap
+  - sustainability
+  - tls
+  - web-performance
 license: AGPL-3.0-only
 repository-code: https://kiota.ch/damian-buho/spiderlint
 url: https://dbuho.me/project/spiderlint/
-date-released: "2026-10-12"
+date-released: "2026-10-16"

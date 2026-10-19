@@ -41,6 +41,8 @@ export interface ServerSettings {
     redisPasswordFile?: string;
     listen: { host: string; port: number };
     retention: number;
+    // Latest reports the form lists; 0 lists none.
+    recent: number;
     workers: number;
     maxQueued: number;
     allowPrivate: boolean;
@@ -77,6 +79,7 @@ const schema = {
         "redis-password-file": { type: "string", minLength: 1 },
         listen: { type: "object", additionalProperties: false, properties: { host: { type: "string" }, port: { type: "integer", minimum: 1, maximum: 65_535 } } },
         retention: duration,
+        recent: { type: "integer", minimum: 0 },
         workers: positive,
         "max-queued": positive,
         "allow-private": { type: "boolean" },
@@ -199,6 +202,7 @@ export function settingsOf(raw: unknown): ServerSettings {
         ...(value["redis-password-file"] !== undefined && { redisPasswordFile: value["redis-password-file"] as string }),
         listen: { host: value.listen?.host ?? "0.0.0.0", port: value.listen?.port ?? 8080 },
         retention: seconds((value.retention as string | number | undefined) ?? "7d"),
+        recent: (value.recent as number | undefined) ?? 16,
         workers: (value.workers as number | undefined) ?? 2,
         maxQueued: (value["max-queued"] as number | undefined) ?? 100,
         allowPrivate,

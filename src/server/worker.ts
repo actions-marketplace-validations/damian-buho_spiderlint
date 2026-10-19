@@ -11,7 +11,7 @@ import { Worker } from "bullmq";
 import type { Redis } from "ioredis";
 import { log } from "../logger.ts";
 import { inSpan, recordScan, traceCarrier, withTraceCarrier } from "../telemetry.ts";
-import { latestKey, PREFIX, PROGRESS_FD, QUEUE, type ScanData, type ScanJob, type ScanResult } from "./queue.ts";
+import { PREFIX, PROGRESS_FD, QUEUE, recordLatest, type ScanData, type ScanJob, type ScanResult } from "./queue.ts";
 
 const RUNNER = new URL(`scan${path.extname(import.meta.url)}`, import.meta.url).pathname;
 const PROGRESS_MS = 1000;
@@ -106,14 +106,18 @@ async function runScan(job: ScanJob): Promise<ScanResult> {
     return JSON.parse(Buffer.concat(chunks).toString("utf8")) as ScanResult;
 }
 
-// Takes `concurrency` scans at a time off the queue until `close`, which kills the runners in flight; a finished scan becomes its host’s latest for `retention` seconds.
-export function startWorker(redis: Redis, concurrency: number, retention: number): { close(): Promise<void> } {
+// Takes `concurrency` scans at a time off the queue until `close`, which kills the runners in flight; a finished scan, unless hidden, becomes its host’s latest for `retention` seconds and one of the `recent()` latest reports.
+export function startWorker(redis: Redis, concurrency: number, retention: number, recent: () => number): { close(): Promise<void> } {
     const worker = new Worker<ScanData, ScanResult>(QUEUE, tracedScan, { connection: redis, prefix: PREFIX, concurrency });
     worker.on("failed", (job, error) => log.warn({ job: job?.id, host: job?.data.host, error: error.message }, "scan failed"));
     worker.on("completed", async (job) => {
         log.info({ job: job.id, host: job.data.host, findings: job.returnvalue.findings.length, grade: job.returnvalue.summary.rating?.grade }, "scan completed");
+        if (job.data.hidden) {
+            log.info({ job: job.id, host: job.data.host }, "hidden scan left out of the latest");
+            return;
+        }
         try {
-            await redis.set(latestKey(job.data.host), job.id as string, "EX", retention);
+            await recordLatest(redis, job, retention, recent());
         } catch (error) {
             log.warn({ job: job.id, error: String(error) }, "latest scan not recorded");
         }
