@@ -79,7 +79,7 @@
     "smol-toml": "1.9.1",
     "structured-headers": "2.1.1",
     "svgo": "4.1.0",
-    "tldts": "7.4.18",
+    "tldts": "7.4.19",
     "yaml": "2.9.1"
   },
   "devDependencies": {
