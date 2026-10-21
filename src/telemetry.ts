@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { context, metrics, propagation, SpanStatusCode, trace, type Attributes, type Counter, type Histogram, type ObservableGauge, type Span } from "@opentelemetry/api";
+import { AsyncLocalStorageContextManager } from "@opentelemetry/context-async-hooks";
+import { CompositePropagator, W3CBaggagePropagator, W3CTraceContextPropagator } from "@opentelemetry/core";
 import { VERSION } from "./agent.ts";
 import { log } from "./logger.ts";
 import { ENDPOINTS, isTelemetryConfigured } from "./telemetry-environment.ts";
@@ -34,8 +36,8 @@ export async function startTelemetry(service: string): Promise<Telemetry | undef
         log.debug({ service, variables: ENDPOINTS }, "telemetry off, no OTLP endpoint set");
         return undefined;
     }
-    const [{ NodeTracerProvider, BatchSpanProcessor }, { MeterProvider, PeriodicExportingMetricReader }, { OTLPTraceExporter }, { OTLPMetricExporter }, { resourceFromAttributes }] = await Promise.all([
-        import("@opentelemetry/sdk-trace-node"),
+    const [{ TracerProvider, BatchSpanProcessor }, { MeterProvider, PeriodicExportingMetricReader }, { OTLPTraceExporter }, { OTLPMetricExporter }, { resourceFromAttributes }] = await Promise.all([
+        import("@opentelemetry/sdk-trace"),
         import("@opentelemetry/sdk-metrics"),
         import("@opentelemetry/exporter-trace-otlp-http"),
         import("@opentelemetry/exporter-metrics-otlp-http"),
@@ -43,8 +45,10 @@ export async function startTelemetry(service: string): Promise<Telemetry | undef
     ]);
     const name = process.env.OTEL_SERVICE_NAME || service;
     const resource = resourceFromAttributes({ "service.name": name, "service.version": VERSION });
-    const tracing = new NodeTracerProvider({ resource, spanProcessors: [new BatchSpanProcessor(new OTLPTraceExporter())] });
-    tracing.register();
+    const tracing = new TracerProvider({ resource, spanProcessors: [new BatchSpanProcessor({ exporter: new OTLPTraceExporter() })] });
+    trace.setGlobalTracerProvider(tracing);
+    context.setGlobalContextManager(new AsyncLocalStorageContextManager().enable());
+    propagation.setGlobalPropagator(new CompositePropagator({ propagators: [new W3CTraceContextPropagator(), new W3CBaggagePropagator()] }));
     const interval = Number(process.env.OTEL_METRIC_EXPORT_INTERVAL) || EXPORT_MS;
     const metering = new MeterProvider({ resource, readers: [new PeriodicExportingMetricReader({ exporter: new OTLPMetricExporter(), exportIntervalMillis: interval })] });
     metrics.setGlobalMeterProvider(metering);
