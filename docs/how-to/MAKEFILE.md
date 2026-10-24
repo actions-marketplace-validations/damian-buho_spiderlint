@@ -1087,7 +1087,7 @@ Check toolbox npm pins for upstream drift
 
 `.makefile/core/scripts/check-outdated.sh ' -> ' .makefile/core/scripts/check-outdated-deps.sh .container/*/deps/*.npm.deps`
 
-> Image: B19_NODE_BASE_IMAGE
+> Image: NODE_TOOL_IMAGE
 
 ### `check-outdated-npm`
 
