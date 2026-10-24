@@ -77,6 +77,8 @@ depends on an upstream release, or the advisory does not apply to this project):
 | GHSA-mh99-v99m-4gvg | bundled inside npm (latest dist-tag); no npm release ships the fix |
 | CVE-2026-19534 | bundled undici < 6.28.1 in npm (latest dist-tag); no npm release ships the fix |
 | GHSA-rfgv-xxqx-mfg5 | bundled undici < 6.28.1 in npm (latest dist-tag); no npm release ships the fix |
+| CVE-2026-109869 | bundled undici < 6.29.1 in npm; fixed upstream, drop after the node fleet rebuilds |
+| GHSA-xjj6-f33q-929c | bundled undici < 6.29.1 in npm; fixed upstream, drop after the node fleet rebuilds |
 | CVE-2026-26996 | bundled minimatch < 10.2.1 in npm; fixed upstream, drop after the node fleet rebuilds |
 | GHSA-3ppc-4f35-3m26 | bundled minimatch < 10.2.1 in npm; fixed upstream, drop after the node fleet rebuilds |
 | CVE-2026-27903 | bundled minimatch < 10.2.3 in npm; fixed upstream, drop after the node fleet rebuilds |
