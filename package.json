@@ -56,7 +56,7 @@
     "doiuse": "6.0.6",
     "eld": "2.1.0",
     "esbuild": "0.28.2",
-    "gettext-parser": "9.1.1",
+    "gettext-parser": "10.0.0",
     "hono": "4.13.13",
     "html-validate": "11.17.0",
     "htmlhint": "1.9.2",
