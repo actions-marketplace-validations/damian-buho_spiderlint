@@ -70,11 +70,7 @@ function tagList(record: string, version: RegExp): Parsed {
 
 // A domain-spec with `%{d}` and `%{o}` filled; undefined when a sender macro is left, since no sender is known.
 function expand(spec: string, domain: string): string | undefined {
-    const filled = spec
-        .replaceAll(/%\{[do]r?\}/gi, () => domain)
-        .replaceAll("%%", "%")
-        .replaceAll("%_", " ")
-        .replaceAll("%-", "%20");
+    const filled = spec.replaceAll(/%(?:\{[do]r?\}|[%_-])/gi, (token) => (token === "%%" ? "%" : token === "%_" ? " " : token === "%-" ? "%20" : domain));
     return filled.includes("%") ? undefined : filled.replace(/\.$/, "");
 }
 

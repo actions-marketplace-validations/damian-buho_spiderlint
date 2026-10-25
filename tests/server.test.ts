@@ -188,7 +188,7 @@ describe("server pages without Redis", () => {
         const html = await response.text();
         assert.ok(html.includes("Comprobando los recursos enlazados: 40 de 230"), html);
         assert.ok(html.includes("Quedan menos de 2 min"), html);
-        const script = /<script>([^]*)<\/script>/.exec(html)?.[1] ?? "";
+        const script = /<script>([^]*?)<\/script\b[^>]*>/i.exec(html)?.[1] ?? "";
         assert.doesNotThrow(() => new Function(script), "inline script parses");
         assert.ok(response.headers.get("content-security-policy")?.includes("script-src 'sha256-"));
     });
