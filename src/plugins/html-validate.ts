@@ -196,7 +196,7 @@ async function extract(page: Facts, body: string): Promise<HtmlValidateFacts | u
 
 const rules = Object.fromEntries(Object.keys(severities(BASE)).map((id) => [`${PREFIX}${id}`, rule(id)]));
 
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- preset() assembles plain rule data, no IO
+ 
 export default {
     name: "html-validate",
     extractors: [{ id: ID, extract }],

@@ -99,7 +99,7 @@ function preset(description: string, levels: Record<string, Level>): RulesetConf
 
 const rules = Object.fromEntries(Object.keys(RULESET).map((id) => [`${PREFIX}${id}`, messageRule(ID, PREFIX, id, `https://htmlhint.com/rules/${id}`, DESCRIPTIONS.get(id))]));
 
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- preset() assembles plain rule data, no IO
+ 
 export default {
     name: "htmlhint",
     extractors: [{ id: ID, extract }],

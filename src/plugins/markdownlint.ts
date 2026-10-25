@@ -112,7 +112,7 @@ function preset(description: string, levels: Map<string, Level>): RulesetConfig 
 
 const rules = Object.fromEntries(UPSTREAM.map(([, alias, text, documentation]) => [`${PREFIX}${alias}`, messageRule(ID, PREFIX, alias, documentation, text)]));
 
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- preset() assembles plain rule data, no IO
+ 
 export default {
     name: "markdownlint",
     settings: { type: "object", additionalProperties: false, properties: { config: bare(SCHEMA) } },

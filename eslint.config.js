@@ -11,7 +11,7 @@ import tsdocPlugin from "eslint-plugin-tsdoc";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- composing the exported config is this file's whole job
+ 
 export default tseslint.config(
     {
         ignores: ["coverage/", "node_modules/", "tmp/", "out/", "dist/", "**/*.tmp.*"],

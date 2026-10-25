@@ -146,7 +146,7 @@ async function extract(page: Facts, _body: string, live?: Page): Promise<AxeFact
     return facts;
 }
 
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- preset() assembles plain rule data, no IO
+ 
 export default {
     name: "axe",
     extractors: [{ id: ID, mode: "browser", cost: "expensive", inputs: ["resources"], extract }],

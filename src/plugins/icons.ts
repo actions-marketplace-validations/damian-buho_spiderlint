@@ -313,7 +313,7 @@ function problemRule(check: keyof IconsFacts, severity: Severity, score: number,
     return { fact: `site.origins.*.${ID}.${check}`, expect: { maxItems: 0 }, message: `${message}: {got}`, severity, score, docs: documentation, fix };
 }
 
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- problemRule() assembles plain rule data, no IO
+ 
 export default {
     name: ID,
     sites: [icons],
