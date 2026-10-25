@@ -11,6 +11,7 @@ import type { RuleSpec } from "../rules/types.ts";
 import { isIP } from "node:net";
 import { marked, type TokensList } from "marked";
 import { checkCarbonTxt } from "./carbon-txt.ts";
+import { LLMS_CONFIG, lintMarkdown } from "./markdownlint.ts";
 import { isSpecialUse, texts } from "./dns.ts";
 import { mediaType } from "./origin.ts";
 import { type Extractor, type PageContext, type SiteContext, type SiteExtractor, type Plugin } from "./types.ts";
@@ -23,6 +24,7 @@ interface Verdict {
     "days-left"?: number;
     expired?: string[];
     "age-days"?: number;
+    markdownlint?: string[];
 }
 
 // The probed file a check reads.
@@ -195,7 +197,7 @@ function markdownLinks(tokens: TokensList, url: string): string[] {
     return [...new Set(hrefs.flatMap((href) => (URL.canParse(href, url) ? [new URL(href, url).href] : [])))];
 }
 
-// llmstxt.org: not empty, one H1 first, served as one of `types` when given, and links that answer 2xx, crawled or probed through the `probes` bucket.
+// llmstxt.org: not empty, one H1 first, served as one of `types` when given, links that answer 2xx, crawled or probed through the `probes` bucket, and markdownlint’s defects unless cut short.
 function llmsCheck(kind: string, types?: string[]): Check {
     return async (text, { url, answer }, context) => {
         const errors: string[] = [];
@@ -207,8 +209,10 @@ function llmsCheck(kind: string, types?: string[]): Check {
         if (headings[0] === undefined || tokens.find((token) => token.type !== "space") !== headings[0]) errors.push("does not open with its H1");
         const links = markdownLinks(tokens, url);
         const judged = await linkErrors(links, context, kind);
-        log.debug({ url, kind, headings: headings.length, links: links.length, probed: judged.probed, unprobed: judged.unprobed }, "llms file checked");
-        return { errors: [...errors, ...judged.errors], fields: { title: (headings[0] as { text?: string } | undefined)?.text, links: links.length, probed: judged.probed, unprobed: judged.unprobed } };
+        const messages = answer.truncated ? undefined : await lintMarkdown(text, LLMS_CONFIG);
+        const linted = messages?.map(({ line, column, rule, message }) => `${line}:${column} ${rule}: ${message}`);
+        log.debug({ url, kind, headings: headings.length, links: links.length, probed: judged.probed, unprobed: judged.unprobed, linted: linted?.length }, "llms file checked");
+        return { errors: [...errors, ...judged.errors], fields: { title: (headings[0] as { text?: string } | undefined)?.text, links: links.length, probed: judged.probed, unprobed: judged.unprobed }, ...(linted && { markdownlint: linted }) };
     };
 }
 
@@ -677,6 +681,26 @@ const AGENT_RULES: Record<string, RuleSpec> = {
         score: 2.4,
         docs: "https://llmstxt.org/#format",
         fix: "Open /llms-full.txt with its one H1, serve it as text/markdown, and repair or drop every link that does not answer 200.",
+    },
+    "well-known/llms-txt-markdown": {
+        fact: "site.origins.*.agents.llms-txt.markdownlint",
+        expect: { maxItems: 0 },
+        when: { "site.origins.*.agents.llms-txt.present": true },
+        message: "/llms.txt carries Markdown a renderer or agent misreads: {got}",
+        severity: "info",
+        score: 2.2,
+        docs: "https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md",
+        fix: "Repair each Markdown defect listed in /llms.txt at the line and column the finding names.",
+    },
+    "well-known/llms-full-txt-markdown": {
+        fact: "site.origins.*.agents.llms-full-txt.markdownlint",
+        expect: { maxItems: 0 },
+        when: { "site.origins.*.agents.llms-full-txt.present": true },
+        message: "/llms-full.txt carries Markdown a renderer or agent misreads: {got}",
+        severity: "info",
+        score: 2,
+        docs: "https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md",
+        fix: "Repair each Markdown defect listed in /llms-full.txt at the line and column the finding names.",
     },
     ...validity("agents", AGENTS, "hint"),
     "well-known/markdown-source": {

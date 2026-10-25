@@ -36,6 +36,7 @@ import list from "./list.ts";
 import live from "./live.ts";
 import icons from "./icons.ts";
 import manifest from "./manifest.ts";
+import markdownlint from "./markdownlint.ts";
 import markup from "./markup.ts";
 import network from "./network.ts";
 import origin from "./origin.ts";
@@ -48,7 +49,7 @@ import trackers from "./trackers.ts";
 import type { Extractor, Formatter, PageContext, Plugin, ResourceExtractor, SiteExtractor, Source } from "./types.ts";
 import wellKnown from "./well-known.ts";
 
-const plugins: Plugin[] = [report, htmlValidate, htmlhint, axe, keyboard, profileLinks, live, lighthouse, origin, dns, mail, sshfp, network, stack, tlsProbe, cookies, images, css, wellKnown, feeds, structuredData, manifest, icons, linkText, markup, trackers, list];
+const plugins: Plugin[] = [report, htmlValidate, htmlhint, markdownlint, axe, keyboard, profileLinks, live, lighthouse, origin, dns, mail, sshfp, network, stack, tlsProbe, cookies, images, css, wellKnown, feeds, structuredData, manifest, icons, linkText, markup, trackers, list];
 // Milliseconds before a source that has not answered aborts the run.
 const SOURCE_MS = 60_000;
 const loaded = new Set(plugins.map((plugin) => plugin.name));
@@ -213,7 +214,7 @@ export async function withSources(config: Config): Promise<Config> {
 // Extractors whose ID is the first key of a fact some rule reads.
 export function extractorsFor(rules: Rule[]): Extractor[] {
     const roots = new Set(rules.flatMap((rule) => rule.meta.facts.map((fact) => fact.split(".", 1)[0])));
-    const active = allExtractors().filter((extractor) => roots.has(extractor.id));
+    const active = plugins.flatMap((plugin) => (plugin.extractors ?? []).filter((extractor) => roots.has(extractor.id)).map((extractor) => (settings.has(plugin.name) ? { ...extractor, settings: settings.get(plugin.name) } : extractor)));
     log.debug({ extractors: active.map((extractor) => extractor.id), roots: roots.size }, "extractors chosen");
     return active;
 }
@@ -270,12 +271,13 @@ export function resourceExtractorsFor(rules: Rule[]): ResourceExtractor[] {
     return active;
 }
 
-// What keys `extractor` beyond the body: its `inputs` and, rendered, the browser; undefined when one is unknown.
+// What keys `extractor` beyond the body: its `inputs`, its settings and, rendered, the browser; undefined when one is unknown.
 function inputsOf(extractor: Extractor, page: Facts, live?: Page): string | undefined {
     const browser = live?.context().browser();
     const parts = extractor.mode === "browser" ? [browser ? `${browser.browserType().name()} ${browser.version()}` : undefined] : [];
     const inputs = extractor.inputs ?? [];
     for (const input of inputs) parts.push(input === "resources" ? live && loadedDigest(live) : [page.http.headers.link ?? ""].flat().join(", "));
+    if (extractor.settings !== undefined) parts.push(JSON.stringify(extractor.settings));
     return parts.includes(undefined) ? undefined : parts.join("\0");
 }
 
@@ -294,7 +296,7 @@ export async function extract(page: Facts, body: string, active: Extractor[], ca
             const inputs = inputsOf(extractor, page, live);
             if (inputs === undefined) log.debug({ url: page.url.href, extractor: extractor.id, inputs: extractor.inputs }, "extractor inputs unknown, run uncached");
             const keyed = inputs === undefined ? { ...extractor, cached: false as const } : extractor;
-            const value = await inSpan(`extract ${extractor.id}`, { "spiderlint.extractor": extractor.id, "url.full": page.url.href }, async () => cache.run(keyed, page.url.href, inputs ? `${kind}\0${inputs}` : kind, body, () => extractor.extract(page, body, live, context)));
+            const value = await inSpan(`extract ${extractor.id}`, { "spiderlint.extractor": extractor.id, "url.full": page.url.href }, async () => cache.run(keyed, page.url.href, inputs ? `${kind}\0${inputs}` : kind, body, () => extractor.extract(page, body, live, context, extractor.settings)));
             const ms = Math.round(performance.now() - running);
             recordExtractor(extractor.id, ms);
             log.debug({ url: page.url.href, extractor: extractor.id, ms, isEmpty: value === undefined }, "extractor ran");

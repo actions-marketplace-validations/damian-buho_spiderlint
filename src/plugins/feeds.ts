@@ -18,7 +18,7 @@ import { type SiteExtractor, type Plugin } from "./types.ts";
 const ID = "feed";
 const FEED_TYPES = new Set(["application/rss+xml", "application/atom+xml", "application/rdf+xml", "application/feed+json"]);
 const WRONG_TYPES = new Set(["text/html", "text/plain", "application/octet-stream", ""]);
-const XML_ROOT = /^\s*(?:<\?xml[^>]*>\s*)?(?:<\?xml-stylesheet[^>]*>\s*)?(?:<!--[\s\S]*?-->\s*)*(?:<\?xml-stylesheet[^>]*>\s*)?<(?:rss|feed|rdf:RDF)[\s>]/;
+const XML_ROOT = /^\s*(?:<\?xml[^>]*>\s*|<!--(?:(?!-->)[\s\S])*-->\s*)*<(?:rss|feed|rdf:RDF)[\s>]/;
 const TRACKING = /^(?:utm_[a-z]+|fbclid|gclid|dclid|msclkid|mc_cid|mc_eid|_hsenc|_hsmi|mkt_tok)$/i;
 const PROBLEM_CAP = 50;
 const DAY_MS = 86_400_000;

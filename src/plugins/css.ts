@@ -402,7 +402,6 @@ const inlineUnsupported: Make = (severity, settings) =>
         settings as CssSettings,
     );
 
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- kindRules() assembles plain rule data, no IO
 export default {
     name: "css",
     settings: SETTINGS,

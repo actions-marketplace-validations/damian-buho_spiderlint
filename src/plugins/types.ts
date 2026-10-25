@@ -27,7 +27,9 @@ export interface Extractor {
     inputs?: ("headers.link" | "resources")[];
     // Opens Chromium’s DevTools port on loopback for the run, read back through `debuggingPort(live)`.
     debugging?: true;
-    extract(page: Facts, body: string, live?: Page, context?: PageContext): Promise<unknown>;
+    // Set by the registry to the plugin’s validated settings, handed to `extract` and keying the `extractors` bucket.
+    settings?: unknown;
+    extract(page: Facts, body: string, live?: Page, context?: PageContext, settings?: unknown): Promise<unknown>;
 }
 
 // What a page extractor may touch while crawling: GET or HEAD probes that stay on the page’s host; absent when a stored page is backfilled.

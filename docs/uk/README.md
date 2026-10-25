@@ -59,7 +59,7 @@ Spiderlint обходить кожну сторінку сайту, збирає
 
 ## Що надає цей проєкт
 
-- **CI-дія** `damian-buho/spiderlint@0.144.0`
+- **CI-дія** `damian-buho/spiderlint@0.145.3`
 - **Образ контейнера** `ghcr.io/damian-buho/spiderlint:latest`
 - **Образ контейнера** `damianbuho/spiderlint:latest`
 - **Пакунок npm** `spiderlint` — команда `spiderlint`
@@ -116,7 +116,7 @@ npm install --global spiderlint
 Запускайте його як крок робочого процесу GitHub Actions:
 
 ```yaml
-- uses: damian-buho/spiderlint@0.144.0
+- uses: damian-buho/spiderlint@0.145.3
 ```
 
 Дія приймає такі вхідні параметри:
@@ -222,7 +222,7 @@ make container-build
 - `make analyzed` — Запускає важкий аналіз (мутаційне тестування, бенчмарки)
 - `make audited` — Повторно сканує закріплені залежності й опубліковані артефакти на нові вразливості
 - `make check-outdated` — Звітує про кожну закріплену залежність, що відстає від upstream
-- `make ready-to-publish` — Запускає псевдо-CI локально — збирає, тестує й сканує без публікації
+- `make release-is-ready` — Запускає псевдо-CI локально — збирає, тестує й сканує без публікації
 
 ## Документація
 

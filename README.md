@@ -57,7 +57,7 @@ It also inherits the features of B19 / Ubuntu — see [Features](docs/FEATURES.m
 
 ## What this provides
 
-- **CI action** `damian-buho/spiderlint@0.144.0`
+- **CI action** `damian-buho/spiderlint@0.145.3`
 - **Container image** `ghcr.io/damian-buho/spiderlint:latest`
 - **Container image** `damianbuho/spiderlint:latest`
 - **npm package** `spiderlint` — command `spiderlint`
@@ -114,7 +114,7 @@ Needs Node.js >=26.
 Run it as a step in a GitHub Actions workflow:
 
 ```yaml
-- uses: damian-buho/spiderlint@0.144.0
+- uses: damian-buho/spiderlint@0.145.3
 ```
 
 The action takes these inputs:
@@ -220,7 +220,7 @@ Pipeline entry points:
 - `make analyzed` — Run the heavy analysis sweep (mutation testing, benchmarks)
 - `make audited` — Re-scan the pinned dependencies and published artifacts for new vulnerabilities
 - `make check-outdated` — Report every pinned dependency that lags upstream
-- `make ready-to-publish` — Run the pseudo-CI pipeline locally — build, test and scan, without publishing
+- `make release-is-ready` — Run the pseudo-CI pipeline locally — build, test and scan, without publishing
 
 ## Documentation
 

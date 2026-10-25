@@ -85,7 +85,6 @@ function metric(key: keyof typeof VITALS, limit: number, unit: string, link: str
     };
 }
 
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- score() and metric() assemble plain rule data, no IO
 export default {
     name: "lighthouse",
     extractors: [{ id: ID, mode: "browser", cost: "expensive", cached: false, debugging: true, extract }],

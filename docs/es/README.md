@@ -59,7 +59,7 @@ También hereda las características de B19 / Ubuntu; consulta [Características
 
 ## Qué entrega este proyecto
 
-- **Acción de CI** `damian-buho/spiderlint@0.144.0`
+- **Acción de CI** `damian-buho/spiderlint@0.145.3`
 - **Imagen de contenedor** `ghcr.io/damian-buho/spiderlint:latest`
 - **Imagen de contenedor** `damianbuho/spiderlint:latest`
 - **Paquete npm** `spiderlint` — comando `spiderlint`
@@ -116,7 +116,7 @@ Requiere Node.js >=26.
 Ejecútalo como un paso de un flujo de trabajo de GitHub Actions:
 
 ```yaml
-- uses: damian-buho/spiderlint@0.144.0
+- uses: damian-buho/spiderlint@0.145.3
 ```
 
 La acción acepta estas entradas:
@@ -222,7 +222,7 @@ Puntos de entrada de la canalización:
 - `make analyzed` — Ejecuta el análisis pesado (pruebas de mutación, benchmarks)
 - `make audited` — Vuelve a escanear las dependencias fijadas y los artefactos publicados en busca de vulnerabilidades nuevas
 - `make check-outdated` — Informa de cada dependencia fijada que va por detrás de su versión upstream
-- `make ready-to-publish` — Ejecuta localmente el pipeline pseudo-CI — compila, prueba y escanea, sin publicar
+- `make release-is-ready` — Ejecuta localmente el pipeline pseudo-CI — compila, prueba y escanea, sin publicar
 
 ## Documentación
 

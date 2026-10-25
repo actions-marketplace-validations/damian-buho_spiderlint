@@ -575,6 +575,10 @@ Verify repository object integrity
 
 > Image: host runner
 
+### `git-worktree-check`
+
+Verify git resolves the work tree to this project directory
+
 ### `pf-bridge-gitattributes-check`
 
 Verify .gitattributes still matches the projectfile
@@ -1083,7 +1087,7 @@ Check toolbox npm pins for upstream drift
 
 `.makefile/core/scripts/check-outdated.sh ' -> ' .makefile/core/scripts/check-outdated-deps.sh .container/*/deps/*.npm.deps`
 
-> Image: B19_NODE_BASE_IMAGE
+> Image: NODE_TOOL_IMAGE
 
 ### `check-outdated-npm`
 
@@ -1843,6 +1847,10 @@ Run the commit gate — the fast syntax checks
 
 Run the push gate — every input check, including tests and the vulnerability scans
 
+### `preflight-passed`
+
+Prove the run’s images, disk, keys and hosts are there before any build, test or scan starts
+
 ### `projectfile-is-ok`
 
 Verify every projectfile-derived file still matches the projectfile
@@ -1857,7 +1865,7 @@ Build, test, scan and publish the release artifacts
 
 > Goal — lowered to its own CI workflow.
 
-### `ready-to-publish`
+### `release-is-ready`
 
 Run the pseudo-CI pipeline locally — build, test and scan, without publishing
 

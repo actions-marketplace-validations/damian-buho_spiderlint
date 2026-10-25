@@ -59,7 +59,7 @@ async function collector(): Promise<{ server: Server; endpoint: string; received
         });
         request.on("end", () => {
             const body = JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}") as Json;
-            SIGNALS[request.url ?? ""]?.(body, received);
+            if (Object.hasOwn(SIGNALS, request.url ?? "")) SIGNALS[request.url as string]?.(body, received);
             response.writeHead(200, { "content-type": "application/json" }).end("{}");
         });
     });

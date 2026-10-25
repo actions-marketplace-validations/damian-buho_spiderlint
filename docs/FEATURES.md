@@ -164,7 +164,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 - A rule is a fact path plus a JSON Schema, so a new check needs no code.
 - Bundled presets cover search, security headers, TLS, DNS, cookies, performance, accessibility, privacy, sustainability, links, redirects, sitemaps, robots.txt, well-known files and files for AI agents.
 - Each URL group runs its own rule sets, and any rule’s severity can be changed or switched off from the command line, the environment or the projectfile.
-- axe-core, html-validate and htmlhint run inside the same crawl, each of their checks a rule you can tune or switch off like any other, and Lighthouse scores join them on rendered pages.
+- axe-core, html-validate, htmlhint and markdownlint run inside the same crawl, each of their checks a rule you can tune or switch off like any other, and Lighthouse scores join them on rendered pages.
 - Plugins add their own facts, rules, presets, report formats and URL sources beside the bundled ones, and a plain list of URLs can be audited on its own.
 
 ### Search visibility checked across the whole site
@@ -230,7 +230,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 - A missing or expired `security.txt` is reported, so security researchers always have a way to reach you.
 - A site with a password field must lead `/.well-known/change-password` somewhere, so password managers can send users straight to the right form.
 - Every other known file (privacy signals, OpenID and OAuth metadata, app links, Fediverse node info, AI crawler terms) is checked only when present, so publishing one never goes unnoticed as broken.
-- Files for AI agents (`llms.txt`, agent cards, MCP and skill indices) are checked in their own opt-in preset, including links in `llms.txt` that lead to broken pages and whether pages offer a Markdown version.
+- Files for AI agents (`llms.txt`, agent cards, MCP and skill indices) are checked in their own opt-in preset, including links in `llms.txt` that lead to broken pages, Markdown that renderers and agents misread, and whether pages offer a Markdown version.
 - A missing page served as HTML counts as absent, so a site that answers every URL does not flood the report.
 
 ## Inherited from B19 / Ubuntu
@@ -244,9 +244,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 ### Service process management with log routing (b19-exec)
 
 - Long-running processes (daemons, servers) have stdout and stderr automatically routed through the structured logger.
-- The service PID is tracked for signal forwarding — Docker stop gracefully terminates the main process.
+- Every signal reaches the service exactly once, so `docker stop` ends it gracefully and its last log lines are kept.
 - Log levels for stdout and stderr streams are independently configurable.
-- Exit code of the service is captured and available to downstream hooks.
+- Several daemons share one container: each line is tagged with its daemon, they stop in reverse start order, and a crashed required daemon stops the container so the restart policy acts.
+- Passthrough mode hands a service’s own log to the collector byte for byte, so parsers built for that daemon still match.
 
 ### Cached artifact downloads with integrity verification
 
@@ -275,6 +276,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 - Cross-cutting setup (CA trust, locale, shared installs) is written once and runs on every stage automatically.
 - Downstream images inherit parent build logic through the layer overlay — no duplication needed.
 - Non-inheritable one-off setup is cleaned up after execution to avoid leaking into later stages.
+
+### Compromised certificate authorities distrusted ahead of upstream
+
+- Certificates listed by SHA-256 fingerprint are removed from the system trust store at build time, before the distribution ships its own fix.
+- One list serves the whole image lineage, and `b19-ca-distrust bundle` cuts any vendored PEM bundle from it too.
+- Ships distrusting the eMudhra intermediates whose private keys can be recovered (October 2026), together with their cross-signs and roots.
+- Downstream images add fingerprints with one variable or one file, and `B19_CA_DISTRUST_ENABLED=false` turns the cut off. [How-to](how-to/use-ca-distrust.md)
 
 ### Automatic CPU count detection
 
@@ -331,6 +339,7 @@ See [use-healthcheck.d](../how-to/use-healthcheck.d.md) for the check list, slot
 - Messages below the configured verbosity are silently discarded, keeping production logs clean.
 - Colors auto-detect terminal support and respect `NO_COLOR=1`.
 - Pipable: command output can be routed through the logger to apply level filtering and tags.
+- `B19_LOG_FORMAT=json` turns every line into one JSON object a log pipeline reads without a parser; a service’s own JSON lines pass through untouched.
 
 ### Non-root container by default
 
@@ -387,7 +396,7 @@ See [use-healthcheck.d](../how-to/use-healthcheck.d.md) for the check list, slot
 ### Graceful signal handling
 
 - PID 1 is `tini -g`, which reaps zombie processes and forwards signals to the full process group.
-- A configurable set of Unix signals (TERM, INT, HUP, USR1, USR2, etc.) is trapped and forwarded to the main service process.
+- A configurable set of Unix signals (TERM, INT, HUP, USR1, USR2, etc.) is trapped and forwarded to every service process, which stop in reverse start order.
 - `docker stop` cleanly terminates the service without orphan processes or signal loss.
 
 ### Jinja2 configuration templates (minijinja-cli)

@@ -82,9 +82,9 @@ const extract = async (page: Facts, _body: string, live?: Page, context?: PageCo
             });
             try {
                 await visit(fresh, target);
-                const back = ((await fresh.evaluate(ME_LINKS)) as string[]).some((href) => URL.canParse(href) && ours.has(bare(href)));
-                log.debug({ url: page.url.href, target, status, back }, "rel=me profile rendered");
-                return { url: target, ...(status !== undefined && { status }), back };
+                const isBack = ((await fresh.evaluate(ME_LINKS)) as string[]).some((href) => URL.canParse(href) && ours.has(bare(href)));
+                log.debug({ url: page.url.href, target, status, back: isBack }, "rel=me profile rendered");
+                return { url: target, ...(status !== undefined && { status }), back: isBack };
             } catch (error) {
                 log.debug({ url: page.url.href, target, error: reason(error) }, "rel=me profile not rendered");
                 return { url: target, back: false, error: reason(error) };

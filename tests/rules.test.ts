@@ -209,7 +209,7 @@ describe("rule fixes", () => {
             assert.ok(rule.meta.fix, `rule ${id} is missing a fix`);
             for (const fix of [rule.meta.fix, ...(rule.meta.extra ?? [])]) {
                 assert.ok(!fix.includes("\n"), `rule ${id} has a multi-line fix`);
-                if (!/^(axe|htmlhint|html-validate)\//.test(id)) assert.match(fix, /^[^a-z].*[.?!]$/su, `rule ${id} fix is not a sentence`);
+                if (!/^(axe|htmlhint|html-validate|markdownlint)\//.test(id)) assert.match(fix, /^[^a-z].*[.?!]$/su, `rule ${id} fix is not a sentence`);
                 assert.doesNotMatch(fix, /<(host|domain|origin|url)>|\{(?!(host|domain|origin|url)\})[a-z]+\}/, `rule ${id} fix has a placeholder fixFor does not fill`);
             }
         });

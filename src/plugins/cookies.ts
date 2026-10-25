@@ -184,7 +184,7 @@ const STORAGE_BEFORE_CONSENT: RuleSpec = {
 };
 
 // One set of cookie expectations over the page’s Set-Cookie, each resource’s, and what scripts write through `document.cookie`.
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- Object.fromEntries() assembles plain rule data, no IO
+
 export default {
     name: "cookies",
     extractors: [consent],

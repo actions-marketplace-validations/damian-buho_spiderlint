@@ -59,28 +59,10 @@ env:
   O9S_VALKEY_IMAGE: ${{ vars.O9S_VALKEY_IMAGE || format('{0}/o9s/valkey:{1}', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho', vars.BASE_IMAGE_DEFAULT_VERSION || 'latest') }}
   PF_CLI_IMAGE: ${{ vars.PF_CLI_IMAGE || format('{0}/cli:{1}', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/projectfile-org', vars.BASE_IMAGE_DEFAULT_VERSION || 'latest') }}
 jobs:
-  artifacts-are-ok:
-    runs-on: ubuntu-26.04
-    needs: ["image-is-ready", "inputs-are-ok"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
-    steps:
-      - run: echo artifacts-are-ok
-  container-is-diagnosed:
-    runs-on: ubuntu-26.04
-    needs: ["container-ready-to-test"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
-    steps:
-      - run: echo container-is-diagnosed
-  container-is-ok:
-    runs-on: ubuntu-26.04
-    needs: ["images-are-ok"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
-    steps:
-      - run: echo container-is-ok
   container-is-verified:
     runs-on: ubuntu-26.04
-    needs: ["container-is-diagnosed"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
+    needs: ["image-is-built"]
+    if: ${{ !cancelled() && needs.image-is-built.result == 'success' && ((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)) }}
     strategy:
       matrix:
         M6E_ARCH: ["amd64"]
@@ -106,13 +88,13 @@ jobs:
       # can delete a layer record mid-copy — podman then buries the real cause under a
       # four-transport probe that claims the tar matches no supported format. The retry
       # for that class lives in the pinned action, not inline (Law 2).
-      - uses: projectfile-org/actions/container-load@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+      - uses: projectfile-org/actions/container-load@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH)))
         with:
           archive: image-${{ matrix.M6E_ARCH }}-${{ github.run_id }}.tar
       - name: secrets-provision
         if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_CONTAINER_IS_VERIFIED != 'true' && vars.CI_SKIP_SECRETS_PROVISION != 'true'
-        uses: projectfile-org/actions/secrets-provision@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/secrets-provision@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           declarations: "{\"o9s.vlky.password\":{\"docker\":{\"run\":\"m6e-secret-random\"}}}"
           dir: .secrets
@@ -122,19 +104,19 @@ jobs:
         if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_IMAGES_ARE_OK != 'true' && vars.CI_SKIP_DC_PULL != 'true'
         run: M6E_COMPOSE_FILE=.compose/pipeline.yaml .makefile/container/scripts/compose-pull.sh
       - name: dc-up-d
-        if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_CONTAINER_IS_OK != 'true' && vars.CI_SKIP_DC_UP_D != 'true'
+        if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_CONTAINER_IS_STARTED != 'true' && vars.CI_SKIP_DC_UP_D != 'true'
         run: timeout --kill-after=10s "${M6E_COMPOSE_UP_TIMEOUT:-300}s" docker compose --project-name "$M6E_COMPOSE_PROJECT_NAME" --file .compose/pipeline.yaml up --detach --renew-anon-volumes --no-build </dev/null
       - name: configuration-check
-        if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_CONTAINER_READY_TO_TEST != 'true' && vars.CI_SKIP_CONFIGURATION_CHECK != 'true'
+        if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_CONTAINER_IS_TESTED != 'true' && vars.CI_SKIP_CONFIGURATION_CHECK != 'true'
         run: .makefile/container/scripts/configuration-capture.sh --check --default-lang= es uk
       - name: container-test
-        if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_CONTAINER_READY_TO_TEST != 'true' && vars.CI_SKIP_CONTAINER_TEST != 'true'
-        uses: projectfile-org/actions/container-exec@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_CONTAINER_IS_TESTED != 'true' && vars.CI_SKIP_CONTAINER_TEST != 'true'
+        uses: projectfile-org/actions/container-exec@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           container: ${{ env.M6E_CONTAINER_INSTANCE }}
           run: test.d
       - name: usage-check
-        if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_CONTAINER_READY_TO_TEST != 'true' && vars.CI_SKIP_USAGE_CHECK != 'true'
+        if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_CONTAINER_IS_TESTED != 'true' && vars.CI_SKIP_USAGE_CHECK != 'true'
         run: .makefile/container/scripts/usage-capture.sh --check --image --default-lang= es uk
       - name: dc-diagnose
         if: ${{ always() }}
@@ -150,30 +132,14 @@ jobs:
       # site), so one docker-cleanup step reaps both — the imperative reaps + their
       # `inspect` guard live in the pinned action, not inline (Law 2).
       - if: ${{ always() }}
-        uses: projectfile-org/actions/docker-cleanup@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/docker-cleanup@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: damian-buho/spiderlint:${{ env.M6E_TAG }}-${{ github.run_id }}-${{ matrix.M6E_ARCH }}
           network: ci-damian-buho-spiderlint-${{ matrix.M6E_ARCH }}-${{ env.M6E_RUN_SCOPE }}-network
-  container-ready-to-test:
-    runs-on: ubuntu-26.04
-    needs: ["container-is-ok"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
-    steps:
-      - run: echo container-ready-to-test
-  deps-installed:
-    runs-on: ubuntu-26.04
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
-    steps:
-      - run: echo deps-installed
-  documentation-is-ok:
-    runs-on: ubuntu-26.04
-    needs: ["documentation-passes-lint"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
-    steps:
-      - run: echo documentation-is-ok
   documentation-passes-lint:
     runs-on: ubuntu-26.04
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
+    needs: ["release-tag", "runner-is-ready", "signing-is-ready"]
+    if: ${{ !cancelled() && needs.release-tag.result == 'success' && needs.runner-is-ready.result == 'success' && (needs.signing-is-ready.result == 'success' || (needs.signing-is-ready.result == 'skipped' && !((startsWith(github.ref, 'refs/heads/')) || (needs.release-tag.outputs.tag != '')))) && ((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -181,27 +147,22 @@ jobs:
           persist-credentials: false
       - name: auto-markdownlint
         if: vars.CI_SKIP_DOCUMENTATION_PASSES_LINT != 'true' && vars.CI_SKIP_AUTO_MARKDOWNLINT != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_JS_TOOLS_IMAGE || format('{0}/d9t/js-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
           run: auto-markdownlint
       - name: auto-textlint
         if: vars.CI_SKIP_DOCUMENTATION_PASSES_LINT != 'true' && vars.CI_SKIP_AUTO_TEXTLINT != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_JS_TOOLS_IMAGE || format('{0}/d9t/js-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
           run: auto-textlint
-  fetched:
-    runs-on: ubuntu-26.04
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
-    steps:
-      - run: echo fetched
   image-has-sbom:
     runs-on: ubuntu-26.04
-    needs: ["image-is-built"]
-    if: startsWith(github.ref, 'refs/tags/')
+    needs: ["image-is-built", "release-tag"]
+    if: ${{ !cancelled() && needs.image-is-built.result == 'success' && needs.release-tag.result == 'success' && (needs.release-tag.outputs.tag != '') }}
     strategy:
       matrix:
         M6E_ARCH: ["amd64"]
@@ -219,7 +180,7 @@ jobs:
           name: image-${{ matrix.M6E_ARCH }}-${{ github.run_id }}
       - name: syft-sbom-tar
         if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_IMAGE_HAS_SBOM != 'true' && vars.CI_SKIP_SYFT_SBOM_TAR != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_GO_TOOLS_IMAGE || format('{0}/d9t/go-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
@@ -235,11 +196,11 @@ jobs:
           overwrite: true
   image-is-built:
     runs-on: ${{ matrix.M6E_RUNNER }}
-    needs: ["fetched", "inputs-are-ok"]
+    needs: ["documentation-passes-lint", "projectfile-is-ok", "release-tag", "runner-is-ready", "signing-is-ready", "source-is-compliant", "source-is-secure", "source-passes-lint"]
     permissions:
       actions: write
       contents: read
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
+    if: ${{ !cancelled() && needs.documentation-passes-lint.result == 'success' && needs.projectfile-is-ok.result == 'success' && needs.release-tag.result == 'success' && needs.runner-is-ready.result == 'success' && (needs.signing-is-ready.result == 'success' || (needs.signing-is-ready.result == 'skipped' && !((startsWith(github.ref, 'refs/heads/')) || (needs.release-tag.outputs.tag != '')))) && needs.source-is-compliant.result == 'success' && needs.source-is-secure.result == 'success' && needs.source-passes-lint.result == 'success' && ((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)) }}
     concurrency:
       group: build-${{ github.repository }}-${{ toJSON(matrix) }}
       cancel-in-progress: false
@@ -270,6 +231,7 @@ jobs:
       M6E_NEAR_CACHE_PORT: ${{ inputs.M6E_NEAR_CACHE_PORT || vars.M6E_NEAR_CACHE_PORT }}
       PF_CLI_IMAGE: ${{ vars.PF_CLI_IMAGE || format('{0}/cli:{1}', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/projectfile-org', vars.BASE_IMAGE_DEFAULT_VERSION || 'latest') }}
       SOURCE_DOCKER_REGISTRY: ${{ inputs.SOURCE_DOCKER_REGISTRY || vars.SOURCE_DOCKER_REGISTRY }}
+      M6E_VERSION: ${{ needs.release-tag.outputs.tag }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -281,7 +243,7 @@ jobs:
         run: docker buildx create --name ci --driver docker-container --use
       - name: container-build
         if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_IMAGE_IS_BUILT != 'true' && vars.CI_SKIP_CONTAINER_BUILD != 'true'
-        uses: projectfile-org/actions/container-build/buildx@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/container-build/buildx@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           artifact-name: image-${{ matrix.M6E_ARCH }}-${{ github.run_id }}
           image: damian-buho/spiderlint:${{ env.M6E_TAG }}-${{ github.run_id }}-${{ matrix.M6E_ARCH }}
@@ -303,6 +265,7 @@ jobs:
             M6E_NEAR_CACHE_HOST=${{ inputs.M6E_NEAR_CACHE_HOST || vars.M6E_NEAR_CACHE_HOST }}
             M6E_NEAR_CACHE_PORT=${{ inputs.M6E_NEAR_CACHE_PORT || vars.M6E_NEAR_CACHE_PORT }}
             M6E_PROJECT=spiderlint
+            M6E_VERSION=${{ needs.release-tag.outputs.tag }}
             PF_CLI_IMAGE=${{ vars.PF_CLI_IMAGE || format('{0}/cli:{1}', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/projectfile-org', env.M6E_TAG) }}
             SOURCE_DOCKER_REGISTRY=${{ inputs.SOURCE_DOCKER_REGISTRY || vars.SOURCE_DOCKER_REGISTRY }}
           mounts: fetch=/fetch
@@ -312,16 +275,108 @@ jobs:
           platform: ${{ matrix.M6E_ARCH }}
           mount-cache-key: ci-cache-mounts-${{ matrix.M6E_ARCH }}-
           mount-cache-restore-keys: ci-cache-mounts-
-  image-is-ready:
+  image-is-published:
     runs-on: ubuntu-26.04
-    needs: ["container-is-verified", "image-is-secure"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
+    needs: ["container-is-verified", "documentation-passes-lint", "image-has-sbom", "image-is-built", "image-is-secure", "projectfile-is-ok", "release-tag", "runner-is-ready", "signing-is-ready", "source-is-compliant", "source-is-secure", "source-passes-lint"]
+    permissions:
+      contents: read
+      packages: write
+    if: ${{ !cancelled() && needs.container-is-verified.result == 'success' && needs.documentation-passes-lint.result == 'success' && (needs.image-has-sbom.result == 'success' || (needs.image-has-sbom.result == 'skipped' && !(needs.release-tag.outputs.tag != ''))) && needs.image-is-built.result == 'success' && needs.image-is-secure.result == 'success' && needs.projectfile-is-ok.result == 'success' && needs.release-tag.result == 'success' && needs.runner-is-ready.result == 'success' && needs.signing-is-ready.result == 'success' && needs.source-is-compliant.result == 'success' && needs.source-is-secure.result == 'success' && needs.source-passes-lint.result == 'success' && ((startsWith(github.ref, 'refs/heads/')) || (needs.release-tag.outputs.tag != '')) }}
+    strategy:
+      matrix:
+        M6E_PUBLISH_SINK: ["ghcr"]
+    env:
+      COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+      COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+      DOCKERHUB_REGISTRY_PASSWORD: ${{ secrets.DOCKERHUB_REGISTRY_PASSWORD }}
+      DOCKERHUB_REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_REGISTRY_USERNAME }}
+      GHCR_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      GHCR_REGISTRY_USERNAME: ${{ github.actor }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
     steps:
-      - run: echo image-is-ready
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: true
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        if: (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), ',amd64,')) && vars.CI_SKIP_IMAGE_IS_BUILT != 'true' && vars.CI_SKIP_CONTAINER_BUILD != 'true'
+        with:
+          name: image-amd64-${{ github.run_id }}
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        if: (needs.release-tag.outputs.tag != '') && (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && vars.CI_SKIP_IMAGE_HAS_SBOM != 'true' && vars.CI_SKIP_SYFT_SBOM_TAR != 'true'
+        with:
+          name: syft-sbom-tar-amd64-${{ github.run_id }}
+          path: reports
+      - name: oci-push
+        # The cell's run-time override gate, on the STEP because a job `if:` may not read the matrix context
+        if: (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && vars.CI_SKIP_IMAGE_IS_PUBLISHED != 'true' && vars.CI_SKIP_OCI_PUSH != 'true'
+        uses: projectfile-org/actions/oci-push@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
+        with:
+          # One tar per DECLARED architecture, published together as a manifest list at
+          # each cascade tag. Per-arch TAGS are deliberately not published: they are
+          # scaffolding, and a registry that cannot delete a tag keeps them forever.
+          archives: |
+            amd64 image-amd64-${{ github.run_id }}
+          # The arches this scope may publish, the same list the per-arch downloads above honour
+          only-arches: ${{ vars.CI_ONLY_M6E_ARCH }}
+          image: damian-buho/spiderlint:${{ env.M6E_TAG }}-${{ github.run_id }}
+          version: ${{ needs.release-tag.outputs.tag || github.ref_name }}
+          # The branch this run is on, empty on a tag. Non-empty collapses the cascade to
+          # one `latest-<branch>` tag on the primary sink, so a branch build is testable
+          # without a tag and without moving anything a consumer floats on.
+          preview: ${{ needs.release-tag.outputs.tag == '' && github.ref_type == 'branch' && github.ref_name || '' }}
+          # The trunk branch names, so the action can tell a trunk push (`edge`) from a
+          # feature-branch one (`latest-<branch>`) — `preview` above carries both.
+          primary: dev
+          # Head templates per build kind, as org.projectfile.image.heads declares them
+          heads: |
+            release ${version} ${major}.${minor} ${major} latest
+            prerelease ${version}
+            trunk ${branch}
+            branch ${branch}
+          # OUTPUT_REGISTRY: the forge-dependent PUSH target (kiota.ch / ghcr.io / …),
+          # always threaded — empty => Docker Hub. NOT the per-namespace INPUT registries
+          # (B19_DOCKER_REGISTRY & friends answer "where base images come FROM"); this
+          # answers "where THIS project publishes TO". Set per forge (org var = default,
+          # repo var = project-wise override). Ignored when `refs` below is present.
+          registry: ${{ vars.OUTPUT_REGISTRY }}
+          # Every destination this forge's route declares, each reference composed by
+          # the sink that declared it — so one archive lands under whatever path grammar
+          # each registry wants. Credentials key on the SINK name.
+          refs: |
+            ghcr ghcr.io/damian-buho/spiderlint:latest
+          # This CELL's destination, off the publish axis: the job runs one cell per
+          # place the archive goes, so a registry refusing a push fails only its own.
+          sink: ${{ matrix.M6E_PUBLISH_SINK }}
+      - name: cosign-key-file-attest
+        if: (needs.release-tag.outputs.tag != '') && (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && vars.CI_SKIP_IMAGE_IS_ATTESTED != 'true' && vars.CI_SKIP_COSIGN_KEY_FILE_ATTEST != 'true'
+        run: .makefile/b19/scripts/cosign-key-file.sh
+      - name: cosign-key-file-sign
+        if: (needs.release-tag.outputs.tag != '') && (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && vars.CI_SKIP_IMAGE_IS_SIGNED != 'true' && vars.CI_SKIP_COSIGN_KEY_FILE_SIGN != 'true'
+        run: .makefile/b19/scripts/cosign-key-file.sh
+      - name: cosign-sbom-attest
+        if: (needs.release-tag.outputs.tag != '') && (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && vars.CI_SKIP_IMAGE_IS_ATTESTED != 'true' && vars.CI_SKIP_COSIGN_SBOM_ATTEST != 'true'
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
+        with:
+          image: ${{ vars.D9T_GO_TOOLS_IMAGE || format('{0}/d9t/go-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
+          version: ${{ env.M6E_TAG }}
+          run: auto-cosign attest
+          env: |-
+            COSIGN_PASSWORD=${{ secrets.COSIGN_PASSWORD }}
+      - name: cosign-sign
+        if: (needs.release-tag.outputs.tag != '') && (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && vars.CI_SKIP_IMAGE_IS_SIGNED != 'true' && vars.CI_SKIP_COSIGN_SIGN != 'true'
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
+        with:
+          image: ${{ vars.D9T_GO_TOOLS_IMAGE || format('{0}/d9t/go-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
+          version: ${{ env.M6E_TAG }}
+          run: auto-cosign sign
+          env: |-
+            COSIGN_PASSWORD=${{ secrets.COSIGN_PASSWORD }}
   image-is-secure:
     runs-on: ubuntu-26.04
     needs: ["image-is-built"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
+    if: ${{ !cancelled() && needs.image-is-built.result == 'success' && ((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)) }}
     strategy:
       matrix:
         M6E_ARCH: ["amd64"]
@@ -353,7 +408,7 @@ jobs:
             ci-cache-clamav-db-
       - name: clamav-scan-tar
         if: (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_IMAGE_IS_SECURE != 'true' && vars.CI_SKIP_CLAMAV_SCAN_TAR != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_MISC_TOOLS_IMAGE || format('{0}/d9t/misc-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
@@ -384,7 +439,7 @@ jobs:
             ci-cache-grype-db-
       - name: grype-scan-tar
         if: (!cancelled()) && (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_IMAGE_IS_SECURE != 'true' && vars.CI_SKIP_GRYPE_SCAN_TAR != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_GO_TOOLS_IMAGE || format('{0}/d9t/go-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
@@ -416,7 +471,7 @@ jobs:
             ci-cache-trivy-db-
       - name: trivy-scan-tar
         if: (!cancelled()) && (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), format(',{0},', matrix.M6E_ARCH))) && vars.CI_SKIP_IMAGE_IS_SECURE != 'true' && vars.CI_SKIP_TRIVY_SCAN_TAR != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_GO_TOOLS_IMAGE || format('{0}/d9t/go-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
@@ -441,31 +496,16 @@ jobs:
           path: reports/
           if-no-files-found: warn
           overwrite: true
-  image-is-signed:
-    runs-on: ubuntu-26.04
-    needs: ["publish-image"]
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-      - run: echo image-is-signed
-  images-are-ok:
-    runs-on: ubuntu-26.04
-    needs: ["image-is-built", "secrets-ready"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
-    steps:
-      - run: echo images-are-ok
-  inputs-are-ok:
-    runs-on: ubuntu-26.04
-    needs: ["documentation-is-ok", "projectfile-is-ok", "signing-is-ready", "source-is-ok", "tag-is-on-stable"]
-    if: ${{ !cancelled() && needs.documentation-is-ok.result == 'success' && needs.projectfile-is-ok.result == 'success' && (needs.signing-is-ready.result == 'success' || (needs.signing-is-ready.result == 'skipped' && !((startsWith(github.ref, 'refs/heads/')) || (startsWith(github.ref, 'refs/tags/'))))) && needs.source-is-ok.result == 'success' && (needs.tag-is-on-stable.result == 'success' || (needs.tag-is-on-stable.result == 'skipped' && !(startsWith(github.ref, 'refs/tags/')))) && ((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)) }}
-    steps:
-      - run: echo inputs-are-ok
   npm-published:
     runs-on: ubuntu-26.04
-    needs: ["ready-to-publish"]
+    needs: ["container-is-verified", "documentation-passes-lint", "image-is-secure", "projectfile-is-ok", "release-tag", "runner-is-ready", "signing-is-ready", "source-is-compliant", "source-is-secure", "source-passes-lint"]
     permissions:
       contents: read
       id-token: write
-    if: startsWith(github.ref, 'refs/tags/')
+    if: ${{ !cancelled() && needs.container-is-verified.result == 'success' && needs.documentation-passes-lint.result == 'success' && needs.image-is-secure.result == 'success' && needs.projectfile-is-ok.result == 'success' && needs.release-tag.result == 'success' && needs.runner-is-ready.result == 'success' && needs.signing-is-ready.result == 'success' && needs.source-is-compliant.result == 'success' && needs.source-is-secure.result == 'success' && needs.source-passes-lint.result == 'success' && (needs.release-tag.outputs.tag != '') }}
+    env:
+      M6E_ARTIFACT_VISIBILITY: ''
+      M6E_VISIBILITY: public
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -473,12 +513,14 @@ jobs:
           persist-credentials: false
       - name: npm-publish
         if: vars.CI_SKIP_NPM_PUBLISHED != 'true' && vars.CI_SKIP_NPM_PUBLISH != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.NODE_TOOL_IMAGE || format('{0}/b19/node', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ vars.M6E_BASE_IMAGE_VARIANT_PREFIX }}n${{ vars.B19_NODE_SERIES || '26' }}
           run: .makefile/library/scripts/npm-publish.sh
           env: |-
+            M6E_ARTIFACT_VISIBILITY
+            M6E_VISIBILITY=public
             ACTIONS_ID_TOKEN_REQUEST_TOKEN
             ACTIONS_ID_TOKEN_REQUEST_URL
             CI
@@ -497,7 +539,7 @@ jobs:
   projectfile-is-ok:
     runs-on: ubuntu-26.04
     needs: ["projectfile-is-valid"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
+    if: ${{ !cancelled() && needs.projectfile-is-valid.result == 'success' && ((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -505,14 +547,15 @@ jobs:
           persist-credentials: false
       - name: pf-bridge-check
         if: vars.CI_SKIP_PROJECTFILE_IS_OK != 'true' && vars.CI_SKIP_PF_BRIDGE_CHECK != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.PF_BRIDGE_IMAGE || format('{0}/bridge', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/projectfile-org') }}
           version: ${{ env.M6E_TAG }}
           run: pf-bridge check
   projectfile-is-valid:
     runs-on: ubuntu-26.04
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
+    needs: ["release-tag", "runner-is-ready", "signing-is-ready"]
+    if: ${{ !cancelled() && needs.release-tag.result == 'success' && needs.runner-is-ready.result == 'success' && (needs.signing-is-ready.result == 'success' || (needs.signing-is-ready.result == 'skipped' && !((startsWith(github.ref, 'refs/heads/')) || (needs.release-tag.outputs.tag != '')))) && ((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -520,149 +563,61 @@ jobs:
           persist-credentials: false
       - name: pf-validate
         if: vars.CI_SKIP_PROJECTFILE_IS_VALID != 'true' && vars.CI_SKIP_PF_VALIDATE != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.PF_CLI_IMAGE || format('{0}/cli', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/projectfile-org') }}
           version: ${{ env.M6E_TAG }}
           run: pf-cli validate
-  publish-image:
-    runs-on: ubuntu-26.04
-    needs: ["image-has-sbom", "image-is-built", "ready-to-publish", "signing-is-ready"]
-    permissions:
-      contents: read
-      packages: write
-    if: ${{ !cancelled() && (needs.image-has-sbom.result == 'success' || (needs.image-has-sbom.result == 'skipped' && !(startsWith(github.ref, 'refs/tags/')))) && needs.image-is-built.result == 'success' && needs.ready-to-publish.result == 'success' && needs.signing-is-ready.result == 'success' && ((startsWith(github.ref, 'refs/heads/')) || (startsWith(github.ref, 'refs/tags/'))) }}
-    strategy:
-      matrix:
-        M6E_PUBLISH_SINK: ["ghcr"]
-    env:
-      COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-      COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-      DOCKERHUB_REGISTRY_PASSWORD: ${{ secrets.DOCKERHUB_REGISTRY_PASSWORD }}
-      DOCKERHUB_REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_REGISTRY_USERNAME }}
-      GHCR_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-      GHCR_REGISTRY_USERNAME: ${{ github.actor }}
-      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          submodules: true
-          persist-credentials: false
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        if: (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && (vars.CI_ONLY_M6E_ARCH == '' || contains(format(',{0},', vars.CI_ONLY_M6E_ARCH), ',amd64,')) && vars.CI_SKIP_IMAGE_IS_BUILT != 'true' && vars.CI_SKIP_CONTAINER_BUILD != 'true'
-        with:
-          name: image-amd64-${{ github.run_id }}
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        if: (startsWith(github.ref, 'refs/tags/')) && (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && vars.CI_SKIP_IMAGE_HAS_SBOM != 'true' && vars.CI_SKIP_SYFT_SBOM_TAR != 'true'
-        with:
-          name: syft-sbom-tar-amd64-${{ github.run_id }}
-          path: reports
-      - name: oci-push
-        # The cell's run-time override gate, on the STEP because a job `if:` may not read the matrix context
-        if: (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && vars.CI_SKIP_PUBLISH_IMAGE != 'true' && vars.CI_SKIP_OCI_PUSH != 'true'
-        uses: projectfile-org/actions/oci-push@dce815a0d5ead4bbc1047c298252472a65433207 # v1
-        with:
-          # One tar per DECLARED architecture, published together as a manifest list at
-          # each cascade tag. Per-arch TAGS are deliberately not published: they are
-          # scaffolding, and a registry that cannot delete a tag keeps them forever.
-          archives: |
-            amd64 image-amd64-${{ github.run_id }}
-          # The arches this scope may publish, the same list the per-arch downloads above honour
-          only-arches: ${{ vars.CI_ONLY_M6E_ARCH }}
-          image: damian-buho/spiderlint:${{ env.M6E_TAG }}-${{ github.run_id }}
-          version: ${{ github.ref_name }}
-          # The branch this run is on, empty on a tag. Non-empty collapses the cascade to
-          # one `latest-<branch>` tag on the primary sink, so a branch build is testable
-          # without a tag and without moving anything a consumer floats on.
-          preview: ${{ github.ref_type == 'branch' && github.ref_name || '' }}
-          # The trunk branch names, so the action can tell a trunk push (`edge`) from a
-          # feature-branch one (`latest-<branch>`) — `preview` above carries both.
-          primary: dev
-          # Head templates per build kind, as org.projectfile.image.heads declares them
-          heads: |
-            release ${version} ${major}.${minor} ${major} latest
-            prerelease ${version}
-            trunk ${branch}
-            branch ${branch}
-          # OUTPUT_REGISTRY: the forge-dependent PUSH target (kiota.ch / ghcr.io / …),
-          # always threaded — empty => Docker Hub. NOT the per-namespace INPUT registries
-          # (B19_DOCKER_REGISTRY & friends answer "where base images come FROM"); this
-          # answers "where THIS project publishes TO". Set per forge (org var = default,
-          # repo var = project-wise override). Ignored when `refs` below is present.
-          registry: ${{ vars.OUTPUT_REGISTRY }}
-          # Every destination this forge's route declares, each reference composed by
-          # the sink that declared it — so one archive lands under whatever path grammar
-          # each registry wants. Credentials key on the SINK name.
-          refs: |
-            ghcr ghcr.io/damian-buho/spiderlint:latest
-          # This CELL's destination, off the publish axis: the job runs one cell per
-          # place the archive goes, so a registry refusing a push fails only its own.
-          sink: ${{ matrix.M6E_PUBLISH_SINK }}
-      - name: cosign-key-file-attest
-        if: (startsWith(github.ref, 'refs/tags/')) && (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && vars.CI_SKIP_IMAGE_IS_ATTESTED != 'true' && vars.CI_SKIP_COSIGN_KEY_FILE_ATTEST != 'true'
-        run: .makefile/b19/scripts/cosign-key-file.sh
-      - name: cosign-key-file-sign
-        if: (startsWith(github.ref, 'refs/tags/')) && (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && vars.CI_SKIP_IMAGE_IS_SIGNED != 'true' && vars.CI_SKIP_COSIGN_KEY_FILE_SIGN != 'true'
-        run: .makefile/b19/scripts/cosign-key-file.sh
-      - name: cosign-sbom-attest
-        if: (startsWith(github.ref, 'refs/tags/')) && (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && vars.CI_SKIP_IMAGE_IS_ATTESTED != 'true' && vars.CI_SKIP_COSIGN_SBOM_ATTEST != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
-        with:
-          image: ${{ vars.D9T_GO_TOOLS_IMAGE || format('{0}/d9t/go-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
-          version: ${{ env.M6E_TAG }}
-          run: auto-cosign attest
-          env: |-
-            COSIGN_PASSWORD=${{ secrets.COSIGN_PASSWORD }}
-      - name: cosign-sign
-        if: (startsWith(github.ref, 'refs/tags/')) && (vars.CI_ONLY_M6E_PUBLISH_SINK == '' || contains(format(',{0},', vars.CI_ONLY_M6E_PUBLISH_SINK), format(',{0},', matrix.M6E_PUBLISH_SINK))) && vars.CI_SKIP_IMAGE_IS_SIGNED != 'true' && vars.CI_SKIP_COSIGN_SIGN != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
-        with:
-          image: ${{ vars.D9T_GO_TOOLS_IMAGE || format('{0}/d9t/go-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
-          version: ${{ env.M6E_TAG }}
-          run: auto-cosign sign
-          env: |-
-            COSIGN_PASSWORD=${{ secrets.COSIGN_PASSWORD }}
   published:
     runs-on: ubuntu-26.04
-    needs: ["image-has-sbom", "image-is-signed", "npm-published", "publish-image", "ready-to-publish", "release-is-dispatched", "release-is-published", "release-notes-are-published"]
-    if: ${{ !cancelled() && (needs.image-has-sbom.result == 'success' || (needs.image-has-sbom.result == 'skipped' && !(startsWith(github.ref, 'refs/tags/')))) && (needs.image-is-signed.result == 'success' || (needs.image-is-signed.result == 'skipped' && !(startsWith(github.ref, 'refs/tags/')))) && (needs.npm-published.result == 'success' || (needs.npm-published.result == 'skipped' && !(startsWith(github.ref, 'refs/tags/')))) && (needs.publish-image.result == 'success' || (needs.publish-image.result == 'skipped' && !((startsWith(github.ref, 'refs/heads/')) || (startsWith(github.ref, 'refs/tags/'))))) && needs.ready-to-publish.result == 'success' && (needs.release-is-dispatched.result == 'success' || (needs.release-is-dispatched.result == 'skipped' && !(startsWith(github.ref, 'refs/heads/') && github.ref != 'refs/heads/dev'))) && (needs.release-is-published.result == 'success' || (needs.release-is-published.result == 'skipped' && !(startsWith(github.ref, 'refs/tags/')))) && (needs.release-notes-are-published.result == 'success' || (needs.release-notes-are-published.result == 'skipped' && !(startsWith(github.ref, 'refs/tags/')))) && ((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)) }}
+    needs: ["container-is-verified", "documentation-passes-lint", "image-has-sbom", "image-is-built", "image-is-published", "image-is-secure", "npm-published", "projectfile-is-ok", "projectfile-is-valid", "release-is-published", "release-notes-are-published", "release-tag", "runner-is-ready", "signing-is-ready", "source-is-compliant", "source-is-secure", "source-passes-lint"]
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository) }}
     steps:
-      - run: echo published
-  ready-to-publish:
-    runs-on: ubuntu-26.04
-    needs: ["artifacts-are-ok"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
-    steps:
-      - run: echo ready-to-publish
-  release-is-dispatched:
-    runs-on: ubuntu-26.04
-    needs: ["ready-to-publish"]
-    permissions:
-      actions: write
-    if: startsWith(github.ref, 'refs/heads/') && github.ref != 'refs/heads/dev'
-    env:
-      M6E_STABLE_BRANCH: main
-      M6E_TAG_PREFIX: ''
-      M6E_DISPATCH_TOKEN: ${{ github.token }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          submodules: true
-          persist-credentials: false
-      - name: release-dispatch
-        if: vars.CI_SKIP_RELEASE_IS_DISPATCHED != 'true' && vars.CI_SKIP_RELEASE_DISPATCH != 'true'
-        run: .makefile/core/scripts/release-dispatch.sh published.yaml
+      - name: published verdict
+        run: |
+          passed=0 skipped=0 failed=0
+          for pair in \
+            "container-is-verified=${{ needs.container-is-verified.result }}" \
+            "documentation-passes-lint=${{ needs.documentation-passes-lint.result }}" \
+            "image-has-sbom=${{ needs.image-has-sbom.result }}" \
+            "image-is-built=${{ needs.image-is-built.result }}" \
+            "image-is-published=${{ needs.image-is-published.result }}" \
+            "image-is-secure=${{ needs.image-is-secure.result }}" \
+            "npm-published=${{ needs.npm-published.result }}" \
+            "projectfile-is-ok=${{ needs.projectfile-is-ok.result }}" \
+            "projectfile-is-valid=${{ needs.projectfile-is-valid.result }}" \
+            "release-is-published=${{ needs.release-is-published.result }}" \
+            "release-notes-are-published=${{ needs.release-notes-are-published.result }}" \
+            "release-tag=${{ needs.release-tag.result }}" \
+            "runner-is-ready=${{ needs.runner-is-ready.result }}" \
+            "signing-is-ready=${{ needs.signing-is-ready.result }}" \
+            "source-is-compliant=${{ needs.source-is-compliant.result }}" \
+            "source-is-secure=${{ needs.source-is-secure.result }}" \
+            "source-passes-lint=${{ needs.source-passes-lint.result }}"; do
+            echo "verdict need=${pair%%=*} result=${pair#*=}"
+            case "${pair#*=}" in
+              success) passed=$((passed + 1)) ;;
+              skipped) skipped=$((skipped + 1)) ;;
+              *) failed=$((failed + 1)) ;;
+            esac
+          done
+          status=success; event=goal.succeeded
+          if [ "${failed}" -gt 0 ]; then
+            status=failure; event=goal.failed
+          elif [ "${passed}" -eq 0 ]; then
+            status=skipped; event=goal.skipped
+          fi
+          echo "verdict goal=published status=${status} passed=${passed} skipped=${skipped} failed=${failed}"
+          [ "${failed}" -eq 0 ]
   release-is-published:
     runs-on: ubuntu-26.04
-    needs: ["image-is-signed", "npm-published", "publish-image"]
+    needs: ["image-is-published", "npm-published", "release-tag"]
     permissions:
       contents: write
-    if: startsWith(github.ref, 'refs/tags/')
+    if: ${{ !cancelled() && needs.image-is-published.result == 'success' && needs.npm-published.result == 'success' && needs.release-tag.result == 'success' && (needs.release-tag.outputs.tag != '') }}
     env:
-      RELEASE_TAG: ${{ github.ref_name }}
+      M6E_RELEASE_TAG: ${{ needs.release-tag.outputs.tag }}
       RELEASE_TARGET: main
-      RELEASE_URL: ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -671,14 +626,15 @@ jobs:
           persist-credentials: false
       - name: gh-release
         if: vars.CI_SKIP_RELEASE_IS_PUBLISHED != 'true' && vars.CI_SKIP_GH_RELEASE != 'true'
-        uses: projectfile-org/actions/gh-release@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/gh-release@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
   release-notes-are-published:
     runs-on: ubuntu-26.04
-    needs: ["release-is-published"]
+    needs: ["release-is-published", "release-tag"]
     permissions:
       contents: write
-    if: startsWith(github.ref, 'refs/tags/')
+    if: ${{ !cancelled() && needs.release-is-published.result == 'success' && needs.release-tag.result == 'success' && (needs.release-tag.outputs.tag != '') }}
     env:
+      M6E_RELEASE_TAG: ${{ needs.release-tag.outputs.tag }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -687,26 +643,84 @@ jobs:
           persist-credentials: false
       - name: release-notes-gha
         if: vars.CI_SKIP_RELEASE_NOTES_ARE_PUBLISHED != 'true' && vars.CI_SKIP_RELEASE_NOTES_GHA != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.PF_BRIDGE_IMAGE || format('{0}/bridge', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/projectfile-org') }}
           version: ${{ env.M6E_TAG }}
-          run: pf-bridge release-notes publish
+          run: pf-bridge release-notes publish --tag "${M6E_RELEASE_TAG}"
           env: |-
+            M6E_RELEASE_TAG=${{ needs.release-tag.outputs.tag }}
             GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
             GITHUB_API_URL
-            GITHUB_REF_NAME
             GITHUB_REPOSITORY
             GITHUB_SERVER_URL
-  secrets-ready:
+  release-tag:
     runs-on: ubuntu-26.04
-    needs: ["image-is-built"]
     if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
+    outputs:
+      tag: ${{ steps.release-tag-detect.outputs.tag }}
+    env:
+      M6E_STABLE_BRANCH: main
+      M6E_TAG_PREFIX: ''
+      M6E_FETCH_TOKEN: ${{ github.token }}
     steps:
-      - run: echo secrets-ready
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: true
+          persist-credentials: false
+      - name: release-tag-detect
+        id: release-tag-detect
+        if: vars.CI_SKIP_RELEASE_TAG != 'true' && vars.CI_SKIP_RELEASE_TAG_DETECT != 'true'
+        run: .makefile/core/scripts/release-tag.sh
+  runner-is-ready:
+    runs-on: ubuntu-26.04
+    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
+    env:
+      PREFLIGHT_MIN_FREE_GIB: 10
+      PREFLIGHT_HOSTS: ${{ vars.M6E_APT_CACHE_HOST }}:${{ vars.M6E_APT_CACHE_PORT }}:3142 ${{ vars.M6E_NEAR_CACHE_HOST }}:${{ vars.M6E_NEAR_CACHE_PORT }}:443
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: true
+          persist-credentials: false
+      - name: disk-preflight
+        if: vars.CI_SKIP_RUNNER_IS_READY != 'true' && vars.CI_SKIP_DISK_PREFLIGHT != 'true'
+        uses: projectfile-org/actions/preflight@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
+        with:
+          check: disk
+          env: |-
+            PREFLIGHT_MIN_FREE_GIB=10
+      - name: hosts-preflight
+        if: vars.CI_SKIP_RUNNER_IS_READY != 'true' && vars.CI_SKIP_HOSTS_PREFLIGHT != 'true'
+        uses: projectfile-org/actions/preflight@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
+        with:
+          check: hosts
+          env: |-
+            PREFLIGHT_HOSTS=${{ vars.M6E_APT_CACHE_HOST }}:${{ vars.M6E_APT_CACHE_PORT }}:3142 ${{ vars.M6E_NEAR_CACHE_HOST }}:${{ vars.M6E_NEAR_CACHE_PORT }}:443
+      - name: images-preflight
+        if: vars.CI_SKIP_RUNNER_IS_READY != 'true' && vars.CI_SKIP_IMAGES_PREFLIGHT != 'true'
+        uses: projectfile-org/actions/preflight@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
+        with:
+          check: images
+          images: |-
+            ${{ vars.B19_NODE_BASE_IMAGE || format('{0}/b19/node:{1}n{2}', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho', vars.M6E_BASE_IMAGE_VARIANT_PREFIX, vars.B19_NODE_SERIES || '26') }} - - -
+            ${{ vars.D9T_GO_TOOLS_IMAGE || format('{0}/d9t/go-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }} ${{ env.M6E_TAG }} auto-cosign,auto-grype,auto-osv-scanner,auto-syft,auto-trivy -
+            ${{ vars.D9T_JS_TOOLS_IMAGE || format('{0}/d9t/js-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }} ${{ env.M6E_TAG }} auto-audit-ci,auto-eslint,auto-jsonlint,auto-markdownlint,auto-stylelint,auto-textlint -
+            ${{ vars.D9T_MISC_TOOLS_IMAGE || format('{0}/d9t/misc-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }} ${{ env.M6E_TAG }} auto-clamav,auto-i18n,auto-shellcheck -
+            ${{ vars.D9T_PYTHON_TOOLS_IMAGE || format('{0}/d9t/python-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }} ${{ env.M6E_TAG }} auto-yamllint,reuse -
+            ${{ vars.D9T_RUST_TOOLS_IMAGE || format('{0}/d9t/rust-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }} ${{ env.M6E_TAG }} auto-zizmor -
+            ${{ vars.D9T_R_TOOLS_IMAGE || format('{0}/d9t/r-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }} ${{ env.M6E_TAG }} auto-cffr-validate -
+            ${{ vars.DOCKER_CLI_IMAGE || 'docker' }} 29.8.1-cli sh -
+            ${{ vars.HADOLINT_IMAGE || 'hadolint/hadolint' }} v2.15.1 hadolint -
+            ${{ vars.IGNORELINT_IMAGE || format('{0}/ignorelint', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }} ${{ env.M6E_TAG }} ignorelint -
+            ${{ vars.NODE_TOOL_IMAGE || format('{0}/b19/node', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }} ${{ vars.M6E_BASE_IMAGE_VARIANT_PREFIX }}n${{ vars.B19_NODE_SERIES || '26' }} npm -
+            ${{ vars.PF_BRIDGE_IMAGE || format('{0}/bridge', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/projectfile-org') }} ${{ env.M6E_TAG }} pf-bridge -
+            ${{ vars.PF_CLI_IMAGE || format('{0}/cli', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/projectfile-org') }} ${{ env.M6E_TAG }} pf-cli -
+            ${{ vars.PF_CLI_IMAGE || format('{0}/cli:{1}', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/projectfile-org', env.M6E_TAG) }} - - -
   signing-is-ready:
     runs-on: ubuntu-26.04
-    if: (startsWith(github.ref, 'refs/heads/')) || (startsWith(github.ref, 'refs/tags/'))
+    needs: ["release-tag"]
+    if: ${{ !cancelled() && needs.release-tag.result == 'success' && ((startsWith(github.ref, 'refs/heads/')) || (needs.release-tag.outputs.tag != '')) }}
     env:
       COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
       COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
@@ -720,7 +734,7 @@ jobs:
         run: .makefile/b19/scripts/cosign-key-file.sh
       - name: cosign-preflight
         if: vars.CI_SKIP_SIGNING_IS_READY != 'true' && vars.CI_SKIP_COSIGN_PREFLIGHT != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_GO_TOOLS_IMAGE || format('{0}/d9t/go-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
@@ -729,7 +743,8 @@ jobs:
             COSIGN_PASSWORD=${{ secrets.COSIGN_PASSWORD }}
   source-is-compliant:
     runs-on: ubuntu-26.04
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
+    needs: ["release-tag", "runner-is-ready", "signing-is-ready"]
+    if: ${{ !cancelled() && needs.release-tag.result == 'success' && needs.runner-is-ready.result == 'success' && (needs.signing-is-ready.result == 'success' || (needs.signing-is-ready.result == 'skipped' && !((startsWith(github.ref, 'refs/heads/')) || (needs.release-tag.outputs.tag != '')))) && ((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -737,27 +752,22 @@ jobs:
           persist-credentials: false
       - name: i18n-check
         if: vars.CI_SKIP_SOURCE_IS_COMPLIANT != 'true' && vars.CI_SKIP_I18N_CHECK != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_MISC_TOOLS_IMAGE || format('{0}/d9t/misc-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
           run: auto-i18n check
       - name: reuse-lint
         if: vars.CI_SKIP_SOURCE_IS_COMPLIANT != 'true' && vars.CI_SKIP_REUSE_LINT != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_PYTHON_TOOLS_IMAGE || format('{0}/d9t/python-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
           run: reuse lint
-  source-is-ok:
-    runs-on: ubuntu-26.04
-    needs: ["source-is-compliant", "source-is-secure", "source-is-tested", "source-passes-lint"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
-    steps:
-      - run: echo source-is-ok
   source-is-secure:
     runs-on: ubuntu-26.04
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
+    needs: ["release-tag", "runner-is-ready", "signing-is-ready"]
+    if: ${{ !cancelled() && needs.release-tag.result == 'success' && needs.runner-is-ready.result == 'success' && (needs.signing-is-ready.result == 'success' || (needs.signing-is-ready.result == 'skipped' && !((startsWith(github.ref, 'refs/heads/')) || (needs.release-tag.outputs.tag != '')))) && ((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)) }}
     env:
       OSV_SCANNER_LOCAL_DB_CACHE_DIRECTORY: /app/.cache/osv
       CI_IGNORE_VULNERABILITIES: ${{ vars.CI_IGNORE_VULNERABILITIES }}
@@ -781,7 +791,7 @@ jobs:
             ci-cache-clamav-db-
       - name: clamav-scan-source
         if: vars.CI_SKIP_SOURCE_IS_SECURE != 'true' && vars.CI_SKIP_CLAMAV_SCAN_SOURCE != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_MISC_TOOLS_IMAGE || format('{0}/d9t/misc-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
@@ -810,7 +820,7 @@ jobs:
             ci-cache-grype-db-
       - name: grype-scan-source
         if: (!cancelled()) && vars.CI_SKIP_SOURCE_IS_SECURE != 'true' && vars.CI_SKIP_GRYPE_SCAN_SOURCE != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_GO_TOOLS_IMAGE || format('{0}/d9t/go-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
@@ -827,7 +837,7 @@ jobs:
           key: ci-cache-grype-db-${{ steps.stamp-grype-db.outputs.stamp }}
       - name: npm-project-audit
         if: vars.CI_SKIP_SOURCE_IS_SECURE != 'true' && vars.CI_SKIP_NPM_PROJECT_AUDIT != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_JS_TOOLS_IMAGE || format('{0}/d9t/js-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
@@ -847,7 +857,7 @@ jobs:
             ci-cache-osv-db-
       - name: osv-scanner-scan-source
         if: (!cancelled()) && vars.CI_SKIP_SOURCE_IS_SECURE != 'true' && vars.CI_SKIP_OSV_SCANNER_SCAN_SOURCE != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_GO_TOOLS_IMAGE || format('{0}/d9t/go-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
@@ -878,7 +888,7 @@ jobs:
             ci-cache-trivy-db-
       - name: trivy-scan-source
         if: (!cancelled()) && vars.CI_SKIP_SOURCE_IS_SECURE != 'true' && vars.CI_SKIP_TRIVY_SCAN_SOURCE != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_GO_TOOLS_IMAGE || format('{0}/d9t/go-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
@@ -901,16 +911,10 @@ jobs:
           path: reports/
           if-no-files-found: warn
           overwrite: true
-  source-is-tested:
-    runs-on: ubuntu-26.04
-    needs: ["deps-installed"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
-    steps:
-      - run: echo source-is-tested
   source-passes-lint:
     runs-on: ubuntu-26.04
-    needs: ["deps-installed"]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
+    needs: ["release-tag", "runner-is-ready", "signing-is-ready"]
+    if: ${{ !cancelled() && needs.release-tag.result == 'success' && needs.runner-is-ready.result == 'success' && (needs.signing-is-ready.result == 'success' || (needs.signing-is-ready.result == 'skipped' && !((startsWith(github.ref, 'refs/heads/')) || (needs.release-tag.outputs.tag != '')))) && ((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)) }}
     env:
       PLAYWRIGHT_BROWSERS_PATH: /app/.cache/host-playwright
     steps:
@@ -920,27 +924,27 @@ jobs:
           persist-credentials: false
       - name: auto-cffr-validate
         if: vars.CI_SKIP_SOURCE_PASSES_LINT != 'true' && vars.CI_SKIP_AUTO_CFFR_VALIDATE != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_R_TOOLS_IMAGE || format('{0}/d9t/r-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
           run: auto-cffr-validate
       - name: stamp npm
         id: stamp-npm
-        if: vars.CI_SKIP_DEPS_INSTALLED != 'true' && vars.CI_SKIP_NPM_INSTALL != 'true'
+        if: vars.CI_SKIP_DEPENDENCIES_ARE_INSTALLED != 'true' && vars.CI_SKIP_NPM_INSTALL != 'true'
         run: echo "stamp=$(( $(date -u +%s) / 28800 ))" >> "$GITHUB_OUTPUT"
       - name: restore npm
         id: restore-npm
         uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5
-        if: vars.CI_SKIP_DEPS_INSTALLED != 'true' && vars.CI_SKIP_NPM_INSTALL != 'true'
+        if: vars.CI_SKIP_DEPENDENCIES_ARE_INSTALLED != 'true' && vars.CI_SKIP_NPM_INSTALL != 'true'
         with:
           path: ${{ runner.temp }}/ci-cache/npm
           key: ci-cache-npm-${{ steps.stamp-npm.outputs.stamp }}
           restore-keys: |
             ci-cache-npm-
       - name: npm-install
-        if: vars.CI_SKIP_DEPS_INSTALLED != 'true' && vars.CI_SKIP_NPM_INSTALL != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        if: vars.CI_SKIP_DEPENDENCIES_ARE_INSTALLED != 'true' && vars.CI_SKIP_NPM_INSTALL != 'true'
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.NODE_TOOL_IMAGE || format('{0}/b19/node', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ vars.M6E_BASE_IMAGE_VARIANT_PREFIX }}n${{ vars.B19_NODE_SERIES || '26' }}
@@ -948,34 +952,34 @@ jobs:
           mounts: ${{ runner.temp }}/ci-cache/npm:/app/.cache/npm:rw
       - name: save npm
         uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5
-        if: (vars.CI_SKIP_DEPS_INSTALLED != 'true' && vars.CI_SKIP_NPM_INSTALL != 'true') && steps.restore-npm.outputs.cache-hit != 'true'
+        if: (vars.CI_SKIP_DEPENDENCIES_ARE_INSTALLED != 'true' && vars.CI_SKIP_NPM_INSTALL != 'true') && steps.restore-npm.outputs.cache-hit != 'true'
         with:
           path: ${{ runner.temp }}/ci-cache/npm
           key: ci-cache-npm-${{ steps.stamp-npm.outputs.stamp }}
       - name: auto-eslint
         if: vars.CI_SKIP_SOURCE_PASSES_LINT != 'true' && vars.CI_SKIP_AUTO_ESLINT != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_JS_TOOLS_IMAGE || format('{0}/d9t/js-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
           run: auto-eslint
       - name: auto-stylelint
         if: vars.CI_SKIP_SOURCE_PASSES_LINT != 'true' && vars.CI_SKIP_AUTO_STYLELINT != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_JS_TOOLS_IMAGE || format('{0}/d9t/js-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
           run: auto-stylelint
       - name: npm-format-check
         if: vars.CI_SKIP_SOURCE_PASSES_LINT != 'true' && vars.CI_SKIP_NPM_FORMAT_CHECK != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.NODE_TOOL_IMAGE || format('{0}/b19/node', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ vars.M6E_BASE_IMAGE_VARIANT_PREFIX }}n${{ vars.B19_NODE_SERIES || '26' }}
           run: npm run format:check
       - name: npm-test
         if: vars.CI_SKIP_SOURCE_IS_TESTED != 'true' && vars.CI_SKIP_NPM_TEST != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.NODE_TOOL_IMAGE || format('{0}/b19/node', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ vars.M6E_BASE_IMAGE_VARIANT_PREFIX }}n${{ vars.B19_NODE_SERIES || '26' }}
@@ -984,35 +988,35 @@ jobs:
             PLAYWRIGHT_BROWSERS_PATH=/app/.cache/host-playwright
       - name: npm-typecheck
         if: vars.CI_SKIP_SOURCE_PASSES_LINT != 'true' && vars.CI_SKIP_NPM_TYPECHECK != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.NODE_TOOL_IMAGE || format('{0}/b19/node', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ vars.M6E_BASE_IMAGE_VARIANT_PREFIX }}n${{ vars.B19_NODE_SERIES || '26' }}
           run: npm run typecheck --if-present
       - name: auto-jsonlint
         if: vars.CI_SKIP_SOURCE_PASSES_LINT != 'true' && vars.CI_SKIP_AUTO_JSONLINT != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_JS_TOOLS_IMAGE || format('{0}/d9t/js-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
           run: auto-jsonlint
       - name: auto-shellcheck
         if: vars.CI_SKIP_SOURCE_PASSES_LINT != 'true' && vars.CI_SKIP_AUTO_SHELLCHECK != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_MISC_TOOLS_IMAGE || format('{0}/d9t/misc-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
           run: auto-shellcheck
       - name: auto-yamllint
         if: vars.CI_SKIP_SOURCE_PASSES_LINT != 'true' && vars.CI_SKIP_AUTO_YAMLLINT != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_PYTHON_TOOLS_IMAGE || format('{0}/d9t/python-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
           run: auto-yamllint
       - name: auto-zizmor-github
         if: vars.CI_SKIP_SOURCE_PASSES_LINT != 'true' && vars.CI_SKIP_AUTO_ZIZMOR_GITHUB != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.D9T_RUST_TOOLS_IMAGE || format('{0}/d9t/rust-tools', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
@@ -1022,7 +1026,7 @@ jobs:
         run: .makefile/container/scripts/compose-config.sh
       - name: compose-example-check
         if: vars.CI_SKIP_SOURCE_PASSES_LINT != 'true' && vars.CI_SKIP_COMPOSE_EXAMPLE_CHECK != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.DOCKER_CLI_IMAGE || 'docker' }}
           version: 29.8.1-cli
@@ -1036,7 +1040,7 @@ jobs:
         run: .makefile/container/scripts/dockerfile-parse.sh docker
       - name: hadolint
         if: vars.CI_SKIP_SOURCE_PASSES_LINT != 'true' && vars.CI_SKIP_HADOLINT != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.HADOLINT_IMAGE || 'hadolint/hadolint' }}
           version: v2.15.1
@@ -1044,22 +1048,8 @@ jobs:
           run: hadolint Dockerfile
       - name: ignorelint-check
         if: vars.CI_SKIP_SOURCE_PASSES_LINT != 'true' && vars.CI_SKIP_IGNORELINT_CHECK != 'true'
-        uses: projectfile-org/actions/run-tool@dce815a0d5ead4bbc1047c298252472a65433207 # v1
+        uses: projectfile-org/actions/run-tool@7585a2fefdfeb15c12d1cdcc2944aaf3dea6f6e9 # v1
         with:
           image: ${{ vars.IGNORELINT_IMAGE || format('{0}/ignorelint', vars.SOURCE_DOCKER_REGISTRY || 'ghcr.io/damian-buho') }}
           version: ${{ env.M6E_TAG }}
           run: ignorelint
-  tag-is-on-stable:
-    runs-on: ubuntu-26.04
-    if: startsWith(github.ref, 'refs/tags/')
-    env:
-      M6E_STABLE_BRANCH: main
-      M6E_FETCH_TOKEN: ${{ github.token }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          submodules: true
-          persist-credentials: false
-      - name: tag-on-stable-check
-        if: vars.CI_SKIP_TAG_IS_ON_STABLE != 'true' && vars.CI_SKIP_TAG_ON_STABLE_CHECK != 'true'
-        run: .makefile/core/scripts/tag-is-on-stable.sh

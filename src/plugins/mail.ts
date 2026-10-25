@@ -70,11 +70,7 @@ function tagList(record: string, version: RegExp): Parsed {
 
 // A domain-spec with `%{d}` and `%{o}` filled; undefined when a sender macro is left, since no sender is known.
 function expand(spec: string, domain: string): string | undefined {
-    const filled = spec
-        .replaceAll(/%\{[do]r?\}/gi, () => domain)
-        .replaceAll("%%", "%")
-        .replaceAll("%_", " ")
-        .replaceAll("%-", "%20");
+    const filled = spec.replaceAll(/%(?:\{[do]r?\}|[%_-])/gi, (token) => (token === "%%" ? "%" : token === "%_" ? " " : token === "%-" ? "%20" : domain));
     return filled.includes("%") ? undefined : filled.replace(/\.$/, "");
 }
 
@@ -252,9 +248,9 @@ async function dmarcCheck(subject: string, found: { at: string; record: string; 
         log.debug({ subject, at: found.at, destination, isAuthorized }, "external dmarc destination checked");
         if (!isAuthorized) unauthorized.push(destination);
     }
-    const subdomains = found.at === subject && pages.some((page) => new URL(page.url.href).hostname.endsWith(`.${subject}`));
+    const isSubdomains = found.at === subject && pages.some((page) => new URL(page.url.href).hostname.endsWith(`.${subject}`));
     const pct = tags.get("pct");
-    return { records: found.count, errors, testing: tags.get("t")?.toLowerCase() === "y" || (pct !== undefined && pct !== "100"), ...(found.at === subject && { subdomains }), ...(tags.has("sp") && { sp: tags.get("sp")?.toLowerCase() }), "not-mailto": notMailto, unauthorized };
+    return { records: found.count, errors, testing: tags.get("t")?.toLowerCase() === "y" || (pct !== undefined && pct !== "100"), ...(found.at === subject && { subdomains: isSubdomains }), ...(tags.has("sp") && { sp: tags.get("sp")?.toLowerCase() }), "not-mailto": notMailto, unauthorized };
 }
 
 // The grammar, key type, key size, testing flag and revocation of one DKIM key record (RFC 6376 §3.6.1).
@@ -980,7 +976,7 @@ function asWarning(id: string): RuleSpec {
 }
 
 // Mail authentication of every crawled host and its registrable domain: SPF, DMARC, DKIM, MX, MTA-STS, TLS-RPT, BIMI, and opt-in DANE and STARTTLS.
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- Object.fromEntries() assembles plain rule data, no IO
+
 export default {
     name: "mail",
     settings: {
