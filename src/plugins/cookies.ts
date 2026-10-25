@@ -184,7 +184,7 @@ const STORAGE_BEFORE_CONSENT: RuleSpec = {
 };
 
 // One set of cookie expectations over the page’s Set-Cookie, each resource’s, and what scripts write through `document.cookie`.
- 
+
 export default {
     name: "cookies",
     extractors: [consent],

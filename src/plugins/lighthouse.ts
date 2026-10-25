@@ -85,7 +85,6 @@ function metric(key: keyof typeof VITALS, limit: number, unit: string, link: str
     };
 }
 
- 
 export default {
     name: "lighthouse",
     extractors: [{ id: ID, mode: "browser", cost: "expensive", cached: false, debugging: true, extract }],

@@ -99,7 +99,6 @@ function preset(description: string, levels: Record<string, Level>): RulesetConf
 
 const rules = Object.fromEntries(Object.keys(RULESET).map((id) => [`${PREFIX}${id}`, messageRule(ID, PREFIX, id, `https://htmlhint.com/rules/${id}`, DESCRIPTIONS.get(id))]));
 
- 
 export default {
     name: "htmlhint",
     extractors: [{ id: ID, extract }],

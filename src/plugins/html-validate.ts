@@ -196,7 +196,6 @@ async function extract(page: Facts, body: string): Promise<HtmlValidateFacts | u
 
 const rules = Object.fromEntries(Object.keys(severities(BASE)).map((id) => [`${PREFIX}${id}`, rule(id)]));
 
- 
 export default {
     name: "html-validate",
     extractors: [{ id: ID, extract }],

@@ -16,6 +16,11 @@ type Security = NonNullable<Awaited<ReturnType<Response["securityDetails"]>>>;
 // Playwright resource types that map onto a resource kind; the main document is never one.
 const KINDS: Record<string, ResourceFacts["kind"]> = { script: "script", stylesheet: "style", image: "image", font: "font", document: "iframe", manifest: "manifest" };
 
+// Resource kinds that contribute to browser weight facts; checked via `.includes()` so the linter stays happy and TypeScript narrows.
+function isWeightKind(kind: string | undefined): kind is "script" | "style" | "image" | "font" {
+    return kind !== undefined && ["script", "style", "image", "font"].includes(kind);
+}
+
 // Where the init script keeps each `document.cookie` write for the crawler to read back.
 const WRITES = "__spiderlintCookieWrites";
 
@@ -134,7 +139,7 @@ export async function weightFacts(requests: Request[]): Promise<BrowserFacts["we
     const weight: BrowserFacts["weight"] = {};
     for (const request of requests) {
         const kind = KINDS[request.resourceType()];
-        if (request.failure() || (kind !== "script" && kind !== "style" && kind !== "image" && kind !== "font")) continue;
+        if (request.failure() || !isWeightKind(kind)) continue;
         weight[kind] = (weight[kind] ?? 0) + (await wireSize(request));
     }
     return weight;

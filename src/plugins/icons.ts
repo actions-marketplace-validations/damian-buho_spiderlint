@@ -313,7 +313,6 @@ function problemRule(check: keyof IconsFacts, severity: Severity, score: number,
     return { fact: `site.origins.*.${ID}.${check}`, expect: { maxItems: 0 }, message: `${message}: {got}`, severity, score, docs: documentation, fix };
 }
 
- 
 export default {
     name: ID,
     sites: [icons],

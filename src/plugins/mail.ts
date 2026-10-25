@@ -976,7 +976,7 @@ function asWarning(id: string): RuleSpec {
 }
 
 // Mail authentication of every crawled host and its registrable domain: SPF, DMARC, DKIM, MX, MTA-STS, TLS-RPT, BIMI, and opt-in DANE and STARTTLS.
- 
+
 export default {
     name: "mail",
     settings: {

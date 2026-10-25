@@ -22,8 +22,8 @@ const PAGES: Record<string, string> = {
     "/client": `<!DOCTYPE html><html lang="en"><head></head><body><main></main>${SCRIPT}</body></html>`,
 };
 
-type Cheerio = Parameters<typeof extractHtml>[0];
 const facts = (html: string) => {
+    type Cheerio = Parameters<typeof extractHtml>[0];
     const $ = load(html) as unknown as Cheerio;
     return { $, html: extractHtml($, html, new URL("https://site.test/client"), "origin") };
 };

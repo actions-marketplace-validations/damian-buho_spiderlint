@@ -402,7 +402,6 @@ const inlineUnsupported: Make = (severity, settings) =>
         settings as CssSettings,
     );
 
- 
 export default {
     name: "css",
     settings: SETTINGS,

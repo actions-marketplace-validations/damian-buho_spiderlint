@@ -16,8 +16,6 @@ import type { ResourceExtractor } from "../plugins/types.ts";
 import type { ResourceResults } from "../store/disk.ts";
 import { log } from "../logger.ts";
 
-type ResourceHttp = NonNullable<ResourceFacts["http"]>;
-
 // The Accept header Chromium sends for an image, so an origin negotiating AVIF or WebP answers as it would a browser.
 const IMAGE_ACCEPT = { accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8" };
 
@@ -236,6 +234,7 @@ async function fromLog(url: string, logged: Logged, max: number, extractors: Res
 export function attachResources(pages: Facts[], results: ResourceResults): void {
     const entries = pages.flatMap((page) => page.resources ?? []);
     for (const entry of entries) {
+        type ResourceHttp = NonNullable<ResourceFacts["http"]>;
         const { facts, ...http } = results[entry.url] ?? {};
         entry.http = results[entry.url] && (http as ResourceHttp);
         Object.assign(entry, facts);

@@ -112,7 +112,6 @@ function preset(description: string, levels: Map<string, Level>): RulesetConfig 
 
 const rules = Object.fromEntries(UPSTREAM.map(([, alias, text, documentation]) => [`${PREFIX}${alias}`, messageRule(ID, PREFIX, alias, documentation, text)]));
 
- 
 export default {
     name: "markdownlint",
     settings: { type: "object", additionalProperties: false, properties: { config: bare(SCHEMA) } },

@@ -146,7 +146,6 @@ async function extract(page: Facts, _body: string, live?: Page): Promise<AxeFact
     return facts;
 }
 
- 
 export default {
     name: "axe",
     extractors: [{ id: ID, mode: "browser", cost: "expensive", inputs: ["resources"], extract }],

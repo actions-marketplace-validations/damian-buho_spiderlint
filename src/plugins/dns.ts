@@ -893,7 +893,7 @@ const RECOMMENDED = [...CORE, "domain/expiry", "domain/expiring", "domain/lock",
 const pick = (ids: string[]): Record<string, RuleSpec> => Object.fromEntries(ids.map((id) => [id, RULES[id] as RuleSpec]));
 
 // Records, CAA, DNSSEC and name servers of every crawled host, asked of the configured resolver.
- 
+
 export default {
     name: "dns",
     settings: { type: "object", additionalProperties: false, properties: { compare: { type: "array", items: { type: "string", minLength: 1 }, default: [] }, rdap: { type: "boolean", default: true } } },

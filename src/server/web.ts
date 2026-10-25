@@ -31,9 +31,6 @@ declare module "hono" {
     }
 }
 
-// One slot of the owner’s page and what it asks of the policy.
-type Fragment = { html: string; sources: Sources };
-
 const BODY_MAX = 64 * 1024;
 const ASSET_MAX_AGE_S = 3600;
 const REFRESH_S = 5;
@@ -141,6 +138,7 @@ function publicOrigin(c: Context): string {
 
 // The page in the reader’s language with the owner’s fragments, never cached, under the page policy they extend; the view is reported to Matomo when one is set.
 function respond(c: Context, t: Translator, title: string, body: string, status: ContentfulStatusCode = 200, head = "", extra: { description?: string; host?: string } = {}): Response {
+    type Fragment = { html: string; sources: Sources };
     const { page: owner, matomo } = c.get("settings");
     const slots = (["head", "header", "footer"] as const).map((slot) => owner.fragments?.slot(slot, t.lang) ?? { html: "", sources: { script: [], style: [] } });
     const [fromHead, fromHeader, fromFooter] = slots as [Fragment, Fragment, Fragment];
