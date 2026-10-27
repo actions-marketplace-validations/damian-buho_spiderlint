@@ -4,7 +4,8 @@
 
 import { writeSync } from "node:fs";
 import { text } from "node:stream/consumers";
-import { getCACertificates, setDefaultCACertificates } from "node:tls";
+import { setDefaultCACertificates } from "node:tls";
+import { systemCaCertificates } from "../ca.ts";
 import { ConfigError } from "../config/index.ts";
 import { fromSubtree } from "../config/policy.ts";
 import { validateSubtree } from "../config/schema.ts";
@@ -35,5 +36,5 @@ async function main(): Promise<number> {
     }
 }
 
-setDefaultCACertificates([...getCACertificates("default"), ...getCACertificates("system")]);
+setDefaultCACertificates(systemCaCertificates());
 process.exitCode = await main();
