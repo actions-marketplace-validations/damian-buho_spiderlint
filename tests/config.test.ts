@@ -86,6 +86,7 @@ describe("validateSubtree", () => {
             scope: "origin",
             concurrency: 0,
             rate: 0,
+            requests: 90,
             misses: 6,
             "max-pages": 0,
             "max-depth": 0,

@@ -29,6 +29,7 @@ import type { CrawlStorage, Frontier, Logged, OnPage } from "./frontier.ts";
 import type { Router } from "./route.ts";
 import { chromiumArguments } from "./resolve.ts";
 import { TlsProber } from "./tls-probe.ts";
+import { admit, charge } from "./network.ts";
 
 const SETTLE_MS = 5000;
 // Pages a browser renders before a fresh one replaces it.
@@ -85,12 +86,17 @@ async function readTransport(response: Response): Promise<Transport> {
 }
 
 // Listens to a page before it navigates, so a download that aborts the navigation still leaves its response behind.
-function observe(page: Page): Observation {
+function observe(page: Page, admitted: (status: number) => void): Observation {
     const seen: Observation = { protocols: new Map(), console: { errors: [], warnings: [] }, requests: [] };
     const errors = new Set<string>();
     const warnings = new Set<string>();
+    let settle: ((status: number) => void) | undefined = admitted;
     page.on("response", (response) => {
-        if (!response.request().isNavigationRequest() || response.frame() !== page.mainFrame()) return;
+        const isDocument = response.request().isNavigationRequest() && response.frame() === page.mainFrame();
+        if (isDocument && settle) settle(response.status());
+        else charge(response.url(), response.status());
+        if (isDocument) settle = undefined;
+        if (!isDocument) return;
         seen.document = response;
         seen.transport = readTransport(response);
     });
@@ -465,7 +471,7 @@ export async function browserCrawler(config: Config, onPage: OnPage, frontier: F
             },
             preNavigationHooks: [
                 async ({ page, request }) => {
-                    const observation = observe(page);
+                    const observation = observe(page, await admit(request.url));
                     observations.set(request, observation);
                     await watchProtocols(page, observation);
                     await page.addInitScript({ content: COOKIE_WRITES });

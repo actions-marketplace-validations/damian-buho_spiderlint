@@ -14,7 +14,7 @@ import type { Facts } from "../facts/types.ts";
 import { log } from "../logger.ts";
 import type { CrawlStorage, Earlier, Frontier, OnPage } from "./frontier.ts";
 import { MISMATCH, reason } from "./fetch.ts";
-import { guardUrl } from "./network.ts";
+import { admit, guardUrl } from "./network.ts";
 import { width } from "./resources.ts";
 
 // The first value of a header that may repeat.
@@ -83,6 +83,7 @@ export function httpCrawler(config: Config, onPage: OnPage, frontier: Frontier, 
     const revalidating = new WeakMap<object, Earlier>();
     const hinted = new WeakMap<object, NonNullable<Facts["http"]["early-hints"]>>();
     const hopped = new WeakMap<object, Facts["http"]["redirects"]>();
+    const settles = new WeakMap<object, (status: number) => void>();
     let revalidatedPages = 0;
     const bodies = new WeakMap<object, Capped & { source: Transport; tls?: ReturnType<typeof tlsFacts>; remote?: { address: string; family?: string } }>();
     const crawler = new Crawler(
@@ -93,6 +94,7 @@ export function httpCrawler(config: Config, onPage: OnPage, frontier: Frontier, 
             preNavigationHooks: [
                 async ({ request }, gotOptions) => {
                     bodies.delete(request);
+                    settles.set(request, await admit(request.url));
                     Object.assign(gotOptions, { decompress: false, headers: { ...gotOptions.headers, ...agentHeaders(), "accept-encoding": ACCEPT_ENCODING } });
                     const hints: NonNullable<Facts["http"]["early-hints"]> = [];
                     hinted.set(request, hints);
@@ -115,6 +117,7 @@ export function httpCrawler(config: Config, onPage: OnPage, frontier: Frontier, 
             postNavigationHooks: [
                 (context) => {
                     const source = context.response as unknown as Readable & { headers: Record<string, string | undefined> };
+                    settles.get(context.request)?.((source as unknown as { statusCode?: number }).statusCode ?? 0);
                     const contentType = source.headers["content-type"];
                     const max = isParsed(contentType) ? config.maxBodySize : 0;
                     const cap = capped(source, max);

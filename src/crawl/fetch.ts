@@ -6,7 +6,7 @@ import { setTimeout as sleep } from "node:timers/promises";
 import { agentHeaders } from "../agent.ts";
 import { log } from "../logger.ts";
 import { PrivateAddress } from "./guard.ts";
-import { guardedFetch, pace, patient } from "./network.ts";
+import { admit, guardedFetch, pace, patient } from "./network.ts";
 
 const ATTEMPTS = 3;
 const TIMEOUT_MS = 30_000;
@@ -43,8 +43,10 @@ export async function fetchRetrying<T>(url: string, consume: (response: Response
         const started = performance.now();
         const isLast = attempt === ATTEMPTS - 1;
         try {
+            const settle = await admit(url);
             await pace();
             const response = await guardedFetch(url, { method, headers: { ...headers, ...agentHeaders() }, signal: AbortSignal.timeout(patient(TIMEOUT_MS)) });
+            settle(response.status);
             const value = await consume(response);
             log.debug({ url, status: response.status, attempt }, "fetched");
             if (isLast || !RETRY_STATUS.has(response.status)) return { response, value, ms: Math.round(performance.now() - started) };

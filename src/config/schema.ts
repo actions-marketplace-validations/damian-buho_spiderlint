@@ -49,6 +49,7 @@ const site = {
         scope: { enum: ["origin", "host", "domain"] },
         concurrency: { type: "integer", minimum: 0 },
         rate: { type: "integer", minimum: 0 },
+        requests: { type: "integer", minimum: 0 },
         misses: { type: "integer", minimum: 0 },
         timeout: { type: "integer", minimum: 1 },
         profile: { enum: Object.keys(PROFILES) },

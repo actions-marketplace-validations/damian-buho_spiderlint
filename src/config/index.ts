@@ -42,7 +42,9 @@ export interface Config {
     concurrency: number;
     // Requests per minute; 0 is unlimited.
     rate: number;
-    // 4xx answers per minute probes may draw from one registrable domain, a burst of as many first; 0 is unlimited.
+    // Non-static requests per minute one registrable domain may receive, a burst of a third of them first; 0 is unlimited.
+    requests: number;
+    // 4xx answers per minute one registrable domain may give, a burst of as many first; 0 is unlimited.
     misses: number;
     // Seconds one page may take, its navigation half of it.
     timeout: number;
@@ -112,6 +114,7 @@ export function defaults(): Config {
         scope: "origin",
         concurrency: 0,
         rate: 0,
+        requests: 90,
         misses: 6,
         timeout: 60,
         crawlDeadline: 0,

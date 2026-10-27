@@ -30,6 +30,7 @@ export type Settings = Partial<
         | "scope"
         | "concurrency"
         | "rate"
+        | "requests"
         | "misses"
         | "timeout"
         | "profile"
@@ -80,6 +81,7 @@ const KEYS: [string, keyof Settings][] = [
     ["scope", "scope"],
     ["concurrency", "concurrency"],
     ["rate", "rate"],
+    ["requests", "requests"],
     ["misses", "misses"],
     ["timeout", "timeout"],
     ["profile", "profile"],
