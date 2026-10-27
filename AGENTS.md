@@ -486,6 +486,7 @@ org:
     scope: origin                      # origin | host | domain
     concurrency: 0                     # 0 = NUMPROCS
     rate: 0                            # requests per minute, 0 = unlimited
+    misses: 6                          # 4xx probe answers per minute per registrable domain, 0 = unlimited
     max-pages: 0
     resources: { fetch: true, max-per-page: 200 }
     links: { exclude: [] }             # hosts, with their subdomains, whose links are never probed
@@ -651,6 +652,7 @@ Shipped: css-tree and lightningcss together, since neither catches what the othe
 
 - Crawl: Crawlee’s autoscaled pool, `maxConcurrency` = `NUMPROCS` by default, browser mode halves it, and renders one page at a time when an expensive browser extractor runs, trading speed for memory; `concurrency` sets it as given, and sizes the resource, link probe and site extractor pools. `maxRequestsPerMinute` from `rate`, which also spaces every robots, sitemap, resource and probe request after it; `sameDomainDelaySecs` from `Crawl-delay`. Two crawlers side by side split `rate` and each wait twice the delay, so the site sees the pace one crawler would keep.
 - Lint from store runs extractors and rules inline, in the one process.
+- Miss budget: every `probe()` request reserves one miss from a leaky bucket per registrable domain (`misses`, 6 a minute, a burst of as many), and an answer outside `400`–`499` returns it, so a run never sends a domain more 4xx answers than CrowdSec’s `http-probing` (10 in a bucket leaking one per 10 s) bans for. A probe waiting for it pauses its site extractor’s deadline; loopback hosts are never charged. Config file only; a scan request cannot change it. Crawled pages and resources are not charged.
 - Retries: `maxRequestRetries: 3` with Crawlee’s backoff; `429` and `503` honour `Retry-After`. `retryOnBlocked` stays off — evading bot protection on someone else’s site is not this tool’s job.
 - Timeouts: `timeout` (60 s) is Crawlee’s `requestHandlerTimeoutSecs` for both crawlers, navigation half of it, and stretches every site extractor’s own (60 s unless it declares one) by `timeout` over 60. `patient()` stretches the fixed robots, sitemap, resource and probe waits by `timeout` over 60 while the network is open.
 - Profiles: `profile` (`--profile`, `SPIDERLINT_PROFILE`) lays a named bundle from `PROFILES` over the defaults and under the file, site, environment and flags, so any of those still wins. `tor` and `i2p` each set their router’s default local proxy (`socks5h://127.0.0.1:9050`, `http://127.0.0.1:4444`), concurrency 4, timeout 240, and resolve an `adaptive` group as `auto`, since detection renders every page twice.

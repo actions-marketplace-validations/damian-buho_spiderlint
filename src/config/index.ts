@@ -42,6 +42,8 @@ export interface Config {
     concurrency: number;
     // Requests per minute; 0 is unlimited.
     rate: number;
+    // 4xx answers per minute probes may draw from one registrable domain, a burst of as many first; 0 is unlimited.
+    misses: number;
     // Seconds one page may take, its navigation half of it.
     timeout: number;
     // Seconds after which the crawl stops taking pages and the run goes on with what it has; 0 is no deadline.
@@ -110,6 +112,7 @@ export function defaults(): Config {
         scope: "origin",
         concurrency: 0,
         rate: 0,
+        misses: 6,
         timeout: 60,
         crawlDeadline: 0,
         profile: "",

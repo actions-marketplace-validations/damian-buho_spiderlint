@@ -11,7 +11,7 @@ import { redactHeaders } from "../facts/transport.ts";
 import { log } from "../logger.ts";
 import { delay, reason } from "./fetch.ts";
 import { guardedLookup, isPrivate, PrivateAddress } from "./guard.ts";
-import { pace, patient } from "./network.ts";
+import { pace, patient, reserveMiss, settleMiss, type Deadline } from "./network.ts";
 import { robotsFactsOf, type RobotsFor } from "./robots.ts";
 
 const ATTEMPTS = 2;
@@ -45,6 +45,8 @@ export interface ProbeOptions {
     host: string;
     allowPrivate: boolean;
     signal: AbortSignal;
+    // The countdown behind `signal`, paused while the probe waits for its domain’s miss budget.
+    deadline?: Deadline;
     // The run’s robots.txt verdicts; unset when `robots` is off.
     robots?: RobotsFor;
 }
@@ -80,6 +82,7 @@ async function once(url: URL, init: ProbeInit, options: ProbeOptions): Promise<O
     const literal = url.hostname.replaceAll(/^\[|\]$/g, "");
     if (!options.allowPrivate && isIP(literal) && isPrivate(literal)) throw new PrivateAddress(`${url.hostname} is a private address`);
     const request = url.protocol === "https:" ? httpsRequest : httpRequest;
+    await reserveMiss(url.hostname, options.signal, options.deadline);
     await pace();
     const expiry = AbortSignal.timeout(patient(TIMEOUT_MS));
     const response = await new Promise<IncomingMessage>((resolve, reject) => {
@@ -87,6 +90,7 @@ async function once(url: URL, init: ProbeInit, options: ProbeOptions): Promise<O
         outgoing.on("error", reject);
         outgoing.end();
     });
+    settleMiss(url.hostname, response.statusCode ?? 0);
     const { body, raw, truncated } = await text(response);
     return { url: url.href, status: response.statusCode ?? 0, headers: redactHeaders(response.headers as Record<string, string | string[]>), body, ...(truncated && { truncated }), ...(init.binary && { bytes: raw }) };
 }
