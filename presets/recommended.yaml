@@ -15,6 +15,7 @@ extends:
   - spiderlint:robots
   - spiderlint:resources
   - spiderlint:origin
+  - spiderlint:crawlers
   - spiderlint:dns:recommended
   - spiderlint:mail:recommended
   - spiderlint:images

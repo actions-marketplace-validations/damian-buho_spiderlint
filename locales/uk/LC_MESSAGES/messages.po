@@ -1815,6 +1815,12 @@ msgstr "файл називає краулери ШІ"
 msgid "crawler access contradicts the content signals"
 msgstr "доступ краулерів суперечить сигналам вмісту"
 
+msgid "the edge refuses crawlers the content signals welcome; it may only refuse look-alikes"
+msgstr "периметр відхиляє краулерів, яких сигнали вмісту вітають; можливо, він відхиляє лише імітації"
+
+msgid "the site refuses crawlers the content signals welcome"
+msgstr "сайт відхиляє краулерів, яких сигнали вмісту вітають"
+
 msgid "a page says noai or noimageai while the content signals allow AI training"
 msgstr "сторінка каже noai або noimageai, хоча сигнали вмісту дозволяють навчання ШІ"
 

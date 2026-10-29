@@ -1815,6 +1815,12 @@ msgstr "el archivo nombra rastreadores de IA"
 msgid "crawler access contradicts the content signals"
 msgstr "el acceso de los rastreadores contradice las señales de contenido"
 
+msgid "the edge refuses crawlers the content signals welcome; it may only refuse look-alikes"
+msgstr "el borde rechaza rastreadores que las señales de contenido aceptan; puede que solo rechace imitaciones"
+
+msgid "the site refuses crawlers the content signals welcome"
+msgstr "el sitio rechaza rastreadores que las señales de contenido aceptan"
+
 msgid "a page says noai or noimageai while the content signals allow AI training"
 msgstr "una página dice noai o noimageai mientras las señales de contenido permiten el entrenamiento de IA"
 

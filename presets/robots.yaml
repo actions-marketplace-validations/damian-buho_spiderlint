@@ -19,7 +19,7 @@ rules:
     expect: {const: false}
     when: {site.content-signals.ai-train: "yes"}
     severity: warning
-    score: 3.2
+    score: 3.4
     message: "a page says noai or noimageai while the content signals allow AI training"
     fix: "Remove noai and noimageai from <meta name=robots> and X-Robots-Tag, or declare ai-train as no."
     docs: https://contentsignals.org/

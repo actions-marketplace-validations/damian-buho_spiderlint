@@ -6,7 +6,7 @@ import { request as httpRequest, type IncomingMessage } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { isIP } from "node:net";
 import { setTimeout as sleep } from "node:timers/promises";
-import { agentHeaders } from "../agent.ts";
+import { agentHeaders, botAgent } from "../agent.ts";
 import { redactHeaders } from "../facts/transport.ts";
 import { log } from "../logger.ts";
 import { delay, reason } from "./fetch.ts";
@@ -27,6 +27,8 @@ export interface ProbeInit {
     redirect?: "follow" | "manual";
     // Keeps the raw body as `bytes`, for an image the text body would mangle.
     binary?: true;
+    // A crawler UA the request poses as, the tool token appended and no Client Hints sent.
+    as?: string;
 }
 
 export interface Probe {
@@ -86,7 +88,7 @@ async function once(url: URL, init: ProbeInit, options: ProbeOptions): Promise<O
     await pace();
     const expiry = AbortSignal.timeout(patient(TIMEOUT_MS));
     const response = await new Promise<IncomingMessage>((resolve, reject) => {
-        const outgoing = request(url, { method: init.method ?? "GET", headers: { ...init.headers, ...agentHeaders() }, signal: AbortSignal.any([options.signal, expiry]), ...(!options.allowPrivate && { lookup: guardedLookup }) }, resolve);
+        const outgoing = request(url, { method: init.method ?? "GET", headers: { ...init.headers, ...(init.as ? { "user-agent": botAgent(init.as) } : agentHeaders()) }, signal: AbortSignal.any([options.signal, expiry]), ...(!options.allowPrivate && { lookup: guardedLookup }) }, resolve);
         outgoing.on("error", reject);
         outgoing.end();
     });

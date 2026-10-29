@@ -137,7 +137,7 @@ describe("audit", () => {
         assert.deepEqual(about?.html?.jsonld[0], { "@context": "https://schema.org", "@type": "AboutPage" });
         assert.ok(Object.hasOwn(about?.html?.jsonld[1] as object, "@error"));
         assert.deepEqual(about?.html?.scripts[0], { src: `${site.origin.replace("127.0.0.1", "localhost")}/cdn/lib.js`, async: false, defer: false, head: true });
-        assert.deepEqual(about?.robots, { noindex: false, nofollow: true });
+        assert.deepEqual(about?.robots, { noindex: false, nofollow: true, noai: false });
         assert.ok(!site.requested.includes("/es/about"), "a head alternate is not a link to follow");
     });
 
@@ -656,9 +656,12 @@ describe("audit options", () => {
         const before = site.headers.length;
         await audit({ seeds: [`${site.origin}/about`], maxPages: 1, sitemap: false, cacheMode: "off" });
         assert.ok(site.requested.slice(before).includes("/robots.txt"));
-        const agents = new Set(site.headers.slice(before).map((headers) => headers["user-agent"]));
-        assert.deepEqual([...agents], [`spiderlint/${VERSION} (+https://kiota.ch/damian-buho/spiderlint)`]);
-        for (const headers of site.headers.slice(before)) {
+        const own = `spiderlint/${VERSION} (+https://kiota.ch/damian-buho/spiderlint)`;
+        const sent = site.headers.slice(before);
+        const agents = new Set(sent.map((headers) => headers["user-agent"] ?? ""));
+        for (const agent of agents) assert.ok(agent.endsWith(own), `tool named: ${agent}`);
+        for (const headers of sent) {
+            if (headers["user-agent"] !== own) continue;
             assert.ok(headers["sec-ch-ua"] !== undefined, "client hints travel with the user agent");
             assert.ok(headers["sec-ch-ua-mobile"] !== undefined, "client hints travel with the user agent");
             assert.ok(headers["sec-ch-ua-platform"] !== undefined, "client hints travel with the user agent");
