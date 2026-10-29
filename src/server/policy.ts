@@ -11,7 +11,7 @@ import { log } from "../logger.ts";
 import { CAPPED, type Policy, type ServerSettings } from "./settings.ts";
 
 // `org.spiderlint` keys a request may set; the rest read files, load code, leave the address guard or skip robots.txt.
-const REQUEST_KEYS = new Set(["canonical-origin", "rules", "exclude-rules", "override", "groups", "fetch", "browser", "scope", "concurrency", "rate", "timeout", "max-pages", "max-depth", "max-body-size", "keepalive", "include-urls", "exclude-urls", "resources", "links", "sitemap", "fold"]);
+const REQUEST_KEYS = new Set(["canonical-origin", "content-signals", "rules", "exclude-rules", "override", "groups", "fetch", "browser", "scope", "concurrency", "rate", "timeout", "max-pages", "max-depth", "max-body-size", "keepalive", "include-urls", "exclude-urls", "resources", "links", "sitemap", "fold"]);
 
 // Rules whose extractors connect to ports a stranger’s URL must never aim the server at.
 export const NEVER_SERVED = ["sshfp", "sshfp/*"];

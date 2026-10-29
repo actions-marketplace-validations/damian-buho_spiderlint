@@ -10,10 +10,12 @@ import { parseDuration, type BucketName } from "../cache/index.ts";
 import { parseResolver } from "../crawl/dns.ts";
 import { parsePin } from "../crawl/resolve.ts";
 import { log } from "../logger.ts";
-import { ConfigError, originOf, proxyOf, type Config } from "./index.ts";
+import type { Stance } from "../facts/types.ts";
+import { CONTENT_SIGNALS, ConfigError, originOf, proxyOf, type Config } from "./index.ts";
 import { CORE_KEYS, validateSubtree } from "./schema.ts";
 
 const SUBTREE = "org.spiderlint";
+const AI_SIGNALS = "org.projectfile.ai.content-signals";
 const LEVELS = ["error", "warning", "info", "hint"] as const;
 type Level = (typeof LEVELS)[number];
 const DISCOVER_NAMES = ["projectfile.yaml", "projectfile.toml", "projectfile.json"];
@@ -24,6 +26,7 @@ export type Settings = Partial<
         | "seeds"
         | "canonicalOrigin"
         | "role"
+        | "contentSignals"
         | "fetch"
         | "browser"
         | "browserInstall"
@@ -75,6 +78,7 @@ export type Settings = Partial<
 const KEYS: [string, keyof Settings][] = [
     ["targets", "seeds"],
     ["role", "role"],
+    ["content-signals", "contentSignals"],
     ["fetch", "fetch"],
     ["browser", "browser"],
     ["browser-install", "browserInstall"],
@@ -176,9 +180,9 @@ function discover(): string | undefined {
     return DISCOVER_NAMES.find((name) => existsSync(name));
 }
 
-// null when pf-cli is not on PATH; otherwise the subtree (possibly an error).
-function runPfCli(document: string): { raw?: unknown; error?: string } | undefined {
-    const result = spawnSync("pf-cli", ["get", "--file", document, SUBTREE, "--format", "json", "--quiet"], { encoding: "utf8" });
+// null when pf-cli is not on PATH; otherwise the value at `path` (possibly an error).
+function runPfCli(document: string, path = SUBTREE): { raw?: unknown; error?: string } | undefined {
+    const result = spawnSync("pf-cli", ["get", "--file", document, path, "--format", "json", "--quiet"], { encoding: "utf8" });
     if (result.error) return undefined;
     // pf-cli answers a path the document lacks with `null` and exit 1.
     if (result.stdout.trim() === "null" && result.stderr.trim() === "") return { raw: {} };
@@ -189,6 +193,26 @@ function runPfCli(document: string): { raw?: unknown; error?: string } | undefin
 function readPlainYaml(document: string): unknown {
     const parsed = parseYaml(readFileSync(document, "utf8")) as { org?: { spiderlint?: unknown } } | null;
     return parsed?.org?.spiderlint ?? {};
+}
+
+// The project’s granted signals as a stance: listed is yes, a known one left out is no, no list is no stance.
+export function stanceOf(granted: unknown): Stance | undefined {
+    return Array.isArray(granted) ? Object.fromEntries(CONTENT_SIGNALS.map((signal) => [signal, granted.includes(signal) ? "yes" : "no"])) : undefined;
+}
+
+// `org.projectfile.ai.content-signals` through pf-cli, so includes count, else from the file itself.
+function declaredStance(document: string): Stance | undefined {
+    const result = runPfCli(document, AI_SIGNALS);
+    const granted = result ? result.raw : (parseYaml(readFileSync(document, "utf8")) as { org?: { projectfile?: { ai?: Record<string, unknown> } } } | null)?.org?.projectfile?.ai?.["content-signals"];
+    const stance = stanceOf(granted);
+    log.debug({ document, error: result?.error, stance }, "declared content signals read");
+    return stance;
+}
+
+// The shared settings, with the declared stance under them when org.spiderlint sets none.
+function withStance(resolved: ReturnType<typeof resolve>, document: string): ReturnType<typeof resolve> {
+    const contentSignals = resolved.settings.contentSignals ?? declaredStance(document);
+    return { ...resolved, settings: { ...resolved.settings, ...(contentSignals && { contentSignals }) } };
 }
 
 // Resolves the org.spiderlint subtree: explicit --config, else cwd discovery, else no file.
@@ -208,9 +232,9 @@ export function loadSettings(explicit: string | undefined): { settings: Settings
             return { settings: {}, sites: {}, document };
         }
         log.debug({ document }, "pf-cli not found, parsing config file directly");
-        return { ...resolve(readPlainYaml(document)), document };
+        return { ...withStance(resolve(readPlainYaml(document)), document), document };
     }
     if (pfResult.error !== undefined) throw new ConfigError(`pf-cli: cannot read ${SUBTREE} from ${document}: ${pfResult.error}`);
     log.debug({ document }, "config subtree loaded via pf-cli");
-    return { ...resolve(pfResult.raw), document };
+    return { ...withStance(resolve(pfResult.raw), document), document };
 }

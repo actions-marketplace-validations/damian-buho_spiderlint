@@ -1812,6 +1812,12 @@ msgstr "елемент хлібних крихт переспрямовує; й�
 msgid "the file names AI crawlers"
 msgstr "файл називає краулери ШІ"
 
+msgid "crawler access contradicts the content signals"
+msgstr "доступ краулерів суперечить сигналам вмісту"
+
+msgid "a page says noai or noimageai while the content signals allow AI training"
+msgstr "сторінка каже noai або noimageai, хоча сигнали вмісту дозволяють навчання ШІ"
+
 msgid "the first Tab stop is not a link to the main content"
 msgstr "перша зупинка Tab не є посиланням на основний вміст"
 

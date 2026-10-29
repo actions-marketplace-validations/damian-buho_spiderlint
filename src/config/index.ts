@@ -4,7 +4,7 @@
 
 import type { BucketName, CacheMode } from "../cache/index.ts";
 import type { Pin } from "../crawl/resolve.ts";
-import type { Role } from "../facts/types.ts";
+import type { Role, Stance } from "../facts/types.ts";
 import type { Scope } from "../crawl/scope.ts";
 import { log } from "../logger.ts";
 import type { RulesetConfig, Severity } from "../rules/types.ts";
@@ -14,6 +14,7 @@ export type BrowserName = "chromium" | "firefox" | "webkit";
 // A level, `never`, or the lowest score that fails the run.
 export type FailOn = "error" | "warning" | "info" | "never" | number;
 export const ROLES = ["production", "staging", "development"] as const;
+export const CONTENT_SIGNALS = ["search", "ai-input", "ai-train"] as const;
 
 export interface GroupConfig {
     match?: string[];
@@ -33,6 +34,8 @@ export interface Config {
     canonicalOrigin?: string;
     // What the site is for, the `site.role` fact rules gate on.
     role: Role;
+    // What crawlers may do with the content, the `site.content-signals` fact; unset is no stance.
+    contentSignals?: Stance;
     fetch: FetchMode;
     browser: BrowserName;
     // Whether a missing browser is downloaded before the crawl instead of failing.

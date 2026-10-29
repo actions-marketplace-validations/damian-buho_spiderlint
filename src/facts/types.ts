@@ -84,9 +84,15 @@ export interface RobotsFileFacts {
 // What the audited site is for; set from the config on every lint.
 export type Role = "production" | "staging" | "development";
 
+// A Content Signals purpose (contentsignals.org) and the stance taken on each.
+export type ContentSignal = "search" | "ai-input" | "ai-train";
+export type Stance = Partial<Record<ContentSignal, "yes" | "no">>;
+
 // Facts about the site rather than any one page, read by group and site rules.
 export interface SiteFacts {
     role?: Role;
+    // The owner’s Content Signals, from the config; absent when none is declared.
+    "content-signals"?: Stance;
     sitemaps: SitemapFileFacts[];
     robots?: RobotsFileFacts[];
     redirects?: Record<string, string>;
@@ -240,6 +246,8 @@ export interface DetectedFacts {
 export interface RobotsFacts {
     noindex: boolean;
     nofollow: boolean;
+    // `noai` or `noimageai`, the training opt-out some sites send beside the standard directives.
+    noai: boolean;
 }
 
 export interface ResourceFacts {

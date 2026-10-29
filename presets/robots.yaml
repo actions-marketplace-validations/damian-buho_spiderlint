@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 ---
-description: robots.txt shutting every crawler out, the AI crawlers it names, and its Content Signals
+description: robots.txt shutting every crawler out, the AI crawlers it names, its Content Signals, crawler access and noai pages against them
 rules:
   robots/disallow-all: {severity: warning, score: 6.3, when: {site.role: production}}
   robots/ai-crawlers:
@@ -11,3 +11,15 @@ rules:
   robots/content-signal:
     severity: warning
     score: 3.6
+  robots/crawler-access:
+    severity: warning
+    score: 4.4
+  html/noai:
+    fact: robots.noai
+    expect: {const: false}
+    when: {site.content-signals.ai-train: "yes"}
+    severity: warning
+    score: 3.2
+    message: "a page says noai or noimageai while the content signals allow AI training"
+    fix: "Remove noai and noimageai from <meta name=robots> and X-Robots-Tag, or declare ai-train as no."
+    docs: https://contentsignals.org/

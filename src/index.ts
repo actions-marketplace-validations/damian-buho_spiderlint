@@ -418,6 +418,8 @@ function derive(pages: Facts[], site: SiteFacts, config: Config, matchers: Retur
     referrers(pages, site.redirects);
     twins(pages, config.canonicalOrigin);
     site.role = config.role;
+    if (config.contentSignals) site["content-signals"] = config.contentSignals;
+    else delete site["content-signals"];
     vendorFacts(pages, site, config.vendorPaths);
     site.graph = linkGraph(pages, site.redirects);
 }

@@ -1812,6 +1812,12 @@ msgstr "el elemento de migas de pan redirige; nombrado por estas páginas"
 msgid "the file names AI crawlers"
 msgstr "el archivo nombra rastreadores de IA"
 
+msgid "crawler access contradicts the content signals"
+msgstr "el acceso de los rastreadores contradice las señales de contenido"
+
+msgid "a page says noai or noimageai while the content signals allow AI training"
+msgstr "una página dice noai o noimageai mientras las señales de contenido permiten el entrenamiento de IA"
+
 msgid "the first Tab stop is not a link to the main content"
 msgstr "la primera parada de Tab no es un enlace al contenido principal"
 
