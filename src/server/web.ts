@@ -21,7 +21,7 @@ import { track } from "./analytics.ts";
 import { compress } from "./compress.ts";
 import { jobOf, submit, type Jobs } from "./jobs.ts";
 import { asset, type Sources } from "./page.ts";
-import { presetSettings, presetsOffered, Refusal } from "./policy.ts";
+import { presetSettings, presetsOffered, Refusal, signalSettings } from "./policy.ts";
 import { latestKey, recentReports, type Recent, type ScanJob } from "./queue.ts";
 import type { ServerSettings } from "./settings.ts";
 
@@ -193,11 +193,26 @@ function hideChoice(t: Translator, isHidden: boolean): string {
     return `<label class="check"><input id="hidden" type="checkbox" name="hidden" value="1"${isHidden ? " checked" : ""}> ${escape(t._("Hide from results"))} <small class="muted">${escape(t._("The scan stays out of the latest reports and the badge. Anyone with its link can still open it."))}</small></label>`;
 }
 
-// The form, with the address typed, the preset chosen, the hide box and the refusal it met, if any.
-function formPage(c: Context, t: Translator, offered: string[], recent: Recent[], typed = "", refusal?: Refusal, chosen?: string, isHidden = false): Response {
+// One select per content signal, each with no stance first; `stance` holds the values chosen.
+function signalChoice(t: Translator, stance: Record<string, unknown>): string {
+    const names: Record<string, string> = { search: t._("Search engines"), "ai-input": t._("AI answers"), "ai-train": t._("AI training") };
+    const values: [string, string][] = [
+        ["", t._("No opinion")],
+        ["yes", t._("Welcome")],
+        ["no", t._("Unwelcome")],
+    ];
+    const rows = Object.entries(names).map(([signal, name]) => {
+        const options = values.map(([value, text]) => `<option value="${value}"${(stance[`signal-${signal}`] ?? "") === value ? " selected" : ""}>${escape(text)}</option>`);
+        return `<label for="signal-${signal}">${escape(name)} <select id="signal-${signal}" name="signal-${signal}">${options.join("")}</select></label>`;
+    });
+    return `<fieldset><legend class="muted">${escape(t._("Crawlers"))} <small>${escape(t._("A welcome crawler the site blocks, or an unwelcome one it lets in, is reported."))}</small></legend>${rows.join("")}</fieldset>`;
+}
+
+// The form, with the address typed, the preset chosen, the hide box, the signals chosen and the refusal it met, if any.
+function formPage(c: Context, t: Translator, offered: string[], recent: Recent[], typed = "", refusal?: Refusal, chosen?: string, isHidden = false, stance: Record<string, unknown> = {}): Response {
     if (refusal?.retryAfter !== undefined) c.header("retry-after", String(refusal.retryAfter));
     const alert = refusal ? `<p class="alert" role="alert">${escape(refusalText(t, refusal))}${refusal.code === "banned" ? `<br><small>${escape(refusal.message)}</small>` : ""}</p>` : "";
-    const body = `<main id="main"><h1>spiderlint</h1><p>${escape(t._("Checks every page of a site: search engine tags, security headers, TLS, links and more."))}</p>${alert}<form method="post" action="/"><label for="url" class="muted">${escape(t._("Site address"))}</label><input id="url" name="url" type="text" inputmode="url" autocomplete="url" required spellcheck="false" placeholder="example.com" value="${escape(typed)}"${refusal ? ' aria-invalid="true"' : ""}><button type="submit">${escape(t._("Scan"))}</button>${presetChoice(t, offered, chosen)}${hideChoice(t, isHidden)}</form><p class="muted"><small>${escape(t._("Scans obey robots.txt and identify themselves as spiderlint. A finished report is public: its link and the site’s badge lead to it."))}</small></p>${recentBlock(t, recent)}</main>`;
+    const body = `<main id="main"><h1>spiderlint</h1><p>${escape(t._("Checks every page of a site: search engine tags, security headers, TLS, links and more."))}</p>${alert}<form method="post" action="/"><label for="url" class="muted">${escape(t._("Site address"))}</label><input id="url" name="url" type="text" inputmode="url" autocomplete="url" required spellcheck="false" placeholder="example.com" value="${escape(typed)}"${refusal ? ' aria-invalid="true"' : ""}><button type="submit">${escape(t._("Scan"))}</button>${presetChoice(t, offered, chosen)}${signalChoice(t, stance)}${hideChoice(t, isHidden)}</form><p class="muted"><small>${escape(t._("Scans obey robots.txt and identify themselves as spiderlint. A finished report is public: its link and the site’s badge lead to it."))}</small></p>${recentBlock(t, recent)}</main>`;
     return respond(c, t, t._("spiderlint — scan every page of a website"), body, refusal?.status ?? 200);
 }
 
@@ -371,15 +386,16 @@ export function web(jobs: Jobs): Hono {
         const typed = typeof form.url === "string" ? form.url : "";
         const preset = typeof form.preset === "string" ? form.preset : undefined;
         const isHidden = form.hidden !== undefined;
+        const signals = signalSettings(form);
         try {
             if (c.req.header("sec-fetch-site") === "cross-site") throw new Refusal(403, "cross-site", "form sent from another site");
-            const { job, isRepeat } = await submit(jobs, { url: seedOf(typed), ...(preset !== undefined && { settings: presetSettings(preset) }), ...(isHidden && { hidden: true }) }, c);
-            log.debug({ job: job.id, isRepeat, preset, isHidden }, "form submitted");
+            const { job, isRepeat } = await submit(jobs, { url: seedOf(typed), ...((preset !== undefined || "content-signals" in signals) && { settings: { ...(preset !== undefined && presetSettings(preset)), ...signals } }), ...(isHidden && { hidden: true }) }, c);
+            log.debug({ job: job.id, isRepeat, preset, isHidden, signals }, "form submitted");
             return c.redirect(isRepeat ? `/jobs/${job.id}?repeat` : `/jobs/${job.id}`, 303);
         } catch (error) {
             if (!(error instanceof Refusal)) throw error;
             log.info({ code: error.code, status: error.status, preset, isHidden }, "form refused");
-            return formPage(c, t, offered(), await recent(), typed, error, preset, isHidden);
+            return formPage(c, t, offered(), await recent(), typed, error, preset, isHidden, form);
         }
     });
 

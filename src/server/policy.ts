@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import picomatch from "picomatch";
-import { ConfigError } from "../config/index.ts";
+import { CONTENT_SIGNALS, ConfigError } from "../config/index.ts";
 import { fromSubtree } from "../config/policy.ts";
 import { validateSubtree } from "../config/schema.ts";
 import { validateRules } from "../index.ts";
@@ -84,6 +84,13 @@ function checkRules(settings: Record<string, unknown>, policy: Policy): void {
         log.debug({ id, policy: policy.name }, "requested rule checked");
         if (isDenied(id) || !isAllowed(id)) throw new Refusal(403, "forbidden-rule", `rules: ${id} is not allowed by policy ${policy.name}`);
     }
+}
+
+// The `content-signals` a form’s `signal-<name>` fields set; an empty or unknown value takes no stance.
+export function signalSettings(form: Record<string, unknown>): Record<string, unknown> {
+    const stance = Object.fromEntries(CONTENT_SIGNALS.flatMap((signal) => (form[`signal-${signal}`] === "yes" || form[`signal-${signal}`] === "no" ? [[signal, form[`signal-${signal}`]]] : [])));
+    log.debug({ stance }, "web content signals chosen");
+    return Object.keys(stance).length > 0 ? { "content-signals": stance } : {};
 }
 
 // The request settings of the web preset `name`, or a refusal when the form never offered it.

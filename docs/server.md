@@ -109,6 +109,12 @@ available”. List `web-*` in `allow` to offer them where `allow` is set. A pres
 lowers `max-pages` and never raises a cap past the policy’s. The job page and the
 report header name the rule set.
 
+Under them, one select per Content Signal (search engines `search`, AI answers
+`ai-input`, AI training `ai-train`) offers no opinion, welcome or unwelcome. A
+choice other than no opinion is sent as `content-signals`, an ordinary request
+key: crawlers the site blocks while welcome, or lets in while unwelcome, are
+reported. With no choice, the scan takes the site’s own `Content-Signal` lines.
+
 A request that names no rules runs `recommended`, so an `allow` list without it
 refuses such a request. Settings a request may never set: `plugins`, `sources`,
 `proxy`, `resolver`, `resolve`, `robots`, `cache`, `profile`, `format`,
