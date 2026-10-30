@@ -594,11 +594,11 @@ msgstr "приховування адрес електронної пошти в
 msgid "color-scheme names light and dark, but no theme-color pair carries a prefers-color-scheme media"
 msgstr "color-scheme називає світлу й темну схеми, але жодна пара theme-color не має media prefers-color-scheme"
 
-msgid "Content-Security-Policy allows eval() with 'unsafe-eval': {got}"
-msgstr "Content-Security-Policy дозволяє eval() через 'unsafe-eval': {got}"
+msgid "Content-Security-Policy allows eval() with 'unsafe-eval'"
+msgstr "Content-Security-Policy дозволяє eval() через 'unsafe-eval'"
 
-msgid "Content-Security-Policy allows inline scripts with 'unsafe-inline' and no nonce or hash: {got}"
-msgstr "Content-Security-Policy дозволяє вбудовані скрипти через 'unsafe-inline' без nonce чи хеша: {got}"
+msgid "Content-Security-Policy allows inline scripts with 'unsafe-inline' and no nonce or hash"
+msgstr "Content-Security-Policy дозволяє вбудовані скрипти через 'unsafe-inline' без nonce чи хеша"
 
 msgid "Content-Security-Policy breaks CSP 3, and browsers drop what they cannot read: {got}"
 msgstr "Content-Security-Policy порушує CSP 3, а браузери відкидають те, чого не можуть прочитати: {got}"
@@ -615,8 +615,8 @@ msgstr "Content-Security-Policy не має require-trusted-types-for 'script'"
 msgid "Content-Security-Policy lacks upgrade-insecure-requests"
 msgstr "Content-Security-Policy не має upgrade-insecure-requests"
 
-msgid "Content-Security-Policy loads scripts from any host through a * or scheme-only source: {got}"
-msgstr "Content-Security-Policy завантажує скрипти з будь-якого хоста через джерело * або лише зі схемою: {got}"
+msgid "Content-Security-Policy loads scripts from any host through a * or scheme-only source"
+msgstr "Content-Security-Policy завантажує скрипти з будь-якого хоста через джерело * або лише зі схемою"
 
 msgid "Content-Security-Policy sets neither script-src nor default-src, so any script loads"
 msgstr "Content-Security-Policy не задає ні script-src, ні default-src, тож завантажується будь-який скрипт"
@@ -636,11 +636,11 @@ msgstr "Cross-Origin-Embedder-Policy має бути require-corp або credent
 msgid "Cross-Origin-Opener-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
 msgstr "Cross-Origin-Opener-Policy порушує граматику структурованого поля, тому браузери його ігнорують: {got}"
 
-msgid "Cross-Origin-Opener-Policy should be same-origin or same-origin-allow-popups, found {got}"
-msgstr "Cross-Origin-Opener-Policy має бути same-origin або same-origin-allow-popups, знайдено {got}"
+msgid "Cross-Origin-Opener-Policy should be same-origin or same-origin-allow-popups"
+msgstr "Cross-Origin-Opener-Policy має бути same-origin або same-origin-allow-popups"
 
-msgid "Cross-Origin-Resource-Policy should be same-origin, same-site or cross-origin, found {got}"
-msgstr "Cross-Origin-Resource-Policy має бути same-origin, same-site або cross-origin, знайдено {got}"
+msgid "Cross-Origin-Resource-Policy should be same-origin, same-site or cross-origin"
+msgstr "Cross-Origin-Resource-Policy має бути same-origin, same-site або cross-origin"
 
 msgid "Date should be an IMF-fixdate, found {got}"
 msgstr "Date має бути IMF-fixdate, знайдено {got}"

@@ -594,11 +594,11 @@ msgstr "la ofuscación de direcciones de correo de Cloudflare convierte cada dir
 msgid "color-scheme names light and dark, but no theme-color pair carries a prefers-color-scheme media"
 msgstr "color-scheme nombra claro y oscuro, pero ningún par de theme-color lleva un media prefers-color-scheme"
 
-msgid "Content-Security-Policy allows eval() with 'unsafe-eval': {got}"
-msgstr "Content-Security-Policy permite eval() con 'unsafe-eval': {got}"
+msgid "Content-Security-Policy allows eval() with 'unsafe-eval'"
+msgstr "Content-Security-Policy permite eval() con 'unsafe-eval'"
 
-msgid "Content-Security-Policy allows inline scripts with 'unsafe-inline' and no nonce or hash: {got}"
-msgstr "Content-Security-Policy permite scripts en línea con 'unsafe-inline' y sin nonce ni hash: {got}"
+msgid "Content-Security-Policy allows inline scripts with 'unsafe-inline' and no nonce or hash"
+msgstr "Content-Security-Policy permite scripts en línea con 'unsafe-inline' y sin nonce ni hash"
 
 msgid "Content-Security-Policy breaks CSP 3, and browsers drop what they cannot read: {got}"
 msgstr "Content-Security-Policy incumple CSP 3, y los navegadores descartan lo que no pueden leer: {got}"
@@ -615,8 +615,8 @@ msgstr "Content-Security-Policy no tiene require-trusted-types-for 'script'"
 msgid "Content-Security-Policy lacks upgrade-insecure-requests"
 msgstr "Content-Security-Policy no tiene upgrade-insecure-requests"
 
-msgid "Content-Security-Policy loads scripts from any host through a * or scheme-only source: {got}"
-msgstr "Content-Security-Policy carga scripts de cualquier host mediante una fuente * o solo de esquema: {got}"
+msgid "Content-Security-Policy loads scripts from any host through a * or scheme-only source"
+msgstr "Content-Security-Policy carga scripts de cualquier host mediante una fuente * o solo de esquema"
 
 msgid "Content-Security-Policy sets neither script-src nor default-src, so any script loads"
 msgstr "Content-Security-Policy no fija script-src ni default-src, así que se carga cualquier script"
@@ -636,11 +636,11 @@ msgstr "Cross-Origin-Embedder-Policy debe ser require-corp o credentialless, se 
 msgid "Cross-Origin-Opener-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
 msgstr "Cross-Origin-Opener-Policy rompe su gramática de campo estructurado, así que los navegadores la ignoran: {got}"
 
-msgid "Cross-Origin-Opener-Policy should be same-origin or same-origin-allow-popups, found {got}"
-msgstr "Cross-Origin-Opener-Policy debe ser same-origin o same-origin-allow-popups, se encontró {got}"
+msgid "Cross-Origin-Opener-Policy should be same-origin or same-origin-allow-popups"
+msgstr "Cross-Origin-Opener-Policy debe ser same-origin o same-origin-allow-popups"
 
-msgid "Cross-Origin-Resource-Policy should be same-origin, same-site or cross-origin, found {got}"
-msgstr "Cross-Origin-Resource-Policy debe ser same-origin, same-site o cross-origin, se encontró {got}"
+msgid "Cross-Origin-Resource-Policy should be same-origin, same-site or cross-origin"
+msgstr "Cross-Origin-Resource-Policy debe ser same-origin, same-site o cross-origin"
 
 msgid "Date should be an IMF-fixdate, found {got}"
 msgstr "Date debe ser una IMF-fixdate, se encontró {got}"

@@ -73,7 +73,8 @@ rules:
     when: {http.document: true, http.parsed.cross-origin-opener-policy.errors: {maxItems: 0}}
     severity: info
     score: 2.2
-    message: "Cross-Origin-Opener-Policy should be same-origin or same-origin-allow-popups, found {got}"
+    message: "Cross-Origin-Opener-Policy should be same-origin or same-origin-allow-popups"
+    measured: true
     fix: "Send Cross-Origin-Opener-Policy: same-origin."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy
   http/corp:
@@ -81,7 +82,8 @@ rules:
     expect: {enum: [same-origin, same-site, cross-origin]}
     severity: info
     score: 2.1
-    message: "Cross-Origin-Resource-Policy should be same-origin, same-site or cross-origin, found {got}"
+    message: "Cross-Origin-Resource-Policy should be same-origin, same-site or cross-origin"
+    measured: true
     fix: "Send Cross-Origin-Resource-Policy: same-origin, or same-site if the resource is shared."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy
   http/csp-upgrade-insecure:
@@ -120,7 +122,8 @@ rules:
     when: {http.document: true, http.csp.directives: {type: object}}
     severity: warning
     score: 6.2
-    message: "Content-Security-Policy allows inline scripts with 'unsafe-inline' and no nonce or hash: {got}"
+    message: "Content-Security-Policy allows inline scripts with 'unsafe-inline' and no nonce or hash"
+    measured: true
     fix: "Replace 'unsafe-inline' with nonces or hashes."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Content-Security-Policy/script-src#unsafe_inline_script
   http/csp-unsafe-eval:
@@ -132,7 +135,8 @@ rules:
     when: {http.document: true, http.csp.directives: {type: object}}
     severity: warning
     score: 6.0
-    message: "Content-Security-Policy allows eval() with 'unsafe-eval': {got}"
+    message: "Content-Security-Policy allows eval() with 'unsafe-eval'"
+    measured: true
     fix: "Remove 'unsafe-eval' from script-src."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Content-Security-Policy/script-src#unsafe_eval_expressions
   http/csp-script-wildcard:
@@ -144,7 +148,8 @@ rules:
     when: {http.document: true, http.csp.directives: {type: object}}
     severity: warning
     score: 6.1
-    message: "Content-Security-Policy loads scripts from any host through a * or scheme-only source: {got}"
+    message: "Content-Security-Policy loads scripts from any host through a * or scheme-only source"
+    measured: true
     fix: "Replace * and scheme-only sources with specific origins."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Content-Security-Policy/Sources
   http/csp-object-src:
