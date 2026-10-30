@@ -504,8 +504,8 @@ msgstr "Accept-CH порушує граматику структурованог
 msgid "a compressed response should carry Vary: Accept-Encoding, found {got}"
 msgstr "стиснена відповідь має містити Vary: Accept-Encoding, знайдено {got}"
 
-msgid "a JSON-LD block does not parse: {got}"
-msgstr "блок JSON-LD не розбирається: {got}"
+msgid "a JSON-LD block does not parse"
+msgstr "блок JSON-LD не розбирається"
 
 msgid "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative: {got}"
 msgstr "Alt-Svc порушує RFC 7838 §3, тому клієнти ніколи не пробують альтернативу: {got}"
@@ -570,8 +570,8 @@ msgstr "Cache-Control no-store виключає сторінку з кешу п�
 msgid "Cache-Status breaks its structured-field grammar: {got}"
 msgstr "Cache-Status порушує граматику структурованого поля: {got}"
 
-msgid "canonical link should be an absolute URL, found {got}"
-msgstr "канонічне посилання має бути абсолютним URL, знайдено {got}"
+msgid "canonical link should be an absolute URL"
+msgstr "канонічне посилання має бути абсолютним URL"
 
 msgid "certificate expires within 14 days ({got} left)"
 msgstr "сертифікат спливає менш ніж за 14 днів (залишилося {got})"
@@ -669,8 +669,8 @@ msgstr "meta color-scheme має бути normal або назвами схем,
 msgid "meta description repeats itself around a separator: {got}"
 msgstr "мета-опис повторюється навколо роздільника: {got}"
 
-msgid "meta description should be 50–160 characters, found {got}"
-msgstr "мета-опис має містити 50–160 символів, знайдено {got}"
+msgid "meta description should be 50–160 characters"
+msgstr "мета-опис має містити 50–160 символів"
 
 msgid "meta viewport should set width=device-width and allow zoom"
 msgstr "meta viewport має задавати width=device-width і дозволяти масштабування"
@@ -777,8 +777,8 @@ msgstr "Retry-After просить клієнтів повернутися за 
 msgid "Retry-After breaks RFC 9110 §10.2.3, so clients cannot tell when to retry: {got}"
 msgstr "Retry-After порушує RFC 9110 §10.2.3, тому клієнти не знають, коли повторити запит: {got}"
 
-msgid "should have exactly one <h1>, found {got}"
-msgstr "має містити рівно один <h1>, знайдено {got}"
+msgid "should have exactly one <h1>"
+msgstr "має містити рівно один <h1>"
 
 msgid "Strict-Transport-Security breaks RFC 6797 §6.1, so browsers ignore it"
 msgstr "Strict-Transport-Security порушує RFC 6797 §6.1, тому браузери його ігнорують"
@@ -855,8 +855,8 @@ msgstr "URL довший за 100 символів: {got}"
 msgid "TLS should be 1.2 or 1.3, found {got}"
 msgstr "TLS має бути 1.2 або 1.3, знайдено {got}"
 
-msgid "URL path should be lowercase, with hyphens and no empty segment, found {got}"
-msgstr "шлях URL має бути малими літерами, з дефісами й без порожніх сегментів, знайдено {got}"
+msgid "URL path should be lowercase, with hyphens and no empty segment"
+msgstr "шлях URL має бути малими літерами, з дефісами й без порожніх сегментів"
 
 msgid "Use-As-Dictionary breaks its structured-field grammar, so clients ignore it: {got}"
 msgstr "Use-As-Dictionary порушує граматику структурованого поля, тому клієнти його ігнорують: {got}"

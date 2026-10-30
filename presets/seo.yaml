@@ -118,7 +118,8 @@ rules:
     expect: {items: {not: {type: object, required: ["@error"]}}}
     severity: warning
     score: 4.5
-    message: "a JSON-LD block does not parse: {got}"
+    message: "a JSON-LD block does not parse"
+    measured: true
     docs: https://json-ld.org/spec/latest/json-ld/
     fix: "Fix the JSON-LD block so it is valid JSON."
   url/shape:
@@ -126,7 +127,8 @@ rules:
     expect: {type: string, pattern: "^(?!.*//)(%[0-9A-Fa-f]{2}|[^A-Z_%])*$"}
     severity: info
     score: 2.8
-    message: "URL path should be lowercase, with hyphens and no empty segment, found {got}"
+    message: "URL path should be lowercase, with hyphens and no empty segment"
+    measured: true
     docs: https://developers.google.com/search/docs/crawling-indexing/url-structure
     fix: "Rewrite the path to be lowercase, with hyphens and no empty segments."
   html/title:
@@ -161,7 +163,8 @@ rules:
     expect: {type: string, minLength: 50, maxLength: 160}
     severity: warning
     score: 5.5
-    message: "meta description should be 50–160 characters, found {got}"
+    message: "meta description should be 50–160 characters"
+    measured: true
     docs: https://developers.google.com/search/docs/appearance/snippet
     fix: "Shorten or lengthen the meta description to 50–160 characters."
   html/title-redundant:
@@ -188,7 +191,8 @@ rules:
     expect: {type: array, minItems: 1, maxItems: 1}
     severity: error
     score: 7.4
-    message: "should have exactly one <h1>, found {got}"
+    message: "should have exactly one <h1>"
+    measured: true
     docs: https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/Heading_Elements
     fix: "Use exactly one <h1> per page."
   html/canonical:
@@ -196,7 +200,8 @@ rules:
     expect: {type: string, pattern: "^https?://"}
     severity: warning
     score: 5.4
-    message: "canonical link should be an absolute URL, found {got}"
+    message: "canonical link should be an absolute URL"
+    measured: true
     docs: https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls
     fix: "Make the canonical link an absolute URL."
   html/canonical-self:
