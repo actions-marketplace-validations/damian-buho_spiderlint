@@ -46,11 +46,15 @@ export function describe(value: unknown): string {
     return json.length > 80 ? `${json.slice(0, 77)}…` : json;
 }
 
+// The rendering of the offending value, quoted alone for an exact `const` or `enum` miss.
+function offendingGot(value: unknown, error: ErrorObject): string {
+    const actual = value === undefined ? undefined : at(value, error.instancePath);
+    return value === undefined ? "none" : typeof actual === "string" && ["const", "enum"].includes(error.keyword) ? `“${actual}”` : describe(actual);
+}
+
 // The rule’s own sentence as a template over `{got}` and `{field}`, else AJV’s wording against the fact path.
 function message(fact: string, value: unknown, error: ErrorObject, text: string | undefined, isMeasured = false): Pick<Finding, "message" | "text" | "variables"> {
-    const actual = value === undefined ? undefined : at(value, error.instancePath);
-    // A length says nothing against an exact value, so a `const` or `enum` miss shows the value alone.
-    const got = value === undefined ? "none" : typeof actual === "string" && ["const", "enum"].includes(error.keyword) ? `“${actual}”` : describe(actual);
+    const got = offendingGot(value, error);
     const field = error.instancePath.slice(1).replaceAll("/", ".") || (fact.split(".").at(-1) as string);
     if (text) return said(text, isMeasured ? { field } : { got, field });
     const name = label(fact) ?? fact;
