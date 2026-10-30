@@ -708,11 +708,11 @@ msgstr "no hay meta descripción"
 msgid "no meta theme-color"
 msgstr "no hay meta theme-color"
 
-msgid "no Permissions-Policy header naming a feature, found {got}"
-msgstr "ninguna cabecera Permissions-Policy nombra una función, se encontró {got}"
+msgid "no Permissions-Policy header naming a feature"
+msgstr "ninguna cabecera Permissions-Policy nombra una función"
 
-msgid "no Reporting-Endpoints header naming an endpoint, found {got}"
-msgstr "ninguna cabecera Reporting-Endpoints nombra un endpoint, se encontró {got}"
+msgid "no Reporting-Endpoints header naming an endpoint"
+msgstr "ninguna cabecera Reporting-Endpoints nombra un endpoint"
 
 msgid "no Server-Timing header shows where the server spent its time"
 msgstr "ninguna cabecera Server-Timing muestra dónde gastó el servidor su tiempo"
@@ -783,11 +783,11 @@ msgstr "debe tener exactamente un <h1>, se encontró {got}"
 msgid "Strict-Transport-Security breaks RFC 6797 §6.1, so browsers ignore it: {got}"
 msgstr "Strict-Transport-Security incumple la RFC 6797 §6.1, así que los navegadores la ignoran: {got}"
 
-msgid "Strict-Transport-Security should carry includeSubDomains, found {got}"
-msgstr "Strict-Transport-Security debe llevar includeSubDomains, se encontró {got}"
+msgid "Strict-Transport-Security should carry includeSubDomains"
+msgstr "Strict-Transport-Security debe llevar includeSubDomains"
 
-msgid "Strict-Transport-Security should carry max-age of 1000000 or more, found {got}"
-msgstr "Strict-Transport-Security debe llevar max-age de 1000000 o más, se encontró {got}"
+msgid "Strict-Transport-Security should carry max-age of 1000000 or more"
+msgstr "Strict-Transport-Security debe llevar max-age de 1000000 o más"
 
 msgid "Sunset should be an HTTP-date, found {got}"
 msgstr "Sunset debe ser una HTTP-date, se encontró {got}"
@@ -870,8 +870,8 @@ msgstr "Vary incumple la RFC 9110 §12.5.5: {got}"
 msgid "Vary: * makes the response uncacheable, found {got}"
 msgstr "Vary: * hace la respuesta no almacenable en caché, se encontró {got}"
 
-msgid "X-Content-Type-Options should be nosniff, found {got}"
-msgstr "X-Content-Type-Options debe ser nosniff, se encontró {got}"
+msgid "X-Content-Type-Options should be nosniff"
+msgstr "X-Content-Type-Options debe ser nosniff"
 
 msgid "X-XSS-Protection should be absent or 0, found {got}"
 msgstr "X-XSS-Protection debe estar ausente o ser 0, se encontró {got}"

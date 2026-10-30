@@ -708,11 +708,11 @@ msgstr "немає мета-опису"
 msgid "no meta theme-color"
 msgstr "немає meta theme-color"
 
-msgid "no Permissions-Policy header naming a feature, found {got}"
-msgstr "жоден заголовок Permissions-Policy не називає функції, знайдено {got}"
+msgid "no Permissions-Policy header naming a feature"
+msgstr "жоден заголовок Permissions-Policy не називає функції"
 
-msgid "no Reporting-Endpoints header naming an endpoint, found {got}"
-msgstr "жоден заголовок Reporting-Endpoints не називає кінцевої точки, знайдено {got}"
+msgid "no Reporting-Endpoints header naming an endpoint"
+msgstr "жоден заголовок Reporting-Endpoints не називає кінцевої точки"
 
 msgid "no Server-Timing header shows where the server spent its time"
 msgstr "жоден заголовок Server-Timing не показує, на що сервер витратив час"
@@ -783,11 +783,11 @@ msgstr "має містити рівно один <h1>, знайдено {got}"
 msgid "Strict-Transport-Security breaks RFC 6797 §6.1, so browsers ignore it: {got}"
 msgstr "Strict-Transport-Security порушує RFC 6797 §6.1, тому браузери його ігнорують: {got}"
 
-msgid "Strict-Transport-Security should carry includeSubDomains, found {got}"
-msgstr "Strict-Transport-Security має містити includeSubDomains, знайдено {got}"
+msgid "Strict-Transport-Security should carry includeSubDomains"
+msgstr "Strict-Transport-Security має містити includeSubDomains"
 
-msgid "Strict-Transport-Security should carry max-age of 1000000 or more, found {got}"
-msgstr "Strict-Transport-Security має містити max-age від 1000000, знайдено {got}"
+msgid "Strict-Transport-Security should carry max-age of 1000000 or more"
+msgstr "Strict-Transport-Security має містити max-age від 1000000"
 
 msgid "Sunset should be an HTTP-date, found {got}"
 msgstr "Sunset має бути HTTP-date, знайдено {got}"
@@ -870,8 +870,8 @@ msgstr "Vary порушує RFC 9110 §12.5.5: {got}"
 msgid "Vary: * makes the response uncacheable, found {got}"
 msgstr "Vary: * робить відповідь некешованою, знайдено {got}"
 
-msgid "X-Content-Type-Options should be nosniff, found {got}"
-msgstr "X-Content-Type-Options має бути nosniff, знайдено {got}"
+msgid "X-Content-Type-Options should be nosniff"
+msgstr "X-Content-Type-Options має бути nosniff"
 
 msgid "X-XSS-Protection should be absent or 0, found {got}"
 msgstr "X-XSS-Protection має бути відсутнім або 0, знайдено {got}"

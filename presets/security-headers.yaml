@@ -10,7 +10,8 @@ rules:
     when: {url.protocol: "https:", http.parsed.strict-transport-security.errors: {maxItems: 0}}
     severity: warning
     score: 5.8
-    message: "Strict-Transport-Security should carry max-age of 1000000 or more, found {got}"
+    message: "Strict-Transport-Security should carry max-age of 1000000 or more"
+    measured: true
     fix: "Send Strict-Transport-Security: max-age=63072000; includeSubDomains."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Strict-Transport-Security
   http/csp:
@@ -27,7 +28,8 @@ rules:
     expect: {type: string, pattern: "^nosniff$"}
     severity: warning
     score: 5.7
-    message: "X-Content-Type-Options should be nosniff, found {got}"
+    message: "X-Content-Type-Options should be nosniff"
+    measured: true
     fix: "Send X-Content-Type-Options: nosniff."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/X-Content-Type-Options
   http/referrer-policy:
@@ -51,7 +53,8 @@ rules:
     when: {url.protocol: "https:", http.parsed.strict-transport-security.value: {type: object}}
     severity: info
     score: 2.5
-    message: "Strict-Transport-Security should carry includeSubDomains, found {got}"
+    message: "Strict-Transport-Security should carry includeSubDomains"
+    measured: true
     fix: "Add includeSubDomains to the Strict-Transport-Security header."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Strict-Transport-Security#includesubdomains
   http/permissions-policy:
@@ -60,7 +63,8 @@ rules:
     when: {http.document: true, http.parsed.permissions-policy.errors: {maxItems: 0}}
     severity: info
     score: 1.8
-    message: "no Permissions-Policy header naming a feature, found {got}"
+    message: "no Permissions-Policy header naming a feature"
+    measured: true
     fix: "Send a Permissions-Policy header listing the features the page uses."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Permissions-Policy
   http/coop:
@@ -179,7 +183,8 @@ rules:
     when: {http.parsed.reporting-endpoints.errors: {maxItems: 0}}
     severity: info
     score: 1.5
-    message: "no Reporting-Endpoints header naming an endpoint, found {got}"
+    message: "no Reporting-Endpoints header naming an endpoint"
+    measured: true
     fix: "Send a Reporting-Endpoints header naming your reporting endpoints."
     extra: ["Report Relay https://dbuho.me/project/report-relay/ collects these reports and sends them to your Grafana: open source, self-hosted, free."]
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Reporting-Endpoints
