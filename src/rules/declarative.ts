@@ -114,7 +114,7 @@ function compilePage(id: string, spec: RuleSpec, fact: string, validate: Validat
             if (validate(value)) return [];
             const error = validate.errors?.[0] as ErrorObject;
             const finding: Finding = { rule: id, severity, scope: "page", url: page.url.href, group: page.group, ...message(fact, value, error, spec.message, spec.measured), value };
-            if (spec.measured) finding.data = { [page.url.href]: { got: describe(at(value, error.instancePath)) } };
+            if (spec.measured) finding.data = { [page.url.href]: { got: offendingGot(value, error) } };
             return [finding];
         },
     };
