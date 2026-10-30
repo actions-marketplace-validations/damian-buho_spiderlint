@@ -23,7 +23,8 @@ rules:
     when: {http.headers.content-encoding: {type: string}, http.parsed.vary.errors: {maxItems: 0}}
     severity: warning
     score: 5.4
-    message: "a compressed response should carry Vary: Accept-Encoding, found {got}"
+    message: "a compressed response should carry Vary: Accept-Encoding"
+    measured: true
     fix: "Add Vary: Accept-Encoding to the response."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Vary
   http/vary-star:
@@ -32,7 +33,8 @@ rules:
     when: {http.parsed.vary.value: {type: array}}
     severity: warning
     score: 5.6
-    message: "Vary: * makes the response uncacheable, found {got}"
+    message: "Vary: * makes the response uncacheable"
+    measured: true
     fix: "Replace Vary: * with the specific header names the response varies by."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Vary
   http/validator:
@@ -50,7 +52,8 @@ rules:
     when: {http.status: {minimum: 200, maximum: 299}, http.content-type: {pattern: "^text/html"}, http.parsed.cache-control.errors: {maxItems: 0}}
     severity: info
     score: 2.7
-    message: "no Cache-Control directive on an HTML page, found {got}"
+    message: "no Cache-Control directive on an HTML page"
+    measured: true
     fix: "Add a Cache-Control header, e.g. no-cache to revalidate, or public with a max-age."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Cache-Control
   http/no-store-bfcache:
@@ -59,7 +62,8 @@ rules:
     when: {http.content-type: {pattern: "^text/html"}, http.parsed.cache-control.value: {type: object}}
     severity: info
     score: 2.4
-    message: "Cache-Control no-store keeps the page out of the back/forward cache, found {got}"
+    message: "Cache-Control no-store keeps the page out of the back/forward cache"
+    measured: true
     fix: "Remove no-store from Cache-Control, or replace it with no-cache."
     docs: https://web.dev/articles/bfcache#minimize-use-of-cache-control-no-store
   caching/long-without-hash:
@@ -70,7 +74,8 @@ rules:
     when: {http.version: {type: string}}
     severity: warning
     score: 5.8
-    message: "the server should speak HTTP/2 or HTTP/3, found {got}"
+    message: "the server should speak HTTP/2 or HTTP/3"
+    measured: true
     fix: "Enable HTTP/2 or HTTP/3 on the server."
     docs: https://developer.mozilla.org/docs/Glossary/HTTP_2
   http/alt-svc-h3:

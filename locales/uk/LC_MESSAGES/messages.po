@@ -501,8 +501,8 @@ msgstr "відповідь 503 має вказувати, коли повтор�
 msgid "Accept-CH breaks its structured-field grammar, so browsers ignore it: {got}"
 msgstr "Accept-CH порушує граматику структурованого поля, тому браузери його ігнорують: {got}"
 
-msgid "a compressed response should carry Vary: Accept-Encoding, found {got}"
-msgstr "стиснена відповідь має містити Vary: Accept-Encoding, знайдено {got}"
+msgid "a compressed response should carry Vary: Accept-Encoding"
+msgstr "стиснена відповідь має містити Vary: Accept-Encoding"
 
 msgid "a JSON-LD block does not parse"
 msgstr "блок JSON-LD не розбирається"
@@ -564,8 +564,8 @@ msgstr "URL із запитом не має No-Vary-Search, що вказува�
 msgid "Cache-Control breaks RFC 9111 §5.2, and caches ignore what they cannot read: {got}"
 msgstr "Cache-Control порушує RFC 9111 §5.2, а кеші ігнорують те, чого не можуть прочитати: {got}"
 
-msgid "Cache-Control no-store keeps the page out of the back/forward cache, found {got}"
-msgstr "Cache-Control no-store виключає сторінку з кешу переходів назад/вперед, знайдено {got}"
+msgid "Cache-Control no-store keeps the page out of the back/forward cache"
+msgstr "Cache-Control no-store виключає сторінку з кешу переходів назад/вперед"
 
 msgid "Cache-Status breaks its structured-field grammar: {got}"
 msgstr "Cache-Status порушує граматику структурованого поля: {got}"
@@ -687,8 +687,8 @@ msgstr "у head немає <link rel=icon>"
 msgid "no <title>"
 msgstr "немає <title>"
 
-msgid "no Cache-Control directive on an HTML page, found {got}"
-msgstr "жодної директиви Cache-Control на HTML-сторінці, знайдено {got}"
+msgid "no Cache-Control directive on an HTML page"
+msgstr "жодної директиви Cache-Control на HTML-сторінці"
 
 msgid "no Content-Digest or Repr-Digest lets a client check the body"
 msgstr "без Content-Digest чи Repr-Digest клієнт не може перевірити тіло"
@@ -840,8 +840,8 @@ msgstr "шлях містить великі літери, які сервер �
 msgid "the raw HTML carries a share of the text the rendered page shows"
 msgstr "сирий HTML містить частку тексту, який показує відображена сторінка"
 
-msgid "the server should speak HTTP/2 or HTTP/3, found {got}"
-msgstr "сервер має підтримувати HTTP/2 або HTTP/3, знайдено {got}"
+msgid "the server should speak HTTP/2 or HTTP/3"
+msgstr "сервер має підтримувати HTTP/2 або HTTP/3"
 
 msgid "the title exists only after JavaScript runs"
 msgstr "заголовок з’являється лише після виконання JavaScript"
@@ -867,8 +867,8 @@ msgstr "Use-As-Dictionary потребує члена match=\"<шаблон URL>
 msgid "Vary breaks RFC 9110 §12.5.5: {got}"
 msgstr "Vary порушує RFC 9110 §12.5.5: {got}"
 
-msgid "Vary: * makes the response uncacheable, found {got}"
-msgstr "Vary: * робить відповідь некешованою, знайдено {got}"
+msgid "Vary: * makes the response uncacheable"
+msgstr "Vary: * робить відповідь некешованою"
 
 msgid "X-Content-Type-Options should be nosniff"
 msgstr "X-Content-Type-Options має бути nosniff"

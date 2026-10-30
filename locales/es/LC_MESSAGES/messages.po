@@ -501,8 +501,8 @@ msgstr "una respuesta 503 debe indicar cuándo reintentar con Retry-After"
 msgid "Accept-CH breaks its structured-field grammar, so browsers ignore it: {got}"
 msgstr "Accept-CH rompe su gramática de campo estructurado, así que los navegadores lo ignoran: {got}"
 
-msgid "a compressed response should carry Vary: Accept-Encoding, found {got}"
-msgstr "una respuesta comprimida debe llevar Vary: Accept-Encoding, se encontró {got}"
+msgid "a compressed response should carry Vary: Accept-Encoding"
+msgstr "una respuesta comprimida debe llevar Vary: Accept-Encoding"
 
 msgid "a JSON-LD block does not parse"
 msgstr "un bloque JSON-LD no se puede interpretar"
@@ -564,8 +564,8 @@ msgstr "una URL con consulta no tiene No-Vary-Search que indique qué parámetro
 msgid "Cache-Control breaks RFC 9111 §5.2, and caches ignore what they cannot read: {got}"
 msgstr "Cache-Control incumple la RFC 9111 §5.2, y las cachés ignoran lo que no pueden leer: {got}"
 
-msgid "Cache-Control no-store keeps the page out of the back/forward cache, found {got}"
-msgstr "Cache-Control no-store deja la página fuera de la caché de ir atrás/adelante, se encontró {got}"
+msgid "Cache-Control no-store keeps the page out of the back/forward cache"
+msgstr "Cache-Control no-store deja la página fuera de la caché de ir atrás/adelante"
 
 msgid "Cache-Status breaks its structured-field grammar: {got}"
 msgstr "Cache-Status rompe su gramática de campo estructurado: {got}"
@@ -687,8 +687,8 @@ msgstr "no hay <link rel=icon> en la cabecera"
 msgid "no <title>"
 msgstr "no hay <title>"
 
-msgid "no Cache-Control directive on an HTML page, found {got}"
-msgstr "ninguna directiva Cache-Control en una página HTML, se encontró {got}"
+msgid "no Cache-Control directive on an HTML page"
+msgstr "ninguna directiva Cache-Control en una página HTML"
 
 msgid "no Content-Digest or Repr-Digest lets a client check the body"
 msgstr "sin Content-Digest ni Repr-Digest un cliente no puede comprobar el cuerpo"
@@ -840,8 +840,8 @@ msgstr "la ruta tiene mayúsculas, que un servidor puede tratar como otra URL"
 msgid "the raw HTML carries a share of the text the rendered page shows"
 msgstr "el HTML sin procesar lleva una proporción del texto que muestra la página renderizada"
 
-msgid "the server should speak HTTP/2 or HTTP/3, found {got}"
-msgstr "el servidor debe hablar HTTP/2 o HTTP/3, se encontró {got}"
+msgid "the server should speak HTTP/2 or HTTP/3"
+msgstr "el servidor debe hablar HTTP/2 o HTTP/3"
 
 msgid "the title exists only after JavaScript runs"
 msgstr "el título solo existe tras ejecutar JavaScript"
@@ -867,8 +867,8 @@ msgstr "Use-As-Dictionary necesita un miembro match=\"<patrón de URL>\", se enc
 msgid "Vary breaks RFC 9110 §12.5.5: {got}"
 msgstr "Vary incumple la RFC 9110 §12.5.5: {got}"
 
-msgid "Vary: * makes the response uncacheable, found {got}"
-msgstr "Vary: * hace la respuesta no almacenable en caché, se encontró {got}"
+msgid "Vary: * makes the response uncacheable"
+msgstr "Vary: * hace la respuesta no almacenable en caché"
 
 msgid "X-Content-Type-Options should be nosniff"
 msgstr "X-Content-Type-Options debe ser nosniff"
