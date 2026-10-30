@@ -486,8 +486,8 @@ msgstr "<html lang> має бути мовним тегом BCP 47"
 msgid "<meta charset> should declare UTF-8 within the first 1024 bytes"
 msgstr "<meta charset> має оголошувати UTF-8 у перших 1024 байтах"
 
-msgid "<meta name=tdm-reservation> should be 0 or 1, found {got}"
-msgstr "<meta name=tdm-reservation> має бути 0 або 1, знайдено {got}"
+msgid "<meta name=tdm-reservation> should be 0 or 1"
+msgstr "<meta name=tdm-reservation> має бути 0 або 1"
 
 msgid "<title> repeats itself around a separator"
 msgstr "<title> повторюється навколо роздільника"
@@ -795,8 +795,8 @@ msgstr "Sunset має бути HTTP-date, знайдено {got}"
 msgid "takes more than 2 redirects to land ({got})"
 msgstr "потребує понад 2 переспрямувань, щоб дійти до місця ({got})"
 
-msgid "tdm-reservation should be 0 or 1, found {got}"
-msgstr "tdm-reservation має бути 0 або 1, знайдено {got}"
+msgid "tdm-reservation should be 0 or 1"
+msgstr "tdm-reservation має бути 0 або 1"
 
 msgid "the browser console logged errors ({got})"
 msgstr "консоль браузера зафіксувала помилки ({got})"
@@ -834,8 +834,8 @@ msgstr "шлях розкриває технологію сервера у св�
 msgid "the path has an empty segment: {got}"
 msgstr "шлях містить порожній сегмент: {got}"
 
-msgid "the path has uppercase letters, which a server may treat as another URL: {got}"
-msgstr "шлях містить великі літери, які сервер може вважати іншим URL: {got}"
+msgid "the path has uppercase letters, which a server may treat as another URL"
+msgstr "шлях містить великі літери, які сервер може вважати іншим URL"
 
 msgid "the raw HTML carries a {got} share of the text the rendered page shows"
 msgstr "сирий HTML містить частку {got} тексту, який показує відображена сторінка"
@@ -846,11 +846,11 @@ msgstr "сервер має підтримувати HTTP/2 або HTTP/3, зн�
 msgid "the title exists only after JavaScript runs: {got}"
 msgstr "заголовок з’являється лише після виконання JavaScript: {got}"
 
-msgid "the URL carries a session ID: {got}"
-msgstr "URL містить ідентифікатор сеансу: {got}"
+msgid "the URL carries a session ID"
+msgstr "URL містить ідентифікатор сеансу"
 
-msgid "the URL is longer than 100 characters: {got}"
-msgstr "URL довший за 100 символів: {got}"
+msgid "the URL is longer than 100 characters"
+msgstr "URL довший за 100 символів"
 
 msgid "TLS should be 1.2 or 1.3, found {got}"
 msgstr "TLS має бути 1.2 або 1.3, знайдено {got}"
