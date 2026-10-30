@@ -210,7 +210,8 @@ rules:
     when: {http.parsed.vary: {type: object}}
     severity: warning
     score: 4.2
-    message: "Vary breaks RFC 9110 §12.5.5: {got}"
+    message: "Vary breaks RFC 9110 §12.5.5"
+    measured: true
     fix: "List the request header names the response varies by, as in Vary: Accept-Encoding."
     docs: https://www.rfc-editor.org/rfc/rfc9110#section-12.5.5
   http/content-type-syntax:
@@ -219,7 +220,8 @@ rules:
     when: {http.parsed.content-type: {type: object}}
     severity: warning
     score: 4.0
-    message: "Content-Type breaks RFC 9110 §8.3.1: {got}"
+    message: "Content-Type breaks RFC 9110 §8.3.1"
+    measured: true
     fix: "Send Content-Type as type/subtype with name=value parameters, as in text/html; charset=utf-8."
     docs: https://www.rfc-editor.org/rfc/rfc9110#section-8.3.1
   http/use-as-dictionary-syntax:
@@ -228,7 +230,8 @@ rules:
     when: {http.parsed.use-as-dictionary: {type: object}}
     severity: warning
     score: 3.4
-    message: "Use-As-Dictionary breaks its structured-field grammar, so clients ignore it: {got}"
+    message: "Use-As-Dictionary breaks its structured-field grammar, so clients ignore it"
+    measured: true
     fix: "Send Use-As-Dictionary: match=\"/assets/app-*.js\"."
     docs: https://www.rfc-editor.org/rfc/rfc9842#section-2.1
   http/accept-ch-syntax:
@@ -237,7 +240,8 @@ rules:
     when: {http.parsed.accept-ch: {type: object}}
     severity: warning
     score: 3.9
-    message: "Accept-CH breaks its structured-field grammar, so browsers ignore it: {got}"
+    message: "Accept-CH breaks its structured-field grammar, so browsers ignore it"
+    measured: true
     fix: "Send Accept-CH as a list of hint names, as in Accept-CH: Sec-CH-UA-Platform."
     docs: https://www.rfc-editor.org/rfc/rfc8942#section-3.1
   http/priority-syntax:
@@ -246,7 +250,8 @@ rules:
     when: {http.parsed.priority: {type: object}}
     severity: warning
     score: 3.8
-    message: "Priority breaks its structured-field grammar, so clients ignore it: {got}"
+    message: "Priority breaks its structured-field grammar, so clients ignore it"
+    measured: true
     fix: "Send Priority as a dictionary, as in Priority: u=1, i."
     docs: https://www.rfc-editor.org/rfc/rfc9218#section-5
   http/cache-status-syntax:

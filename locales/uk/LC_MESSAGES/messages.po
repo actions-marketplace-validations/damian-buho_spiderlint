@@ -498,8 +498,8 @@ msgstr "<title> має містити 30–60 символів"
 msgid "a 503 should say when to retry with Retry-After"
 msgstr "відповідь 503 має вказувати, коли повторити запит, через Retry-After"
 
-msgid "Accept-CH breaks its structured-field grammar, so browsers ignore it: {got}"
-msgstr "Accept-CH порушує граматику структурованого поля, тому браузери його ігнорують: {got}"
+msgid "Accept-CH breaks its structured-field grammar, so browsers ignore it"
+msgstr "Accept-CH порушує граматику структурованого поля, тому браузери його ігнорують"
 
 msgid "a compressed response should carry Vary: Accept-Encoding"
 msgstr "стиснена відповідь має містити Vary: Accept-Encoding"
@@ -624,8 +624,8 @@ msgstr "Content-Security-Policy не задає ні script-src, ні default-sr
 msgid "Content-Security-Policy should set object-src 'none'"
 msgstr "Content-Security-Policy має задавати object-src 'none'"
 
-msgid "Content-Type breaks RFC 9110 §8.3.1: {got}"
-msgstr "Content-Type порушує RFC 9110 §8.3.1: {got}"
+msgid "Content-Type breaks RFC 9110 §8.3.1"
+msgstr "Content-Type порушує RFC 9110 §8.3.1"
 
 msgid "Cross-Origin-Embedder-Policy breaks its structured-field grammar, so browsers ignore it"
 msgstr "Cross-Origin-Embedder-Policy порушує граматику структурованого поля, тому браузери його ігнорують"
@@ -756,8 +756,8 @@ msgstr "кілька сторінок мають спільний og:title"
 msgid "Permissions-Policy breaks its structured-field grammar, so browsers ignore it"
 msgstr "Permissions-Policy порушує граматику структурованого поля, тому браузери його ігнорують"
 
-msgid "Priority breaks its structured-field grammar, so clients ignore it: {got}"
-msgstr "Priority порушує граматику структурованого поля, тому клієнти його ігнорують: {got}"
+msgid "Priority breaks its structured-field grammar, so clients ignore it"
+msgstr "Priority порушує граматику структурованого поля, тому клієнти його ігнорують"
 
 msgid "reached through a temporary redirect"
 msgstr "досягається через тимчасове переспрямування"
@@ -858,14 +858,14 @@ msgstr "TLS має бути 1.2 або 1.3"
 msgid "URL path should be lowercase, with hyphens and no empty segment"
 msgstr "шлях URL має бути малими літерами, з дефісами й без порожніх сегментів"
 
-msgid "Use-As-Dictionary breaks its structured-field grammar, so clients ignore it: {got}"
-msgstr "Use-As-Dictionary порушує граматику структурованого поля, тому клієнти його ігнорують: {got}"
+msgid "Use-As-Dictionary breaks its structured-field grammar, so clients ignore it"
+msgstr "Use-As-Dictionary порушує граматику структурованого поля, тому клієнти його ігнорують"
 
 msgid "Use-As-Dictionary needs a match=\"<URL pattern>\" member"
 msgstr "Use-As-Dictionary потребує члена match=\"<шаблон URL>\""
 
-msgid "Vary breaks RFC 9110 §12.5.5: {got}"
-msgstr "Vary порушує RFC 9110 §12.5.5: {got}"
+msgid "Vary breaks RFC 9110 §12.5.5"
+msgstr "Vary порушує RFC 9110 §12.5.5"
 
 msgid "Vary: * makes the response uncacheable"
 msgstr "Vary: * робить відповідь некешованою"
