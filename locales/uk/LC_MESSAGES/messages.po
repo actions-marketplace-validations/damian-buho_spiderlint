@@ -600,8 +600,8 @@ msgstr "Content-Security-Policy дозволяє eval() через 'unsafe-eval'
 msgid "Content-Security-Policy allows inline scripts with 'unsafe-inline' and no nonce or hash"
 msgstr "Content-Security-Policy дозволяє вбудовані скрипти через 'unsafe-inline' без nonce чи хеша"
 
-msgid "Content-Security-Policy breaks CSP 3, and browsers drop what they cannot read: {got}"
-msgstr "Content-Security-Policy порушує CSP 3, а браузери відкидають те, чого не можуть прочитати: {got}"
+msgid "Content-Security-Policy breaks CSP 3, and browsers drop what they cannot read"
+msgstr "Content-Security-Policy порушує CSP 3, а браузери відкидають те, чого не можуть прочитати"
 
 msgid "Content-Security-Policy lacks base-uri, so an injected <base> can redirect relative scripts"
 msgstr "Content-Security-Policy не має base-uri, тому ін’єктований <base> може переспрямувати відносні скрипти"
@@ -621,8 +621,8 @@ msgstr "Content-Security-Policy завантажує скрипти з будь-
 msgid "Content-Security-Policy sets neither script-src nor default-src, so any script loads"
 msgstr "Content-Security-Policy не задає ні script-src, ні default-src, тож завантажується будь-який скрипт"
 
-msgid "Content-Security-Policy should set object-src 'none', found {got}"
-msgstr "Content-Security-Policy має задавати object-src 'none', знайдено {got}"
+msgid "Content-Security-Policy should set object-src 'none'"
+msgstr "Content-Security-Policy має задавати object-src 'none'"
 
 msgid "Content-Type breaks RFC 9110 §8.3.1: {got}"
 msgstr "Content-Type порушує RFC 9110 §8.3.1: {got}"
@@ -753,8 +753,8 @@ msgstr "кілька сторінок мають спільний og:description
 msgid "pages share one og:title: {got}"
 msgstr "кілька сторінок мають спільний og:title: {got}"
 
-msgid "Permissions-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
-msgstr "Permissions-Policy порушує граматику структурованого поля, тому браузери його ігнорують: {got}"
+msgid "Permissions-Policy breaks its structured-field grammar, so browsers ignore it"
+msgstr "Permissions-Policy порушує граматику структурованого поля, тому браузери його ігнорують"
 
 msgid "Priority breaks its structured-field grammar, so clients ignore it: {got}"
 msgstr "Priority порушує граматику структурованого поля, тому клієнти його ігнорують: {got}"
@@ -780,8 +780,8 @@ msgstr "Retry-After порушує RFC 9110 §10.2.3, тому клієнти н
 msgid "should have exactly one <h1>, found {got}"
 msgstr "має містити рівно один <h1>, знайдено {got}"
 
-msgid "Strict-Transport-Security breaks RFC 6797 §6.1, so browsers ignore it: {got}"
-msgstr "Strict-Transport-Security порушує RFC 6797 §6.1, тому браузери його ігнорують: {got}"
+msgid "Strict-Transport-Security breaks RFC 6797 §6.1, so browsers ignore it"
+msgstr "Strict-Transport-Security порушує RFC 6797 §6.1, тому браузери його ігнорують"
 
 msgid "Strict-Transport-Security should carry includeSubDomains"
 msgstr "Strict-Transport-Security має містити includeSubDomains"
@@ -873,8 +873,8 @@ msgstr "Vary: * робить відповідь некешованою, знай
 msgid "X-Content-Type-Options should be nosniff"
 msgstr "X-Content-Type-Options має бути nosniff"
 
-msgid "X-XSS-Protection should be absent or 0, found {got}"
-msgstr "X-XSS-Protection має бути відсутнім або 0, знайдено {got}"
+msgid "X-XSS-Protection should be absent or 0"
+msgstr "X-XSS-Protection має бути відсутнім або 0"
 
 msgid "no /llms.txt summarises the site for language models"
 msgstr "жоден /llms.txt не підсумовує сайт для мовних моделей"

@@ -161,7 +161,8 @@ rules:
     when: {http.document: true, http.csp.directives: {type: object}}
     severity: warning
     score: 5.5
-    message: "Content-Security-Policy should set object-src 'none', found {got}"
+    message: "Content-Security-Policy should set object-src 'none'"
+    measured: true
     fix: "Set object-src 'none' in the Content-Security-Policy."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Content-Security-Policy/object-src
   http/csp-base-uri:
@@ -198,7 +199,8 @@ rules:
     expect: {properties: {x-xss-protection: {pattern: "^\\s*0\\s*$"}}}
     severity: warning
     score: 4.5
-    message: "X-XSS-Protection should be absent or 0, found {got}"
+    message: "X-XSS-Protection should be absent or 0"
+    measured: true
     fix: "Remove X-XSS-Protection."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/X-XSS-Protection
   http/deprecated-header:
@@ -210,7 +212,8 @@ rules:
     when: {http.parsed.strict-transport-security: {type: object}}
     severity: warning
     score: 5.6
-    message: "Strict-Transport-Security breaks RFC 6797 §6.1, so browsers ignore it: {got}"
+    message: "Strict-Transport-Security breaks RFC 6797 §6.1, so browsers ignore it"
+    measured: true
     fix: "Send Strict-Transport-Security once, as max-age=63072000; includeSubDomains."
     docs: https://www.rfc-editor.org/rfc/rfc6797#section-6.1
   http/csp-syntax:
@@ -219,7 +222,8 @@ rules:
     when: {http.document: true, http.parsed.content-security-policy: {type: object}}
     severity: warning
     score: 5.9
-    message: "Content-Security-Policy breaks CSP 3, and browsers drop what they cannot read: {got}"
+    message: "Content-Security-Policy breaks CSP 3, and browsers drop what they cannot read"
+    measured: true
     fix: "Spell every directive as CSP 3 names it and quote keywords, as in script-src 'self'."
     docs: https://www.w3.org/TR/CSP3/#framework-directives
   http/permissions-policy-syntax:
@@ -228,7 +232,8 @@ rules:
     when: {http.document: true, http.parsed.permissions-policy: {type: object}}
     severity: warning
     score: 3.7
-    message: "Permissions-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
+    message: "Permissions-Policy breaks its structured-field grammar, so browsers ignore it"
+    measured: true
     fix: "Write Permissions-Policy as a dictionary, as in camera=(), geolocation=(self)."
     docs: https://www.w3.org/TR/permissions-policy/#permissions-policy-http-header-field
   http/referrer-policy-syntax:

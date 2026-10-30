@@ -600,8 +600,8 @@ msgstr "Content-Security-Policy permite eval() con 'unsafe-eval'"
 msgid "Content-Security-Policy allows inline scripts with 'unsafe-inline' and no nonce or hash"
 msgstr "Content-Security-Policy permite scripts en línea con 'unsafe-inline' y sin nonce ni hash"
 
-msgid "Content-Security-Policy breaks CSP 3, and browsers drop what they cannot read: {got}"
-msgstr "Content-Security-Policy incumple CSP 3, y los navegadores descartan lo que no pueden leer: {got}"
+msgid "Content-Security-Policy breaks CSP 3, and browsers drop what they cannot read"
+msgstr "Content-Security-Policy incumple CSP 3, y los navegadores descartan lo que no pueden leer"
 
 msgid "Content-Security-Policy lacks base-uri, so an injected <base> can redirect relative scripts"
 msgstr "Content-Security-Policy no tiene base-uri, así que un <base> inyectado puede redirigir scripts relativos"
@@ -621,8 +621,8 @@ msgstr "Content-Security-Policy carga scripts de cualquier host mediante una fue
 msgid "Content-Security-Policy sets neither script-src nor default-src, so any script loads"
 msgstr "Content-Security-Policy no fija script-src ni default-src, así que se carga cualquier script"
 
-msgid "Content-Security-Policy should set object-src 'none', found {got}"
-msgstr "Content-Security-Policy debe fijar object-src 'none', se encontró {got}"
+msgid "Content-Security-Policy should set object-src 'none'"
+msgstr "Content-Security-Policy debe fijar object-src 'none'"
 
 msgid "Content-Type breaks RFC 9110 §8.3.1: {got}"
 msgstr "Content-Type incumple la RFC 9110 §8.3.1: {got}"
@@ -753,8 +753,8 @@ msgstr "varias páginas comparten un og:description: {got}"
 msgid "pages share one og:title: {got}"
 msgstr "varias páginas comparten un og:title: {got}"
 
-msgid "Permissions-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
-msgstr "Permissions-Policy rompe su gramática de campo estructurado, así que los navegadores la ignoran: {got}"
+msgid "Permissions-Policy breaks its structured-field grammar, so browsers ignore it"
+msgstr "Permissions-Policy rompe su gramática de campo estructurado, así que los navegadores la ignoran"
 
 msgid "Priority breaks its structured-field grammar, so clients ignore it: {got}"
 msgstr "Priority rompe su gramática de campo estructurado, así que los clientes la ignoran: {got}"
@@ -780,8 +780,8 @@ msgstr "Retry-After incumple la RFC 9110 §10.2.3, así que los clientes no sabe
 msgid "should have exactly one <h1>, found {got}"
 msgstr "debe tener exactamente un <h1>, se encontró {got}"
 
-msgid "Strict-Transport-Security breaks RFC 6797 §6.1, so browsers ignore it: {got}"
-msgstr "Strict-Transport-Security incumple la RFC 6797 §6.1, así que los navegadores la ignoran: {got}"
+msgid "Strict-Transport-Security breaks RFC 6797 §6.1, so browsers ignore it"
+msgstr "Strict-Transport-Security incumple la RFC 6797 §6.1, así que los navegadores la ignoran"
 
 msgid "Strict-Transport-Security should carry includeSubDomains"
 msgstr "Strict-Transport-Security debe llevar includeSubDomains"
@@ -873,8 +873,8 @@ msgstr "Vary: * hace la respuesta no almacenable en caché, se encontró {got}"
 msgid "X-Content-Type-Options should be nosniff"
 msgstr "X-Content-Type-Options debe ser nosniff"
 
-msgid "X-XSS-Protection should be absent or 0, found {got}"
-msgstr "X-XSS-Protection debe estar ausente o ser 0, se encontró {got}"
+msgid "X-XSS-Protection should be absent or 0"
+msgstr "X-XSS-Protection debe estar ausente o ser 0"
 
 msgid "no /llms.txt summarises the site for language models"
 msgstr "ningún /llms.txt resume el sitio para los modelos de lenguaje"
