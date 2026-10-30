@@ -1788,8 +1788,11 @@ msgstr "un elemento interactivo nunca se alcanza con Tab"
 msgid "animations and videos keep moving although the visitor asks for reduced motion"
 msgstr "las animaciones y los vídeos siguen moviéndose aunque el visitante pide menos movimiento"
 
-msgid "entry variants do not land on the canonical origin"
-msgstr "las variantes de entrada no terminan en el origen canónico"
+msgid "entry variants do not land on {canonical}, the canonical origin you configured"
+msgstr "las variantes de entrada no llegan a {canonical}, el origen canónico que configuraste"
+
+msgid "entry variants do not land on {canonical}, the audited origin, since no canonical origin is configured"
+msgstr "las variantes de entrada no llegan a {canonical}, el origen auditado, ya que no hay origen canónico configurado"
 
 msgid "internal links carry rel=nofollow"
 msgstr "los enlaces internos llevan rel=nofollow"

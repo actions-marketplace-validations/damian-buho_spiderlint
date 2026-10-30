@@ -1788,8 +1788,11 @@ msgstr "інтерактивний елемент ніколи не досяга
 msgid "animations and videos keep moving although the visitor asks for reduced motion"
 msgstr "анімації та відео не зупиняються, хоча відвідувач просить зменшити рух"
 
-msgid "entry variants do not land on the canonical origin"
-msgstr "варіанти входу не потрапляють на канонічний origin"
+msgid "entry variants do not land on {canonical}, the canonical origin you configured"
+msgstr "варіанти входу не потрапляють на {canonical}, канонічний origin, який ви налаштували"
+
+msgid "entry variants do not land on {canonical}, the audited origin, since no canonical origin is configured"
+msgstr "варіанти входу не потрапляють на {canonical}, перевірений origin, бо канонічний origin не налаштовано"
 
 msgid "internal links carry rel=nofollow"
 msgstr "внутрішні посилання мають rel=nofollow"
