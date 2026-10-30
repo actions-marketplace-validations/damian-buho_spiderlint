@@ -939,7 +939,16 @@ describe("server over Redis", { skip: process.env.SPIDERLINT_TEST_REDIS === unde
         const one = await app.request("/v1/jobs", { method: "POST", body });
         const two = await app.request("/v1/jobs", { method: "POST", body });
         assert.deepEqual([one.status, two.status], [202, 200]);
-        assert.equal(((await one.json()) as { id: string }).id, ((await two.json()) as { id: string }).id);
+        const { id } = (await one.json()) as { id: string };
+        assert.equal(((await two.json()) as { id: string }).id, id);
+        let status = "queued";
+        // Let the repeat job settle so it cannot move the host’s latest key during a later test.
+        for (let tries = 0; tries < 120 && !["done", "failed"].includes(status); tries += 1) {
+            await sleep(500);
+            const response = await app.request(`/v1/jobs/${id}`);
+            status = ((await response.json()) as { status: string }).status;
+        }
+        await sleep(300);
     });
 
     it("keeps a hidden scan out of the host’s latest", async () => {
@@ -962,7 +971,7 @@ describe("server over Redis", { skip: process.env.SPIDERLINT_TEST_REDIS === unde
     it("queues from the form and sends the reader to the job page", async () => {
         const response = await app.request("/", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ url: `${site.origin}/?form=${Date.now()}` }).toString() });
         assert.equal(response.status, 303);
-        assert.match(response.headers.get("location") ?? "", /^\/jobs\/[\da-f-]{36}$/);
+        assert.match(response.headers.get("location") ?? "", /^\/jobs\/127\.0\.0\.1-\d{8}T\d{6}Z-[\da-f]{12}$/);
     });
 
     it("refuses a client over its bucket", async () => {
