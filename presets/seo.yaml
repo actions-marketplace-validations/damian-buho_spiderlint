@@ -20,7 +20,8 @@ rules:
     expect: {type: string, pattern: "^(?!.*(?i:user-scalable)\\s*=\\s*(?i:no|0)\\b)(?!.*(?i:maximum-scale)\\s*=\\s*1(\\.0+)?(?![\\d.]))(?=.*(?i:width\\s*=\\s*device-width))"}
     severity: warning
     score: 5.3
-    message: "meta viewport should set width=device-width and allow zoom, found {got}"
+    message: "meta viewport should set width=device-width and allow zoom"
+    measured: true
     docs: https://developer.mozilla.org/docs/Web/HTML/Viewport_meta_tag
     fix: "Set <meta name=viewport content=\"width=device-width\"> and allow zoom."
   html/viewport-syntax:
@@ -42,7 +43,8 @@ rules:
     expect: {type: string, pattern: "^\\s*(?:(?i:normal)|(?:(?i:only)\\s+)?(?!(?i:normal|only)\\b)[A-Za-z_-][\\w-]*(?:\\s+(?!(?i:normal|only)\\b)[A-Za-z_-][\\w-]*)*(?:\\s+(?i:only))?)\\s*$"}
     severity: info
     score: 1.4
-    message: "meta color-scheme should be normal, or scheme names such as light dark, found {got}"
+    message: "meta color-scheme should be normal, or scheme names such as light dark"
+    measured: true
     docs: https://developer.mozilla.org/docs/Web/HTML/Element/meta/name/color-scheme
     fix: "Add <meta name=color-scheme content=\"light dark\">."
   html/theme-color-schemes:
@@ -72,7 +74,8 @@ rules:
     when: {html.lang: {type: string, pattern: "^(?i:ar|arc|ckb|dv|fa|he|ps|sd|ug|ur|yi)(-|$)"}}
     severity: warning
     score: 3.8
-    message: "a right-to-left language should set <html dir=rtl>, found {got}"
+    message: "a right-to-left language should set <html dir=rtl>"
+    measured: true
     docs: https://www.w3.org/International/questions/qa-html-dir
     fix: "Add dir=rtl to the <html> element."
   html/charset:
@@ -80,7 +83,8 @@ rules:
     expect: {type: object, required: [declared, offset], properties: {declared: {pattern: "^(?i:utf-?8)$"}, offset: {maximum: 1024}}}
     severity: warning
     score: 5.2
-    message: "<meta charset> should declare UTF-8 within the first 1024 bytes, found {got}"
+    message: "<meta charset> should declare UTF-8 within the first 1024 bytes"
+    measured: true
     docs: https://html.spec.whatwg.org/multipage/semantics.html#charset
     fix: "Add <meta charset=utf-8> as the first element of <head>."
   html/privacy-policy:
@@ -105,7 +109,8 @@ rules:
     when: {html.hreflang: {minItems: 1}}
     severity: info
     score: 2.6
-    message: "hreflang alternates should include x-default, found {got}"
+    message: "hreflang alternates should include x-default"
+    measured: true
     docs: https://developers.google.com/search/docs/specialty/international/localized-versions#xdefault
     fix: "Add <link rel=alternate hreflang=x-default> to the head."
   html/jsonld-parses:

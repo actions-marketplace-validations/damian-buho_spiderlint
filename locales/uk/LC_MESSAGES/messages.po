@@ -483,8 +483,8 @@ msgstr "посилання відповідає {status}; на нього пос
 msgid "<html lang> should be a BCP 47 language tag"
 msgstr "<html lang> має бути мовним тегом BCP 47"
 
-msgid "<meta charset> should declare UTF-8 within the first 1024 bytes, found {got}"
-msgstr "<meta charset> має оголошувати UTF-8 у перших 1024 байтах, знайдено {got}"
+msgid "<meta charset> should declare UTF-8 within the first 1024 bytes"
+msgstr "<meta charset> має оголошувати UTF-8 у перших 1024 байтах"
 
 msgid "<meta name=tdm-reservation> should be 0 or 1, found {got}"
 msgstr "<meta name=tdm-reservation> має бути 0 або 1, знайдено {got}"
@@ -549,8 +549,8 @@ msgstr "попередньо завантажений ресурс не вико
 msgid "a redirect does not say which component sent it with Redirect-By ({got})"
 msgstr "переспрямування не вказує через Redirect-By, який компонент його надіслав ({got})"
 
-msgid "a right-to-left language should set <html dir=rtl>, found {got}"
-msgstr "мова справа наліво має задавати <html dir=rtl>, знайдено {got}"
+msgid "a right-to-left language should set <html dir=rtl>"
+msgstr "мова справа наліво має задавати <html dir=rtl>"
 
 msgid "a script in <head> without async, defer or type=module blocks rendering: {got}"
 msgstr "скрипт у <head> без async, defer чи type=module блокує відображення: {got}"
@@ -648,8 +648,8 @@ msgstr "Date має бути IMF-fixdate, знайдено {got}"
 msgid "Deprecation should be @ and Unix seconds, found {got}"
 msgstr "Deprecation має бути @ і секундами Unix, знайдено {got}"
 
-msgid "hreflang alternates should include x-default, found {got}"
-msgstr "альтернативи hreflang мають містити x-default, знайдено {got}"
+msgid "hreflang alternates should include x-default"
+msgstr "альтернативи hreflang мають містити x-default"
 
 msgid "internal links exist only after JavaScript runs: {got}"
 msgstr "внутрішні посилання з’являються лише після виконання JavaScript: {got}"
@@ -663,8 +663,8 @@ msgstr "є у sitemap, але жодна просканована сторінк
 msgid "loads an accessibility overlay, which does not fix the page and gets in the way of assistive tools ({got})"
 msgstr "завантажує накладку доступності, яка не виправляє сторінку й заважає допоміжним технологіям ({got})"
 
-msgid "meta color-scheme should be normal, or scheme names such as light dark, found {got}"
-msgstr "meta color-scheme має бути normal або назвами схем, як-от light dark, знайдено {got}"
+msgid "meta color-scheme should be normal, or scheme names such as light dark"
+msgstr "meta color-scheme має бути normal або назвами схем, як-от light dark"
 
 msgid "meta description repeats itself around a separator: {got}"
 msgstr "мета-опис повторюється навколо роздільника: {got}"
@@ -672,8 +672,8 @@ msgstr "мета-опис повторюється навколо розділь
 msgid "meta description should be 50–160 characters, found {got}"
 msgstr "мета-опис має містити 50–160 символів, знайдено {got}"
 
-msgid "meta viewport should set width=device-width and allow zoom, found {got}"
-msgstr "meta viewport має задавати width=device-width і дозволяти масштабування, знайдено {got}"
+msgid "meta viewport should set width=device-width and allow zoom"
+msgstr "meta viewport має задавати width=device-width і дозволяти масштабування"
 
 msgid "missing from the sitemap"
 msgstr "відсутня у sitemap"
