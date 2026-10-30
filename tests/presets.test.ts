@@ -342,6 +342,7 @@ const PASSES: Record<string, Patch[]> = {
             },
         },
     ],
+    "html/jsonld-parses": [{ html: { jsonld: [[{ "@type": "Thing" }, { "@type": "Place" }, { "@type": "Person" }]] } }],
     "html/render-blocking-script": [
         {
             html: {
@@ -522,7 +523,7 @@ describe("url shape across pages", () => {
 
     it("names the pages of a group whose trailing slash breaks the group's usual form", () => {
         const rule = builtin["url/trailing-slash"]?.("warning") as AggregateRule;
-        const pages = ["/a/", "/b/", "/c", "/", "/feed.xml"].map((pathname) => page({ pathname }));
+        const pages = ["/a/", "/b/", "/c", "/", "/feed.xml", "/.well-known/api-catalog"].map((pathname) => page({ pathname }));
         const [finding, ...rest] = rule.check(pages) ?? [];
         assert.equal(rest.length, 0);
         assert.deepEqual(paths([finding as Finding]), ["/c"]);

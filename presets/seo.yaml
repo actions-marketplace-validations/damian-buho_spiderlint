@@ -109,7 +109,7 @@ rules:
     fix: "Add <link rel=alternate hreflang=x-default> to the head."
   html/jsonld-parses:
     fact: html.jsonld
-    expect: {items: {not: {required: ["@error"]}}}
+    expect: {items: {not: {type: object, required: ["@error"]}}}
     severity: warning
     score: 4.5
     message: "a JSON-LD block does not parse: {got}"

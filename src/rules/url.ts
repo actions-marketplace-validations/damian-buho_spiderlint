@@ -12,6 +12,8 @@ import type { Finding, Make } from "./types.ts";
 const ID_ONLY = /^(?:\d+|(?=[a-f]*\d)[\da-f]{6,}|[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})$/i;
 // A last segment naming a file by its extension.
 const FILE = /\.[a-z\d]{1,5}$/i;
+// A well-known URI, whose form RFC 8615 fixes.
+const WELL_KNOWN = /^\/\.well-known\//;
 
 // Lower-case ASCII word tokens of `text`, in any script, percent-decoded.
 export function tokens(text: string): Set<string> {
@@ -79,11 +81,11 @@ const separators: Make = (severity) => ({
     },
 });
 
-// Per group, pages whose trailing slash differs from the group’s usual form; the root and file names are left out.
+// Per group, pages whose trailing slash differs from the group’s usual form; the root, file names and well-known URIs are left out.
 const trailingSlash: Make = (severity) => ({
     meta: { id: "url/trailing-slash", severity, scope: "site", facts: ["url.pathname"], docs: "https://developers.google.com/search/blog/2010/04/to-slash-or-not-to-slash", fix: "Pick one form, with or without the trailing slash, and redirect the other to it." },
     check(pages: Facts[]) {
-        const judged = pages.filter((page) => page.url.pathname !== "/" && !FILE.test(page.url.pathname));
+        const judged = pages.filter((page) => page.url.pathname !== "/" && !FILE.test(page.url.pathname) && !WELL_KNOWN.test(page.url.pathname));
         return Map.groupBy(judged, (page) => page.group)
             .entries()
             .map(([group, members]) =>

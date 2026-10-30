@@ -333,7 +333,7 @@ Done when: `spiderlint audit ORIGIN/ --rules links/redirected-internal` reports 
 a JSON-LD block does not parse: {"@error":"Unexpected end of JSON input"}
 
 Where: /about
-Reads: `html.jsonld`, expects `{"items":{"not":{"required":["@error"]}}}`
+Reads: `html.jsonld`, expects `{"items":{"not":{"type":"object","required":["@error"]}}}`
 Fix: Fix the JSON-LD block so it is valid JSON.
 Docs: https://json-ld.org/spec/latest/json-ld/
 Done when: `spiderlint audit ORIGIN/ --rules html/jsonld-parses` reports no html/jsonld-parses finding, and `spiderlint show-facts ORIGIN/about` shows `html.jsonld` meeting it.
