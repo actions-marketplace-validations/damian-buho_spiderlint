@@ -42,7 +42,7 @@ describe("agent format", () => {
         const blocks = output.split(/^## /m).slice(1);
         const oneH1 = blocks.filter((block) => block.startsWith("html/one-h1 "));
         assert.equal(oneH1.length, 1);
-        assert.match(oneH1[0] as string, /5 pages of group posts[^\n]*\n- \/posts\/1\n- \/posts\/2\n- \/posts\/3\n/);
+        assert.match(oneH1[0] as string, /5 pages of group posts[^\n]*\n- \/posts\/1: none\n- \/posts\/2: none\n- \/posts\/3: none\n/);
         assert.match(blocks.find((block) => block.startsWith("links/broken-internal ")) ?? "", /Where: \/missing, used by or shared with:\n- \/\n- \/about\n/);
         for (const block of blocks) {
             assert.match(block, /^Fix: /m, block);
