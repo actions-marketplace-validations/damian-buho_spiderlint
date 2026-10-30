@@ -507,8 +507,8 @@ msgstr "стиснена відповідь має містити Vary: Accept-E
 msgid "a JSON-LD block does not parse"
 msgstr "блок JSON-LD не розбирається"
 
-msgid "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative: {got}"
-msgstr "Alt-Svc порушує RFC 7838 §3, тому клієнти ніколи не пробують альтернативу: {got}"
+msgid "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative"
+msgstr "Alt-Svc порушує RFC 7838 §3, тому клієнти ніколи не пробують альтернативу"
 
 msgid "Alt-Svc should advertise h3"
 msgstr "Alt-Svc має оголошувати h3"
@@ -543,8 +543,8 @@ msgstr "сторінка поза канонічним origin індексуєт
 msgid "a page the sitemap lists says noindex, in <meta name=robots> or X-Robots-Tag"
 msgstr "сторінка зі sitemap каже noindex у <meta name=robots> або X-Robots-Tag"
 
-msgid "a preloaded resource went unused ({got})"
-msgstr "попередньо завантажений ресурс не використано ({got})"
+msgid "a preloaded resource went unused"
+msgstr "попередньо завантажений ресурс не використано"
 
 msgid "a redirect does not say which component sent it with Redirect-By"
 msgstr "переспрямування не вказує через Redirect-By, який компонент його надіслав"
@@ -567,8 +567,8 @@ msgstr "Cache-Control порушує RFC 9111 §5.2, а кеші ігнорую�
 msgid "Cache-Control no-store keeps the page out of the back/forward cache"
 msgstr "Cache-Control no-store виключає сторінку з кешу переходів назад/вперед"
 
-msgid "Cache-Status breaks its structured-field grammar: {got}"
-msgstr "Cache-Status порушує граматику структурованого поля: {got}"
+msgid "Cache-Status breaks its structured-field grammar"
+msgstr "Cache-Status порушує граматику структурованого поля"
 
 msgid "canonical link should be an absolute URL"
 msgstr "канонічне посилання має бути абсолютним URL"
@@ -771,11 +771,11 @@ msgstr "Referrer-Policy не має розкривати повні URL"
 msgid "Reporting-Endpoints breaks its structured-field grammar, so browsers ignore it"
 msgstr "Reporting-Endpoints порушує граматику структурованого поля, тому браузери його ігнорують"
 
-msgid "Retry-After asks clients back in {got} seconds, which brings the load straight back to a server that is shedding it"
-msgstr "Retry-After просить клієнтів повернутися за {got} с, що одразу повертає навантаження серверу, який намагається його скинути"
+msgid "Retry-After asks clients back too soon, which brings the load straight back to a server that is shedding it"
+msgstr "Retry-After просить клієнтів повернутися занадто скоро, що одразу повертає навантаження серверу, який намагається його скинути"
 
-msgid "Retry-After breaks RFC 9110 §10.2.3, so clients cannot tell when to retry: {got}"
-msgstr "Retry-After порушує RFC 9110 §10.2.3, тому клієнти не знають, коли повторити запит: {got}"
+msgid "Retry-After breaks RFC 9110 §10.2.3, so clients cannot tell when to retry"
+msgstr "Retry-After порушує RFC 9110 §10.2.3, тому клієнти не знають, коли повторити запит"
 
 msgid "should have exactly one <h1>"
 msgstr "має містити рівно один <h1>"
@@ -798,8 +798,8 @@ msgstr "потребує понад 2 переспрямувань, щоб ді�
 msgid "tdm-reservation should be 0 or 1"
 msgstr "tdm-reservation має бути 0 або 1"
 
-msgid "the browser console logged errors ({got})"
-msgstr "консоль браузера зафіксувала помилки ({got})"
+msgid "the browser console logged errors"
+msgstr "консоль браузера зафіксувала помилки"
 
 msgid "the canonical link exists only after JavaScript runs"
 msgstr "канонічне посилання з’являється лише після виконання JavaScript"

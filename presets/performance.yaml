@@ -260,7 +260,8 @@ rules:
     when: {http.parsed.cache-status: {type: object}}
     severity: warning
     score: 3.3
-    message: "Cache-Status breaks its structured-field grammar: {got}"
+    message: "Cache-Status breaks its structured-field grammar"
+    measured: true
     fix: "Send Cache-Status as a list of caches with parameters, as in Cache-Status: ExampleCache; hit."
     docs: https://www.rfc-editor.org/rfc/rfc9211#section-2
   http/retry-after-short:
@@ -269,7 +270,8 @@ rules:
     when: {http.status: {enum: [429, 503]}, http.parsed.retry-after.value: {type: object}}
     severity: info
     score: [[0, 3.0], [9, 1.2]]
-    message: "Retry-After asks clients back in {got} seconds, which brings the load straight back to a server that is shedding it"
+    message: "Retry-After asks clients back too soon, which brings the load straight back to a server that is shedding it"
+    measured: true
     fix: "Send Retry-After: 120, or as long as the server needs to recover."
     docs: https://www.rfc-editor.org/rfc/rfc9110#section-10.2.3
   http/retry-after-syntax:
@@ -278,7 +280,8 @@ rules:
     when: {http.parsed.retry-after: {type: object}}
     severity: warning
     score: 4.1
-    message: "Retry-After breaks RFC 9110 §10.2.3, so clients cannot tell when to retry: {got}"
+    message: "Retry-After breaks RFC 9110 §10.2.3, so clients cannot tell when to retry"
+    measured: true
     fix: "Send Retry-After as a number of seconds, as in Retry-After: 120, or an IMF-fixdate."
     docs: https://www.rfc-editor.org/rfc/rfc9110#section-10.2.3
   http/alt-svc-syntax:
@@ -287,6 +290,7 @@ rules:
     when: {http.parsed.alt-svc: {type: object}}
     severity: warning
     score: 4.4
-    message: "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative: {got}"
+    message: "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative"
+    measured: true
     fix: "Send Alt-Svc as h3=\":443\"; ma=86400."
     docs: https://www.rfc-editor.org/rfc/rfc7838#section-3

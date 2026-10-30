@@ -507,8 +507,8 @@ msgstr "una respuesta comprimida debe llevar Vary: Accept-Encoding"
 msgid "a JSON-LD block does not parse"
 msgstr "un bloque JSON-LD no se puede interpretar"
 
-msgid "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative: {got}"
-msgstr "Alt-Svc incumple la RFC 7838 §3, así que los clientes nunca prueban la alternativa: {got}"
+msgid "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative"
+msgstr "Alt-Svc incumple la RFC 7838 §3, así que los clientes nunca prueban la alternativa"
 
 msgid "Alt-Svc should advertise h3"
 msgstr "Alt-Svc debe anunciar h3"
@@ -543,8 +543,8 @@ msgstr "una página servida fuera del origen canónico es indexable; marca su ge
 msgid "a page the sitemap lists says noindex, in <meta name=robots> or X-Robots-Tag"
 msgstr "una página que lista el sitemap dice noindex, en <meta name=robots> o X-Robots-Tag"
 
-msgid "a preloaded resource went unused ({got})"
-msgstr "un recurso precargado no se usó ({got})"
+msgid "a preloaded resource went unused"
+msgstr "un recurso precargado no se usó"
 
 msgid "a redirect does not say which component sent it with Redirect-By"
 msgstr "una redirección no dice qué componente la envió con Redirect-By"
@@ -567,8 +567,8 @@ msgstr "Cache-Control incumple la RFC 9111 §5.2, y las cachés ignoran lo que n
 msgid "Cache-Control no-store keeps the page out of the back/forward cache"
 msgstr "Cache-Control no-store deja la página fuera de la caché de ir atrás/adelante"
 
-msgid "Cache-Status breaks its structured-field grammar: {got}"
-msgstr "Cache-Status rompe su gramática de campo estructurado: {got}"
+msgid "Cache-Status breaks its structured-field grammar"
+msgstr "Cache-Status rompe su gramática de campo estructurado"
 
 msgid "canonical link should be an absolute URL"
 msgstr "el enlace canónico debe ser una URL absoluta"
@@ -771,11 +771,11 @@ msgstr "Referrer-Policy no debe filtrar URLs completas"
 msgid "Reporting-Endpoints breaks its structured-field grammar, so browsers ignore it"
 msgstr "Reporting-Endpoints rompe su gramática de campo estructurado, así que los navegadores la ignoran"
 
-msgid "Retry-After asks clients back in {got} seconds, which brings the load straight back to a server that is shedding it"
-msgstr "Retry-After pide a los clientes volver en {got} segundos, lo que devuelve la carga de inmediato a un servidor que intenta descargarla"
+msgid "Retry-After asks clients back too soon, which brings the load straight back to a server that is shedding it"
+msgstr "Retry-After pide a los clientes volver demasiado pronto, lo que devuelve la carga de inmediato a un servidor que intenta descargarla"
 
-msgid "Retry-After breaks RFC 9110 §10.2.3, so clients cannot tell when to retry: {got}"
-msgstr "Retry-After incumple la RFC 9110 §10.2.3, así que los clientes no saben cuándo reintentar: {got}"
+msgid "Retry-After breaks RFC 9110 §10.2.3, so clients cannot tell when to retry"
+msgstr "Retry-After incumple la RFC 9110 §10.2.3, así que los clientes no saben cuándo reintentar"
 
 msgid "should have exactly one <h1>"
 msgstr "debe tener exactamente un <h1>"
@@ -798,8 +798,8 @@ msgstr "requiere más de 2 redirecciones para llegar"
 msgid "tdm-reservation should be 0 or 1"
 msgstr "tdm-reservation debe ser 0 o 1"
 
-msgid "the browser console logged errors ({got})"
-msgstr "la consola del navegador registró errores ({got})"
+msgid "the browser console logged errors"
+msgstr "la consola del navegador registró errores"
 
 msgid "the canonical link exists only after JavaScript runs"
 msgstr "el enlace canónico solo existe tras ejecutar JavaScript"
