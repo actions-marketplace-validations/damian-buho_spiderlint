@@ -235,14 +235,14 @@ describe("audit", () => {
         assert.equal(h1?.occurrences, 5);
         assert.equal(h1?.coverage, 1);
         assert.equal(h1?.samples?.length, 3);
-        assert.match(h1?.message ?? "", /^should have exactly one <h1>, found none$/);
+        assert.match(h1?.message ?? "", /^should have exactly one <h1>$/);
     });
 
     it("keeps a one-page defect on its page", () => {
         const [alt, ...rest] = of("html/img-alt");
         assert.equal(rest.length, 0);
         assert.equal(alt?.url, `${site.origin}/posts/3`);
-        assert.match(alt?.message ?? "", /^an <img> has no alt attribute: \{"src":"\/figure\.png"\}$/);
+        assert.match(alt?.message ?? "", /^an <img> has no alt attribute$/);
     });
 
     it("reports lengths with the actual value", () => {
@@ -303,7 +303,7 @@ describe("audit", () => {
         assert.equal(title?.url, `${site.origin}/duplicate`);
         assert.equal(title?.message, "<title> repeats itself around a separator");
         const description = of("html/description-redundant").find((finding) => finding.url === `${site.origin}/duplicate`);
-        assert.match(description?.message ?? "", /^meta description repeats itself around a separator: /);
+        assert.match(description?.message ?? "", /^meta description repeats itself around a separator$/);
     });
 
     it("reports an internal link answering a redirect once, with the pages carrying it, and counts them as referrers", () => {
@@ -599,7 +599,7 @@ describe("audit options", () => {
         );
         assert.deepEqual(
             report.findings.map((finding) => [finding.rule, finding.message]),
-            [["redirects/permanent", "reached through a temporary redirect (302)"]],
+            [["redirects/permanent", "reached through a temporary redirect"]],
         );
     });
 

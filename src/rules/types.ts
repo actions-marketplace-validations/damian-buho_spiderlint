@@ -120,8 +120,6 @@ export interface RuleSpec {
     message?: string;
     // A `site.hosts.*.` rule that also judges hosts the crawl only links or loads under its registrable domains; off by default.
     linked?: boolean;
-    // The offending value goes in each URL’s `data`, not the sentence, so findings of one template fold and bundle.
-    measured?: boolean;
 }
 
 export type RuleEntry = RuleSpec | Severity | number;

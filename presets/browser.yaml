@@ -14,7 +14,6 @@ rules:
     severity: warning
     score: 5.8
     message: "the browser console logged errors"
-    measured: true
     docs: https://developer.mozilla.org/docs/Web/API/console/error_static
     fix: "Fix the JavaScript error logged to the console."
   browser/unused-preload:
@@ -23,6 +22,5 @@ rules:
     severity: info
     score: 1.8
     message: "a preloaded resource went unused"
-    measured: true
     docs: https://developer.mozilla.org/docs/Web/HTML/Attributes/rel/preload
     fix: "Remove the preload link, or use the resource it points at."

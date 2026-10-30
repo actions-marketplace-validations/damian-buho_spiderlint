@@ -53,10 +53,10 @@ function offendingGot(value: unknown, error: ErrorObject): string {
 }
 
 // The rule’s own sentence as a template over `{got}` and `{field}`, else AJV’s wording against the fact path.
-function message(fact: string, value: unknown, error: ErrorObject, text: string | undefined, isMeasured = false): Pick<Finding, "message" | "text" | "variables"> {
+function message(fact: string, value: unknown, error: ErrorObject, text: string | undefined): Pick<Finding, "message" | "text" | "variables"> {
     const got = offendingGot(value, error);
     const field = error.instancePath.slice(1).replaceAll("/", ".") || (fact.split(".").at(-1) as string);
-    if (text) return said(text, isMeasured ? { field } : { got, field });
+    if (text) return said(text, text.includes("{got}") ? { got, field } : { field });
     const name = label(fact) ?? fact;
     return { message: value === undefined ? `${name} is absent` : `${name}${error.instancePath} ${error.message} (got ${got})` };
 }
@@ -113,8 +113,7 @@ function compilePage(id: string, spec: RuleSpec, fact: string, validate: Validat
             const value = get(page, fact);
             if (validate(value)) return [];
             const error = validate.errors?.[0] as ErrorObject;
-            const finding: Finding = { rule: id, severity, scope: "page", url: page.url.href, group: page.group, ...message(fact, value, error, spec.message, spec.measured), value };
-            if (spec.measured) finding.data = { [page.url.href]: { got: offendingGot(value, error) } };
+            const finding: Finding = { rule: id, severity, scope: "page", url: page.url.href, group: page.group, ...message(fact, value, error, spec.message), value, data: { [page.url.href]: { got: offendingGot(value, error) } } };
             return [finding];
         },
     };
@@ -145,8 +144,8 @@ function compileUnique(id: string, spec: RuleSpec, fact: string): AggregateRule 
                     scope,
                     url: urls[0] as string,
                     group,
-                    ...(spec.message ? said(spec.message, spec.measured ? {} : { got: describe(value) }) : { message: `${label(fact) ?? fact} is shared by ${urls.length} pages (${describe(value)})` }),
-                    ...(spec.measured && { data: Object.fromEntries(urls.map((url) => [url, { got: describe(value) }])) }),
+                    ...(spec.message ? said(spec.message, spec.message.includes("{got}") ? { got: describe(value) } : {}) : { message: `${label(fact) ?? fact} is shared by ${urls.length} pages (${describe(value)})` }),
+                    data: Object.fromEntries(urls.map((url) => [url, { got: describe(value) }])),
                     value,
                     urls,
                 });

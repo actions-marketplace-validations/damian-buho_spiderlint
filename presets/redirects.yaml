@@ -10,7 +10,6 @@ rules:
     severity: warning
     score: 4.8
     message: "takes more than 2 redirects to land"
-    measured: true
     fix: "Collapse the redirect chain so the final URL is reached in one or two hops."
     docs: https://developers.google.com/search/docs/crawling-indexing/301-redirects
   redirects/permanent:
@@ -20,6 +19,5 @@ rules:
     severity: info
     score: 2.4
     message: "reached through a temporary redirect"
-    measured: true
     fix: "Answer a moved page with 301 or 308, not 302, 303 or 307."
     docs: https://developers.google.com/search/docs/crawling-indexing/301-redirects#permanent-server-side

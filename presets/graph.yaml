@@ -14,7 +14,6 @@ rules:
     severity: info
     score: [[4, 1.6], [10, 3.0]]
     message: "a page is more than 3 links away from the start page"
-    measured: true
     fix: "Link the page from a hub, a section index or the navigation."
     docs: https://developers.google.com/search/docs/crawling-indexing/links-crawlable
   links/dead-end:
@@ -32,6 +31,5 @@ rules:
     severity: info
     score: 1.8
     message: "only a few pages of the site link here"
-    measured: true
     fix: "Link the page from its section index or related pages."
     docs: https://developers.google.com/search/docs/crawling-indexing/links-crawlable

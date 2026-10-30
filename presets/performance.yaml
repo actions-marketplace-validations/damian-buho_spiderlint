@@ -14,7 +14,6 @@ rules:
     severity: warning
     score: 6.3
     message: "a text response over 1 KB should be sent br, zstd or gzip"
-    measured: true
     fix: "Compress text responses with br, zstd or gzip at the edge or in the server."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Compression
   http/vary-encoding:
@@ -24,7 +23,6 @@ rules:
     severity: warning
     score: 5.4
     message: "a compressed response should carry Vary: Accept-Encoding"
-    measured: true
     fix: "Add Vary: Accept-Encoding to the response."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Vary
   http/vary-star:
@@ -34,7 +32,6 @@ rules:
     severity: warning
     score: 5.6
     message: "Vary: * makes the response uncacheable"
-    measured: true
     fix: "Replace Vary: * with the specific header names the response varies by."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Vary
   http/validator:
@@ -53,7 +50,6 @@ rules:
     severity: info
     score: 2.7
     message: "no Cache-Control directive on an HTML page"
-    measured: true
     fix: "Add a Cache-Control header, e.g. no-cache to revalidate, or public with a max-age."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Cache-Control
   http/no-store-bfcache:
@@ -63,7 +59,6 @@ rules:
     severity: info
     score: 2.4
     message: "Cache-Control no-store keeps the page out of the back/forward cache"
-    measured: true
     fix: "Remove no-store from Cache-Control, or replace it with no-cache."
     docs: https://web.dev/articles/bfcache#minimize-use-of-cache-control-no-store
   caching/long-without-hash:
@@ -75,7 +70,6 @@ rules:
     severity: warning
     score: 5.8
     message: "the server should speak HTTP/2 or HTTP/3"
-    measured: true
     fix: "Enable HTTP/2 or HTTP/3 on the server."
     docs: https://developer.mozilla.org/docs/Glossary/HTTP_2
   http/alt-svc-h3:
@@ -85,7 +79,6 @@ rules:
     severity: warning
     score: 5.2
     message: "Alt-Svc should advertise h3"
-    measured: true
     fix: "Add h3 to the Alt-Svc header."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Alt-Svc
   tls/ec-key:
@@ -113,7 +106,6 @@ rules:
     severity: warning
     score: 3.7
     message: "Sunset should be an HTTP-date"
-    measured: true
     fix: "Send Sunset as an HTTP-date, e.g. Sun, 01 Jan 2027 00:00:00 GMT."
     docs: https://www.rfc-editor.org/rfc/rfc8594
   http/deprecation-format:
@@ -123,7 +115,6 @@ rules:
     severity: warning
     score: 3.6
     message: "Deprecation should be @ and Unix seconds"
-    measured: true
     fix: "Send Deprecation: @1704067200 with the Unix timestamp of the removal."
     docs: https://www.rfc-editor.org/rfc/rfc9745
   html/render-blocking-script:
@@ -132,7 +123,6 @@ rules:
     severity: info
     score: 3.0
     message: "a script in <head> without async, defer or type=module blocks rendering"
-    measured: true
     fix: "Add async, defer, or type=module to the script, or move it to the end of <body>."
     docs: https://developer.mozilla.org/docs/Web/HTML/Element/script#defer
   html/first-img-lazy:
@@ -141,7 +131,6 @@ rules:
     severity: info
     score: 2.9
     message: "the first <img> is usually above the fold, and loading=lazy delays it"
-    measured: true
     fix: "Remove loading=lazy from the first <img>, or set it to eager."
     docs: https://web.dev/articles/lcp-lazy-loading
   html/img-dimensions:
@@ -150,7 +139,6 @@ rules:
     severity: warning
     score: 6.0
     message: "an <img> without width and height shifts the layout as it loads"
-    measured: true
     fix: "Add width and height attributes to the <img>."
     docs: https://web.dev/articles/optimize-cls#images-without-dimensions
   http/early-hints-preload:
@@ -172,7 +160,6 @@ rules:
     severity: warning
     score: 4.6
     message: "Link breaks RFC 8288 §3, so clients drop the links they cannot read"
-    measured: true
     fix: "Write each Link entry as <https://example.com/a>; rel=preload, separated by commas."
     docs: https://www.rfc-editor.org/rfc/rfc8288#section-3
   http/dictionary-format:
@@ -182,7 +169,6 @@ rules:
     severity: warning
     score: 3.5
     message: "Use-As-Dictionary needs a match=\"<URL pattern>\" member"
-    measured: true
     fix: "Send Use-As-Dictionary: match=\"/assets/app-*.js\"."
     docs: https://www.rfc-editor.org/rfc/rfc9842#section-2.1
   html/render-blocking-css:
@@ -191,7 +177,6 @@ rules:
     severity: info
     score: 2.3
     message: "more than one stylesheet in <head> blocks rendering"
-    measured: true
     fix: "Inline the critical CSS and load the rest with media=print onload, or merge the stylesheets into one."
     docs: https://web.dev/articles/defer-non-critical-css
   http/cache-control-syntax:
@@ -201,7 +186,6 @@ rules:
     severity: warning
     score: 5.0
     message: "Cache-Control breaks RFC 9111 §5.2, and caches ignore what they cannot read"
-    measured: true
     fix: "Write Cache-Control with registered directives only, as in public, max-age=3600."
     docs: https://www.rfc-editor.org/rfc/rfc9111#section-5.2
   http/vary-syntax:
@@ -211,7 +195,6 @@ rules:
     severity: warning
     score: 4.2
     message: "Vary breaks RFC 9110 §12.5.5"
-    measured: true
     fix: "List the request header names the response varies by, as in Vary: Accept-Encoding."
     docs: https://www.rfc-editor.org/rfc/rfc9110#section-12.5.5
   http/content-type-syntax:
@@ -221,7 +204,6 @@ rules:
     severity: warning
     score: 4.0
     message: "Content-Type breaks RFC 9110 §8.3.1"
-    measured: true
     fix: "Send Content-Type as type/subtype with name=value parameters, as in text/html; charset=utf-8."
     docs: https://www.rfc-editor.org/rfc/rfc9110#section-8.3.1
   http/use-as-dictionary-syntax:
@@ -231,7 +213,6 @@ rules:
     severity: warning
     score: 3.4
     message: "Use-As-Dictionary breaks its structured-field grammar, so clients ignore it"
-    measured: true
     fix: "Send Use-As-Dictionary: match=\"/assets/app-*.js\"."
     docs: https://www.rfc-editor.org/rfc/rfc9842#section-2.1
   http/accept-ch-syntax:
@@ -241,7 +222,6 @@ rules:
     severity: warning
     score: 3.9
     message: "Accept-CH breaks its structured-field grammar, so browsers ignore it"
-    measured: true
     fix: "Send Accept-CH as a list of hint names, as in Accept-CH: Sec-CH-UA-Platform."
     docs: https://www.rfc-editor.org/rfc/rfc8942#section-3.1
   http/priority-syntax:
@@ -251,7 +231,6 @@ rules:
     severity: warning
     score: 3.8
     message: "Priority breaks its structured-field grammar, so clients ignore it"
-    measured: true
     fix: "Send Priority as a dictionary, as in Priority: u=1, i."
     docs: https://www.rfc-editor.org/rfc/rfc9218#section-5
   http/cache-status-syntax:
@@ -261,7 +240,6 @@ rules:
     severity: warning
     score: 3.3
     message: "Cache-Status breaks its structured-field grammar"
-    measured: true
     fix: "Send Cache-Status as a list of caches with parameters, as in Cache-Status: ExampleCache; hit."
     docs: https://www.rfc-editor.org/rfc/rfc9211#section-2
   http/retry-after-short:
@@ -271,7 +249,6 @@ rules:
     severity: info
     score: [[0, 3.0], [9, 1.2]]
     message: "Retry-After asks clients back too soon, which brings the load straight back to a server that is shedding it"
-    measured: true
     fix: "Send Retry-After: 120, or as long as the server needs to recover."
     docs: https://www.rfc-editor.org/rfc/rfc9110#section-10.2.3
   http/retry-after-syntax:
@@ -281,7 +258,6 @@ rules:
     severity: warning
     score: 4.1
     message: "Retry-After breaks RFC 9110 §10.2.3, so clients cannot tell when to retry"
-    measured: true
     fix: "Send Retry-After as a number of seconds, as in Retry-After: 120, or an IMF-fixdate."
     docs: https://www.rfc-editor.org/rfc/rfc9110#section-10.2.3
   http/alt-svc-syntax:
@@ -291,6 +267,5 @@ rules:
     severity: warning
     score: 4.4
     message: "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative"
-    measured: true
     fix: "Send Alt-Svc as h3=\":443\"; ma=86400."
     docs: https://www.rfc-editor.org/rfc/rfc7838#section-3

@@ -28,7 +28,6 @@ const ruleSpec = {
         hints: { type: "object", additionalProperties: { type: "string" } },
         message: { type: "string" },
         linked: { type: "boolean" },
-        measured: { type: "boolean" },
     },
 };
 

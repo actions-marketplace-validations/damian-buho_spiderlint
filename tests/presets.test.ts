@@ -490,7 +490,7 @@ describe("presets", () => {
     });
 
     it("keeps a measured value out of the sentence, in the data of each URL", () => {
-        const rule = compileRule("test/measured", { fact: "html.title", expect: { type: "string", minLength: 30 }, message: "title is short", measured: true, severity: "warning" }) as PageRule;
+        const rule = compileRule("test/measured", { fact: "html.title", expect: { type: "string", minLength: 30 }, message: "title is short", severity: "warning" }) as PageRule;
         const [first, second] = ["Short", "Tiny"].map((html_title) => (rule.check(page({ html: { title: html_title } }), { sitemaps: [], role: "production" }) ?? [])[0] as Finding);
         assert.equal(first?.message, "title is short");
         assert.equal(first?.message, second?.message);

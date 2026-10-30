@@ -12,7 +12,6 @@ rules:
     severity: error
     score: 8.2
     message: "<html lang> should be a BCP 47 language tag"
-    measured: true
     docs: https://developer.mozilla.org/docs/Web/HTML/Global_attributes/lang
     fix: "Set <html lang> to a BCP 47 language tag."
   html/viewport:
@@ -21,7 +20,6 @@ rules:
     severity: warning
     score: 5.3
     message: "meta viewport should set width=device-width and allow zoom"
-    measured: true
     docs: https://developer.mozilla.org/docs/Web/HTML/Viewport_meta_tag
     fix: "Set <meta name=viewport content=\"width=device-width\"> and allow zoom."
   html/viewport-syntax:
@@ -44,7 +42,6 @@ rules:
     severity: info
     score: 1.4
     message: "meta color-scheme should be normal, or scheme names such as light dark"
-    measured: true
     docs: https://developer.mozilla.org/docs/Web/HTML/Element/meta/name/color-scheme
     fix: "Add <meta name=color-scheme content=\"light dark\">."
   html/theme-color-schemes:
@@ -75,7 +72,6 @@ rules:
     severity: warning
     score: 3.8
     message: "a right-to-left language should set <html dir=rtl>"
-    measured: true
     docs: https://www.w3.org/International/questions/qa-html-dir
     fix: "Add dir=rtl to the <html> element."
   html/charset:
@@ -84,7 +80,6 @@ rules:
     severity: warning
     score: 5.2
     message: "<meta charset> should declare UTF-8 within the first 1024 bytes"
-    measured: true
     docs: https://html.spec.whatwg.org/multipage/semantics.html#charset
     fix: "Add <meta charset=utf-8> as the first element of <head>."
   html/privacy-policy:
@@ -110,7 +105,6 @@ rules:
     severity: info
     score: 2.6
     message: "hreflang alternates should include x-default"
-    measured: true
     docs: https://developers.google.com/search/docs/specialty/international/localized-versions#xdefault
     fix: "Add <link rel=alternate hreflang=x-default> to the head."
   html/jsonld-parses:
@@ -119,7 +113,6 @@ rules:
     severity: warning
     score: 4.5
     message: "a JSON-LD block does not parse"
-    measured: true
     docs: https://json-ld.org/spec/latest/json-ld/
     fix: "Fix the JSON-LD block so it is valid JSON."
   url/shape:
@@ -128,7 +121,6 @@ rules:
     severity: info
     score: 2.8
     message: "URL path should be lowercase, with hyphens and no empty segment"
-    measured: true
     docs: https://developers.google.com/search/docs/crawling-indexing/url-structure
     fix: "Rewrite the path to be lowercase, with hyphens and no empty segments."
   html/title:
@@ -154,7 +146,6 @@ rules:
     severity: warning
     score: 5.7
     message: "<title> should be 30–60 characters"
-    measured: true
     docs: https://developers.google.com/search/docs/appearance/title-link
     fix: "Shorten or lengthen <title> to 30–60 characters."
   html/description-length:
@@ -164,7 +155,6 @@ rules:
     severity: warning
     score: 5.5
     message: "meta description should be 50–160 characters"
-    measured: true
     docs: https://developers.google.com/search/docs/appearance/snippet
     fix: "Shorten or lengthen the meta description to 50–160 characters."
   html/title-redundant:
@@ -174,7 +164,6 @@ rules:
     severity: warning
     score: 4.8
     message: "<title> repeats itself around a separator"
-    measured: true
     docs: https://developers.google.com/search/docs/appearance/title-link
     fix: "Remove the repeated suffix from <title>."
   html/description-redundant:
@@ -184,7 +173,6 @@ rules:
     severity: warning
     score: 4.7
     message: "meta description repeats itself around a separator"
-    measured: true
     docs: https://developers.google.com/search/docs/appearance/snippet
     fix: "Remove the repeated suffix from the meta description."
   html/one-h1:
@@ -193,7 +181,6 @@ rules:
     severity: error
     score: 7.4
     message: "should have exactly one <h1>"
-    measured: true
     docs: https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/Heading_Elements
     fix: "Use exactly one <h1> per page."
   html/canonical:
@@ -202,7 +189,6 @@ rules:
     severity: warning
     score: 5.4
     message: "canonical link should be an absolute URL"
-    measured: true
     docs: https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls
     fix: "Make the canonical link an absolute URL."
   html/canonical-self:
@@ -217,7 +203,6 @@ rules:
     severity: warning
     score: 5.0
     message: "an <img> has no alt attribute"
-    measured: true
     docs: https://developers.google.com/search/docs/appearance/google-images
     fix: "Add an alt attribute to every <img>."
   html/og-title:
@@ -226,7 +211,6 @@ rules:
     severity: warning
     score: 4.0
     message: "og:title should be 10–90 characters"
-    measured: true
     docs: https://ogp.me/#metadata
     fix: "Set og:title to 10–90 characters."
   html/og-description:
@@ -235,7 +219,6 @@ rules:
     severity: warning
     score: 3.9
     message: "og:description should be 50–200 characters"
-    measured: true
     docs: https://ogp.me/#optional
     fix: "Set og:description to 50–200 characters."
   html/og-image:
@@ -244,7 +227,6 @@ rules:
     severity: warning
     score: 4.6
     message: "og:image should be an absolute http(s) URL"
-    measured: true
     docs: https://ogp.me/#metadata
     fix: "Make og:image an absolute URL."
   html/og-type:
@@ -253,7 +235,6 @@ rules:
     severity: info
     score: 1.1
     message: "og:type should be an Open Graph type or namespace:type"
-    measured: true
     docs: https://ogp.me/#types
     fix: "Set og:type to website, or article on a post."
   html/og-url:
@@ -262,7 +243,6 @@ rules:
     severity: info
     score: 2.5
     message: "og:url should be an absolute http(s) URL"
-    measured: true
     docs: https://ogp.me/#metadata
     fix: "Make og:url an absolute URL of this page."
   html/author:
@@ -289,7 +269,6 @@ rules:
     severity: warning
     score: 5.9
     message: "pages share one <title>"
-    measured: true
     docs: https://developers.google.com/search/docs/appearance/title-link
     fix: "Give each page a distinct <title>."
   html/unique-description:
@@ -298,7 +277,6 @@ rules:
     severity: warning
     score: 5.6
     message: "pages share one meta description"
-    measured: true
     docs: https://developers.google.com/search/docs/appearance/snippet
     fix: "Give each page a distinct meta description."
   html/unique-og-title:
@@ -307,7 +285,6 @@ rules:
     severity: warning
     score: 4.2
     message: "pages share one og:title"
-    measured: true
     docs: https://ogp.me/#metadata
     fix: "Give each page a distinct og:title."
   html/unique-og-description:
@@ -316,7 +293,6 @@ rules:
     severity: warning
     score: 4.1
     message: "pages share one og:description"
-    measured: true
     docs: https://ogp.me/#optional
     fix: "Give each page a distinct og:description."
   html/noindex-twin:
@@ -344,7 +320,6 @@ rules:
     severity: warning
     score: 3.5
     message: "tdm-reservation should be 0 or 1"
-    measured: true
     fix: "Send tdm-reservation: 1 to reserve text and data mining rights, 0 to waive them."
     docs: https://www.w3.org/community/reports/tdmrep/CG-FINAL-tdmrep-20240510/
   html/tdm-reservation:
@@ -354,7 +329,6 @@ rules:
     severity: warning
     score: 3.5
     message: "<meta name=tdm-reservation> should be 0 or 1"
-    measured: true
     fix: "Set <meta name=tdm-reservation content=1> to reserve text and data mining rights, 0 to waive them."
     docs: https://www.w3.org/community/reports/tdmrep/CG-FINAL-tdmrep-20240510/
   url/length:
@@ -363,7 +337,6 @@ rules:
     severity: info
     score: 1.8
     message: "the URL is longer than 100 characters"
-    measured: true
     fix: "Shorten the path to the few words that name the page."
     docs: https://developers.google.com/search/docs/crawling-indexing/url-structure
   url/uppercase:
@@ -372,7 +345,6 @@ rules:
     severity: warning
     score: 5.1
     message: "the path has uppercase letters, which a server may treat as another URL"
-    measured: true
     fix: "Use lowercase paths, and redirect each mixed-case path to its lowercase form."
     docs: https://developers.google.com/search/docs/crawling-indexing/url-structure
   url/session-param:
@@ -381,7 +353,6 @@ rules:
     severity: warning
     score: 5.8
     message: "the URL carries a session ID"
-    measured: true
     fix: "Keep the session in a cookie, never in the URL."
     docs: https://developers.google.com/search/docs/crawling-indexing/url-structure
   url/double-slash:
@@ -390,7 +361,6 @@ rules:
     severity: warning
     score: 4.9
     message: "the path has an empty segment"
-    measured: true
     fix: "Remove the doubled slash from the links, and redirect the doubled path to the single one."
     docs: https://developers.google.com/search/docs/crawling-indexing/url-structure
   url/extension:
@@ -399,7 +369,6 @@ rules:
     severity: hint
     score: 0.6
     message: "the path exposes the server technology in its extension"
-    measured: true
     fix: "Serve the page at an extensionless path, and redirect the old one to it."
     docs: https://www.w3.org/Provider/Style/URI
   url/readable-slug: info

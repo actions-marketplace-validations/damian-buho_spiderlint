@@ -14,7 +14,6 @@ rules:
     severity: hint
     score: 0.8
     message: "Cross-Origin-Embedder-Policy should be require-corp or credentialless"
-    measured: true
     fix: "Send Cross-Origin-Embedder-Policy: credentialless once every embed loads under it."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy
   http/digest:
@@ -86,7 +85,6 @@ rules:
     severity: hint
     score: 0.3
     message: "an article names no fediverse:creator account for Mastodon previews"
-    measured: true
     fix: "Add <meta name=fediverse:creator content=\"@user@instance.example\"> to the article head."
     docs: https://blog.joinmastodon.org/2024/07/highlighting-journalism-on-mastodon/
   redirects/by:
@@ -95,6 +93,5 @@ rules:
     severity: hint
     score: 0.1
     message: "a redirect does not say which component sent it with Redirect-By"
-    measured: true
     fix: "Send Redirect-By: <component> with every redirect."
     docs: https://specification.website/spec/
