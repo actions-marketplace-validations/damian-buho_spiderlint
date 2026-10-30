@@ -651,8 +651,8 @@ msgstr "Deprecation debe ser @ y segundos Unix, se encontró {got}"
 msgid "hreflang alternates should include x-default"
 msgstr "las alternativas hreflang deben incluir x-default"
 
-msgid "internal links exist only after JavaScript runs: {got}"
-msgstr "los enlaces internos solo existen tras ejecutar JavaScript: {got}"
+msgid "internal links exist only after JavaScript runs"
+msgstr "los enlaces internos solo existen tras ejecutar JavaScript"
 
 msgid "Link breaks RFC 8288 §3, so clients drop the links they cannot read: {got}"
 msgstr "Link incumple la RFC 8288 §3, así que los clientes descartan los enlaces que no pueden leer: {got}"
@@ -660,8 +660,8 @@ msgstr "Link incumple la RFC 8288 §3, así que los clientes descartan los enlac
 msgid "listed in the sitemap, yet no crawled page links here"
 msgstr "figura en el sitemap, pero ninguna página rastreada enlaza aquí"
 
-msgid "loads an accessibility overlay, which does not fix the page and gets in the way of assistive tools ({got})"
-msgstr "carga una superposición de accesibilidad, que no arregla la página y estorba a las tecnologías de apoyo ({got})"
+msgid "loads an accessibility overlay, which does not fix the page and gets in the way of assistive tools"
+msgstr "carga una superposición de accesibilidad, que no arregla la página y estorba a las tecnologías de apoyo"
 
 msgid "meta color-scheme should be normal, or scheme names such as light dark"
 msgstr "meta color-scheme debe ser normal, o nombres de esquema como light dark"
@@ -801,8 +801,8 @@ msgstr "tdm-reservation debe ser 0 o 1"
 msgid "the browser console logged errors ({got})"
 msgstr "la consola del navegador registró errores ({got})"
 
-msgid "the canonical link exists only after JavaScript runs: {got}"
-msgstr "el enlace canónico solo existe tras ejecutar JavaScript: {got}"
+msgid "the canonical link exists only after JavaScript runs"
+msgstr "el enlace canónico solo existe tras ejecutar JavaScript"
 
 msgid "the certificate carries an RSA key, where an EC key makes a smaller handshake"
 msgstr "el certificado lleva una clave RSA, cuando una clave EC hace un handshake más pequeño"
@@ -813,8 +813,8 @@ msgstr "la cadena de certificados está firmada con SHA-1 o MD5"
 msgid "the first <img> is usually above the fold, and loading=lazy delays it: {got}"
 msgstr "el primer <img> suele estar en la primera pantalla, y loading=lazy lo retrasa: {got}"
 
-msgid "the h1 exists only after JavaScript runs: {got}"
-msgstr "el h1 solo existe tras ejecutar JavaScript: {got}"
+msgid "the h1 exists only after JavaScript runs"
+msgstr "el h1 solo existe tras ejecutar JavaScript"
 
 msgid "the home page links no machine-readable alternate (feed, JSON, Markdown)"
 msgstr "la página de inicio no enlaza ninguna alternativa legible por máquinas (feed, JSON, Markdown)"
@@ -837,8 +837,8 @@ msgstr "la ruta tiene un segmento vacío"
 msgid "the path has uppercase letters, which a server may treat as another URL"
 msgstr "la ruta tiene mayúsculas, que un servidor puede tratar como otra URL"
 
-msgid "the raw HTML carries a {got} share of the text the rendered page shows"
-msgstr "el HTML sin procesar lleva una proporción {got} del texto que muestra la página renderizada"
+msgid "the raw HTML carries a share of the text the rendered page shows"
+msgstr "el HTML sin procesar lleva una proporción del texto que muestra la página renderizada"
 
 msgid "the server should speak HTTP/2 or HTTP/3, found {got}"
 msgstr "el servidor debe hablar HTTP/2 o HTTP/3, se encontró {got}"

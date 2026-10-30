@@ -651,8 +651,8 @@ msgstr "Deprecation має бути @ і секундами Unix, знайден
 msgid "hreflang alternates should include x-default"
 msgstr "альтернативи hreflang мають містити x-default"
 
-msgid "internal links exist only after JavaScript runs: {got}"
-msgstr "внутрішні посилання з’являються лише після виконання JavaScript: {got}"
+msgid "internal links exist only after JavaScript runs"
+msgstr "внутрішні посилання з’являються лише після виконання JavaScript"
 
 msgid "Link breaks RFC 8288 §3, so clients drop the links they cannot read: {got}"
 msgstr "Link порушує RFC 8288 §3, тому клієнти відкидають посилання, яких не можуть прочитати: {got}"
@@ -660,8 +660,8 @@ msgstr "Link порушує RFC 8288 §3, тому клієнти відкида
 msgid "listed in the sitemap, yet no crawled page links here"
 msgstr "є у sitemap, але жодна просканована сторінка не посилається сюди"
 
-msgid "loads an accessibility overlay, which does not fix the page and gets in the way of assistive tools ({got})"
-msgstr "завантажує накладку доступності, яка не виправляє сторінку й заважає допоміжним технологіям ({got})"
+msgid "loads an accessibility overlay, which does not fix the page and gets in the way of assistive tools"
+msgstr "завантажує накладку доступності, яка не виправляє сторінку й заважає допоміжним технологіям"
 
 msgid "meta color-scheme should be normal, or scheme names such as light dark"
 msgstr "meta color-scheme має бути normal або назвами схем, як-от light dark"
@@ -801,8 +801,8 @@ msgstr "tdm-reservation має бути 0 або 1"
 msgid "the browser console logged errors ({got})"
 msgstr "консоль браузера зафіксувала помилки ({got})"
 
-msgid "the canonical link exists only after JavaScript runs: {got}"
-msgstr "канонічне посилання з’являється лише після виконання JavaScript: {got}"
+msgid "the canonical link exists only after JavaScript runs"
+msgstr "канонічне посилання з’являється лише після виконання JavaScript"
 
 msgid "the certificate carries an RSA key, where an EC key makes a smaller handshake"
 msgstr "сертифікат містить ключ RSA, тоді як ключ EC робить рукостискання меншим"
@@ -813,8 +813,8 @@ msgstr "ланцюжок сертифікатів підписано за доп
 msgid "the first <img> is usually above the fold, and loading=lazy delays it: {got}"
 msgstr "перше <img> зазвичай видно одразу, а loading=lazy його затримує: {got}"
 
-msgid "the h1 exists only after JavaScript runs: {got}"
-msgstr "h1 з’являється лише після виконання JavaScript: {got}"
+msgid "the h1 exists only after JavaScript runs"
+msgstr "h1 з’являється лише після виконання JavaScript"
 
 msgid "the home page links no machine-readable alternate (feed, JSON, Markdown)"
 msgstr "головна сторінка не посилається на машинозчитувану альтернативу (стрічку, JSON, Markdown)"
@@ -837,8 +837,8 @@ msgstr "шлях містить порожній сегмент"
 msgid "the path has uppercase letters, which a server may treat as another URL"
 msgstr "шлях містить великі літери, які сервер може вважати іншим URL"
 
-msgid "the raw HTML carries a {got} share of the text the rendered page shows"
-msgstr "сирий HTML містить частку {got} тексту, який показує відображена сторінка"
+msgid "the raw HTML carries a share of the text the rendered page shows"
+msgstr "сирий HTML містить частку тексту, який показує відображена сторінка"
 
 msgid "the server should speak HTTP/2 or HTTP/3, found {got}"
 msgstr "сервер має підтримувати HTTP/2 або HTTP/3, знайдено {got}"
