@@ -513,8 +513,8 @@ msgstr "Alt-Svc порушує RFC 7838 §3, тому клієнти нікол�
 msgid "Alt-Svc should advertise h3, found {got}"
 msgstr "Alt-Svc має оголошувати h3, знайдено {got}"
 
-msgid "an <img> has no alt attribute: {got}"
-msgstr "<img> не має атрибута alt: {got}"
+msgid "an <img> has no alt attribute"
+msgstr "<img> не має атрибута alt"
 
 msgid "an <img> without width and height shifts the layout as it loads: {got}"
 msgstr "<img> без width і height зсуває макет під час завантаження: {got}"
@@ -666,8 +666,8 @@ msgstr "завантажує накладку доступності, яка н�
 msgid "meta color-scheme should be normal, or scheme names such as light dark"
 msgstr "meta color-scheme має бути normal або назвами схем, як-от light dark"
 
-msgid "meta description repeats itself around a separator: {got}"
-msgstr "мета-опис повторюється навколо роздільника: {got}"
+msgid "meta description repeats itself around a separator"
+msgstr "мета-опис повторюється навколо роздільника"
 
 msgid "meta description should be 50–160 characters"
 msgstr "мета-опис має містити 50–160 символів"
@@ -720,14 +720,14 @@ msgstr "жоден заголовок Server-Timing не показує, на щ
 msgid "no Speculation Rules script or header prefetches likely next pages"
 msgstr "жоден скрипт чи заголовок Speculation Rules не попередньо завантажує ймовірні наступні сторінки"
 
-msgid "og:description should be 50–200 characters, found {got}"
-msgstr "og:description має містити 50–200 символів, знайдено {got}"
+msgid "og:description should be 50–200 characters"
+msgstr "og:description має містити 50–200 символів"
 
-msgid "og:image should be an absolute http(s) URL, found {got}"
-msgstr "og:image має бути абсолютним URL http(s), знайдено {got}"
+msgid "og:image should be an absolute http(s) URL"
+msgstr "og:image має бути абсолютним URL http(s)"
 
-msgid "og:title should be 10–90 characters, found {got}"
-msgstr "og:title має містити 10–90 символів, знайдено {got}"
+msgid "og:title should be 10–90 characters"
+msgstr "og:title має містити 10–90 символів"
 
 msgid "og:type should be an Open Graph type or namespace:type, found {got}"
 msgstr "og:type має бути типом Open Graph або namespace:type, знайдено {got}"

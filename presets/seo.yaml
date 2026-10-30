@@ -183,7 +183,8 @@ rules:
     expect: {type: string, pattern: "^(?!.*(.{2,120}?)\\s*[-|:–—·»]\\s*\\1$).*$"}
     severity: warning
     score: 4.7
-    message: "meta description repeats itself around a separator: {got}"
+    message: "meta description repeats itself around a separator"
+    measured: true
     docs: https://developers.google.com/search/docs/appearance/snippet
     fix: "Remove the repeated suffix from the meta description."
   html/one-h1:
@@ -215,7 +216,8 @@ rules:
     expect: {type: array, items: {required: [alt]}}
     severity: warning
     score: 5.0
-    message: "an <img> has no alt attribute: {got}"
+    message: "an <img> has no alt attribute"
+    measured: true
     docs: https://developers.google.com/search/docs/appearance/google-images
     fix: "Add an alt attribute to every <img>."
   html/og-title:
@@ -223,7 +225,8 @@ rules:
     expect: {type: string, minLength: 10, maxLength: 90}
     severity: warning
     score: 4.0
-    message: "og:title should be 10–90 characters, found {got}"
+    message: "og:title should be 10–90 characters"
+    measured: true
     docs: https://ogp.me/#metadata
     fix: "Set og:title to 10–90 characters."
   html/og-description:
@@ -231,7 +234,8 @@ rules:
     expect: {type: string, minLength: 50, maxLength: 200}
     severity: warning
     score: 3.9
-    message: "og:description should be 50–200 characters, found {got}"
+    message: "og:description should be 50–200 characters"
+    measured: true
     docs: https://ogp.me/#optional
     fix: "Set og:description to 50–200 characters."
   html/og-image:
@@ -239,7 +243,8 @@ rules:
     expect: {type: string, format: uri, pattern: "^(?i:https?)://"}
     severity: warning
     score: 4.6
-    message: "og:image should be an absolute http(s) URL, found {got}"
+    message: "og:image should be an absolute http(s) URL"
+    measured: true
     docs: https://ogp.me/#metadata
     fix: "Make og:image an absolute URL."
   html/og-type:
