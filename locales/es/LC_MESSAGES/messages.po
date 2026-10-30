@@ -1943,3 +1943,9 @@ msgstr "Sitios conocidos que esta instancia analiza por su cuenta una y otra vez
 
 msgid "spiderlint reports of well-known sites: search engine tags, security headers, TLS, links and more, rated S to F."
 msgstr "Informes de spiderlint de sitios conocidos: etiquetas para buscadores, cabeceras de seguridad, TLS, enlaces y más, con nota de S a F."
+
+msgid "Sort by"
+msgstr "Ordenar por"
+
+msgid "Score"
+msgstr "Puntuación"

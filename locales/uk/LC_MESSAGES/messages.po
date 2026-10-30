@@ -1943,3 +1943,9 @@ msgstr "Відомі сайти, які цей екземпляр сканує �
 
 msgid "spiderlint reports of well-known sites: search engine tags, security headers, TLS, links and more, rated S to F."
 msgstr "Звіти spiderlint про відомі сайти: теги для пошукових систем, заголовки безпеки, TLS, посилання та інше, з оцінкою від S до F."
+
+msgid "Sort by"
+msgstr "Сортувати за"
+
+msgid "Score"
+msgstr "Оцінка"
