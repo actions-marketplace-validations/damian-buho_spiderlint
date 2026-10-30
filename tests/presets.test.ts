@@ -483,9 +483,18 @@ describe("presets", () => {
 
     it("keeps the offending value in data for a header rule", () => {
         const [finding] = check("http/referrer-policy", { headers: { "referrer-policy": "unsafe-url" } });
-        assert.equal(finding?.text, "Referrer-Policy should not leak full URLs, found {got}");
-        assert.deepEqual(finding?.variables, { got: "10 characters: “unsafe-url”", field: "value" });
-        assert.match(finding?.message ?? "", /found 10 characters: “unsafe-url”$/);
+        assert.equal(finding?.text, "Referrer-Policy should not leak full URLs");
+        assert.deepEqual(finding?.variables, { field: "value" });
+        assert.equal(finding?.message, "Referrer-Policy should not leak full URLs");
+        assert.deepEqual(finding?.data, { "https://site.test/posts/hello-world/": { got: "10 characters: “unsafe-url”" } });
+    });
+
+    it("keeps a measured value out of the sentence, in the data of each URL", () => {
+        const rule = compileRule("test/measured", { fact: "html.title", expect: { type: "string", minLength: 30 }, message: "title is short", measured: true, severity: "warning" }) as PageRule;
+        const [first, second] = ["Short", "Tiny"].map((html_title) => (rule.check(page({ html: { title: html_title } }), { sitemaps: [], role: "production" }) ?? [])[0] as Finding);
+        assert.equal(first?.message, "title is short");
+        assert.equal(first?.message, second?.message);
+        assert.deepEqual(first?.data, { [first?.url as string]: { got: "5 characters: “Short”" } });
     });
 
     it("shows the value alone, with no length, when an exact value is expected", () => {
