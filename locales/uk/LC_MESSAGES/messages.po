@@ -579,14 +579,14 @@ msgstr "сертифікат спливає менш ніж за 14 днів"
 msgid "certificate expires within 2 days"
 msgstr "сертифікат спливає менш ніж за 2 дні"
 
-msgid "certificate has expired ({got} days left)"
-msgstr "сертифікат прострочено (залишилося днів: {got})"
+msgid "certificate has expired"
+msgstr "сертифікат прострочено"
 
 msgid "certificate is not trusted"
 msgstr "сертифікат не є довіреним"
 
-msgid "certificate key is weaker than RSA 2048 or EC P-256: {got}"
-msgstr "ключ сертифіката слабший за RSA 2048 або EC P-256: {got}"
+msgid "certificate key is weaker than RSA 2048 or EC P-256"
+msgstr "ключ сертифіката слабший за RSA 2048 або EC P-256"
 
 msgid "Cloudflare’s Email Address Obfuscation rewrites every address into a link only JavaScript decodes, so a visitor without JavaScript sees no address"
 msgstr "приховування адрес електронної пошти в Cloudflare перетворює кожну адресу на посилання, яке розшифровує лише JavaScript, тому відвідувач без JavaScript не бачить жодної адреси"
@@ -807,8 +807,8 @@ msgstr "канонічне посилання з’являється лише �
 msgid "the certificate carries an RSA key, where an EC key makes a smaller handshake"
 msgstr "сертифікат містить ключ RSA, тоді як ключ EC робить рукостискання меншим"
 
-msgid "the certificate chain is signed with SHA-1 or MD5: {got}"
-msgstr "ланцюжок сертифікатів підписано за допомогою SHA-1 або MD5: {got}"
+msgid "the certificate chain is signed with SHA-1 or MD5"
+msgstr "ланцюжок сертифікатів підписано за допомогою SHA-1 або MD5"
 
 msgid "the first <img> is usually above the fold, and loading=lazy delays it: {got}"
 msgstr "перше <img> зазвичай видно одразу, а loading=lazy його затримує: {got}"
@@ -825,8 +825,8 @@ msgstr "головна сторінка не посилається на кін�
 msgid "the home page links no RSS, Atom or JSON feed"
 msgstr "головна сторінка не посилається на стрічку RSS, Atom чи JSON"
 
-msgid "the meta description exists only after JavaScript runs: {got}"
-msgstr "мета-опис з’являється лише після виконання JavaScript: {got}"
+msgid "the meta description exists only after JavaScript runs"
+msgstr "мета-опис з’являється лише після виконання JavaScript"
 
 msgid "the path exposes the server technology in its extension"
 msgstr "шлях розкриває технологію сервера у своєму розширенні"
@@ -843,8 +843,8 @@ msgstr "сирий HTML містить частку {got} тексту, який
 msgid "the server should speak HTTP/2 or HTTP/3, found {got}"
 msgstr "сервер має підтримувати HTTP/2 або HTTP/3, знайдено {got}"
 
-msgid "the title exists only after JavaScript runs: {got}"
-msgstr "заголовок з’являється лише після виконання JavaScript: {got}"
+msgid "the title exists only after JavaScript runs"
+msgstr "заголовок з’являється лише після виконання JavaScript"
 
 msgid "the URL carries a session ID"
 msgstr "URL містить ідентифікатор сеансу"

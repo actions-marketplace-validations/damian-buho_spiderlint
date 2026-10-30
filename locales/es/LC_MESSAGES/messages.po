@@ -579,14 +579,14 @@ msgstr "el certificado vence en menos de 14 días"
 msgid "certificate expires within 2 days"
 msgstr "el certificado vence en menos de 2 días"
 
-msgid "certificate has expired ({got} days left)"
-msgstr "el certificado ha vencido (quedan {got} días)"
+msgid "certificate has expired"
+msgstr "el certificado ha vencido"
 
 msgid "certificate is not trusted"
 msgstr "el certificado no es de confianza"
 
-msgid "certificate key is weaker than RSA 2048 or EC P-256: {got}"
-msgstr "la clave del certificado es más débil que RSA 2048 o EC P-256: {got}"
+msgid "certificate key is weaker than RSA 2048 or EC P-256"
+msgstr "la clave del certificado es más débil que RSA 2048 o EC P-256"
 
 msgid "Cloudflare’s Email Address Obfuscation rewrites every address into a link only JavaScript decodes, so a visitor without JavaScript sees no address"
 msgstr "la ofuscación de direcciones de correo de Cloudflare convierte cada dirección en un enlace que solo JavaScript descifra, así que un visitante sin JavaScript no ve ninguna dirección"
@@ -807,8 +807,8 @@ msgstr "el enlace canónico solo existe tras ejecutar JavaScript: {got}"
 msgid "the certificate carries an RSA key, where an EC key makes a smaller handshake"
 msgstr "el certificado lleva una clave RSA, cuando una clave EC hace un handshake más pequeño"
 
-msgid "the certificate chain is signed with SHA-1 or MD5: {got}"
-msgstr "la cadena de certificados está firmada con SHA-1 o MD5: {got}"
+msgid "the certificate chain is signed with SHA-1 or MD5"
+msgstr "la cadena de certificados está firmada con SHA-1 o MD5"
 
 msgid "the first <img> is usually above the fold, and loading=lazy delays it: {got}"
 msgstr "el primer <img> suele estar en la primera pantalla, y loading=lazy lo retrasa: {got}"
@@ -825,8 +825,8 @@ msgstr "la página de inicio no enlaza ningún endpoint NLWeb con rel=nlweb"
 msgid "the home page links no RSS, Atom or JSON feed"
 msgstr "la página de inicio no enlaza ningún feed RSS, Atom o JSON"
 
-msgid "the meta description exists only after JavaScript runs: {got}"
-msgstr "la meta descripción solo existe tras ejecutar JavaScript: {got}"
+msgid "the meta description exists only after JavaScript runs"
+msgstr "la meta descripción solo existe tras ejecutar JavaScript"
 
 msgid "the path exposes the server technology in its extension"
 msgstr "la ruta expone la tecnología del servidor en su extensión"
@@ -843,8 +843,8 @@ msgstr "el HTML sin procesar lleva una proporción {got} del texto que muestra l
 msgid "the server should speak HTTP/2 or HTTP/3, found {got}"
 msgstr "el servidor debe hablar HTTP/2 o HTTP/3, se encontró {got}"
 
-msgid "the title exists only after JavaScript runs: {got}"
-msgstr "el título solo existe tras ejecutar JavaScript: {got}"
+msgid "the title exists only after JavaScript runs"
+msgstr "el título solo existe tras ejecutar JavaScript"
 
 msgid "the URL carries a session ID"
 msgstr "la URL lleva un ID de sesión"

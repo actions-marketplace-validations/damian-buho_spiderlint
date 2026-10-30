@@ -11,7 +11,8 @@ rules:
     expect: {properties: {title: false}}
     severity: warning
     score: 6.0
-    message: "the title exists only after JavaScript runs: {got}"
+    message: "the title exists only after JavaScript runs"
+    measured: true
     fix: "Render <title> on the server."
     docs: https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics
   parity/description:
@@ -19,7 +20,8 @@ rules:
     expect: {properties: {description: false}}
     severity: info
     score: 2.6
-    message: "the meta description exists only after JavaScript runs: {got}"
+    message: "the meta description exists only after JavaScript runs"
+    measured: true
     fix: "Render <meta name=\"description\"> on the server."
     docs: https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics
   parity/canonical:

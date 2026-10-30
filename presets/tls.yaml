@@ -48,7 +48,8 @@ rules:
     expect: {type: integer, minimum: 0}
     severity: error
     score: 9.3
-    message: "certificate has expired ({got} days left)"
+    message: "certificate has expired"
+    measured: true
     fix: "Renew the certificate and reload the server that serves it."
     docs: https://developer.mozilla.org/docs/Web/Security/Transport_Layer_Security
   tls/key-strength:
@@ -61,7 +62,8 @@ rules:
     when: {tls.cert.key: {type: object}}
     severity: error
     score: 8.8
-    message: "certificate key is weaker than RSA 2048 or EC P-256: {got}"
+    message: "certificate key is weaker than RSA 2048 or EC P-256"
+    measured: true
     fix: "Issue the certificate for a new EC P-256 key, or an RSA key of at least 2048 bits."
     docs: https://www.rfc-editor.org/rfc/rfc9325#section-4.5
   tls/signature:
@@ -70,6 +72,7 @@ rules:
     when: {tls.cert.signatures: {type: array}}
     severity: error
     score: 8.6
-    message: "the certificate chain is signed with SHA-1 or MD5: {got}"
+    message: "the certificate chain is signed with SHA-1 or MD5"
+    measured: true
     fix: "Reissue the certificate from a CA that signs with SHA-256 or stronger, and serve its current intermediates."
     docs: https://www.rfc-editor.org/rfc/rfc9155
