@@ -19,7 +19,8 @@ rules:
     expect: {enum: [TLSv1.2, TLSv1.3]}
     severity: warning
     score: 6.1
-    message: "TLS should be 1.2 or 1.3, found {got}"
+    message: "TLS should be 1.2 or 1.3"
+    measured: true
     fix: "Disable TLS 1.0 and 1.1 in the server configuration; keep only TLS 1.2 and 1.3."
     docs: https://developer.mozilla.org/docs/Web/Security/Transport_Layer_Security
   tls/cert-expiry:
@@ -28,7 +29,8 @@ rules:
     when: {tls.cert.days-left: {minimum: 2}}
     severity: info
     score: [[2, 3.2], [14, 1.0]]
-    message: "certificate expires within 14 days ({got} left)"
+    message: "certificate expires within 14 days"
+    measured: true
     fix: "Check that certificate renewal is scheduled and has succeeded before."
     docs: https://developer.mozilla.org/docs/Web/Security/Transport_Layer_Security
   tls/cert-expiring:
@@ -37,7 +39,8 @@ rules:
     when: {tls.cert.days-left: {minimum: 0}}
     severity: warning
     score: [[0, 6.8], [2, 5.2]]
-    message: "certificate expires within 2 days ({got} left)"
+    message: "certificate expires within 2 days"
+    measured: true
     fix: "Renew the certificate now and find out why automatic renewal did not run."
     docs: https://developer.mozilla.org/docs/Web/Security/Transport_Layer_Security
   tls/cert-expired:

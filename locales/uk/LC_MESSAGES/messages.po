@@ -573,11 +573,11 @@ msgstr "Cache-Status порушує граматику структурован�
 msgid "canonical link should be an absolute URL"
 msgstr "канонічне посилання має бути абсолютним URL"
 
-msgid "certificate expires within 14 days ({got} left)"
-msgstr "сертифікат спливає менш ніж за 14 днів (залишилося {got})"
+msgid "certificate expires within 14 days"
+msgstr "сертифікат спливає менш ніж за 14 днів"
 
-msgid "certificate expires within 2 days ({got} left)"
-msgstr "сертифікат спливає менш ніж за 2 дні (залишилося {got})"
+msgid "certificate expires within 2 days"
+msgstr "сертифікат спливає менш ніж за 2 дні"
 
 msgid "certificate has expired ({got} days left)"
 msgstr "сертифікат прострочено (залишилося днів: {got})"
@@ -828,11 +828,11 @@ msgstr "головна сторінка не посилається на стр�
 msgid "the meta description exists only after JavaScript runs: {got}"
 msgstr "мета-опис з’являється лише після виконання JavaScript: {got}"
 
-msgid "the path exposes the server technology in its extension: {got}"
-msgstr "шлях розкриває технологію сервера у своєму розширенні: {got}"
+msgid "the path exposes the server technology in its extension"
+msgstr "шлях розкриває технологію сервера у своєму розширенні"
 
-msgid "the path has an empty segment: {got}"
-msgstr "шлях містить порожній сегмент: {got}"
+msgid "the path has an empty segment"
+msgstr "шлях містить порожній сегмент"
 
 msgid "the path has uppercase letters, which a server may treat as another URL"
 msgstr "шлях містить великі літери, які сервер може вважати іншим URL"
@@ -852,8 +852,8 @@ msgstr "URL містить ідентифікатор сеансу"
 msgid "the URL is longer than 100 characters"
 msgstr "URL довший за 100 символів"
 
-msgid "TLS should be 1.2 or 1.3, found {got}"
-msgstr "TLS має бути 1.2 або 1.3, знайдено {got}"
+msgid "TLS should be 1.2 or 1.3"
+msgstr "TLS має бути 1.2 або 1.3"
 
 msgid "URL path should be lowercase, with hyphens and no empty segment"
 msgstr "шлях URL має бути малими літерами, з дефісами й без порожніх сегментів"

@@ -389,7 +389,8 @@ rules:
     expect: {type: string, not: {pattern: "//"}}
     severity: warning
     score: 4.9
-    message: "the path has an empty segment: {got}"
+    message: "the path has an empty segment"
+    measured: true
     fix: "Remove the doubled slash from the links, and redirect the doubled path to the single one."
     docs: https://developers.google.com/search/docs/crawling-indexing/url-structure
   url/extension:
@@ -397,7 +398,8 @@ rules:
     expect: {type: string, not: {pattern: "(?i:\\.(php|aspx?|jsp|cgi|html?)$)"}}
     severity: hint
     score: 0.6
-    message: "the path exposes the server technology in its extension: {got}"
+    message: "the path exposes the server technology in its extension"
+    measured: true
     fix: "Serve the page at an extensionless path, and redirect the old one to it."
     docs: https://www.w3.org/Provider/Style/URI
   url/readable-slug: info
