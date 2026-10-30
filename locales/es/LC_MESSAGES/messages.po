@@ -495,11 +495,11 @@ msgstr "<meta charset> debe declarar UTF-8 dentro de los primeros 1024 bytes, se
 msgid "<meta name=tdm-reservation> should be 0 or 1, found {got}"
 msgstr "<meta name=tdm-reservation> debe ser 0 o 1, se encontró {got}"
 
-msgid "<title> repeats itself around a separator: {got}"
-msgstr "<title> se repite alrededor de un separador: {got}"
+msgid "<title> repeats itself around a separator"
+msgstr "<title> se repite alrededor de un separador"
 
-msgid "<title> should be 30–60 characters, found {got}"
-msgstr "<title> debe tener entre 30 y 60 caracteres, se encontró {got}"
+msgid "<title> should be 30–60 characters"
+msgstr "<title> debe tener entre 30 y 60 caracteres"
 
 msgid "a 503 should say when to retry with Retry-After"
 msgstr "una respuesta 503 debe indicar cuándo reintentar con Retry-After"
@@ -747,8 +747,8 @@ msgstr "una vista emite {got} g de CO2e según el modelo Sustainable Web Design,
 msgid "only {got} page of the site links here"
 msgstr "solo {got} página del sitio enlaza aquí"
 
-msgid "pages share one <title>: {got}"
-msgstr "varias páginas comparten un <title>: {got}"
+msgid "pages share one <title>"
+msgstr "varias páginas comparten un <title>"
 
 msgid "pages share one meta description: {got}"
 msgstr "varias páginas comparten una meta descripción: {got}"
@@ -771,8 +771,8 @@ msgstr "se llega mediante una redirección temporal ({got})"
 msgid "Referrer-Policy breaks the Referrer Policy tokens: {got}"
 msgstr "Referrer-Policy incumple los tokens de Referrer Policy: {got}"
 
-msgid "Referrer-Policy should not leak full URLs, found {got}"
-msgstr "Referrer-Policy no debe filtrar URLs completas, se encontró {got}"
+msgid "Referrer-Policy should not leak full URLs"
+msgstr "Referrer-Policy no debe filtrar URLs completas"
 
 msgid "Reporting-Endpoints breaks its structured-field grammar, so browsers ignore it: {got}"
 msgstr "Reporting-Endpoints rompe su gramática de campo estructurado, así que los navegadores la ignoran: {got}"

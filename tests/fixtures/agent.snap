@@ -148,11 +148,11 @@ Done when: `spiderlint audit ORIGIN/ --rules html/favicon` reports no html/favic
 
 ## html/unique-title (warning 5.9)
 
-pages share one <title>: 43 characters: “Fixture tag index — posts filed under a tag”
+pages share one <title>
 
-Where: /tags/a, used by or shared with:
-- /tags/a
-- /tags/b
+Where: /tags/a: 43 characters: “Fixture tag index — posts filed under a tag”, used by or shared with:
+- /tags/a: 43 characters: “Fixture tag index — posts filed under a tag”
+- /tags/b: 43 characters: “Fixture tag index — posts filed under a tag”
 Reads: `html.title`
 Fix: Give each page a distinct <title>.
 Docs: https://developers.google.com/search/docs/appearance/title-link
@@ -258,9 +258,9 @@ Done when: `spiderlint audit ORIGIN/ --rules html/description` reports no html/d
 
 ## html/title-length (warning 5.7)
 
-<title> should be 30–60 characters, found 11 characters: “About page!”
+<title> should be 30–60 characters
 
-Where: /about
+Where: /about: 11 characters: “About page!”
 Reads: `html.title`, expects `{"type":"string","minLength":30,"maxLength":60}`
 Fix: Shorten or lengthen <title> to 30–60 characters.
 Docs: https://developers.google.com/search/docs/appearance/title-link
@@ -278,9 +278,9 @@ Done when: `spiderlint audit ORIGIN/ --rules html/img-alt` reports no html/img-a
 
 ## html/title-redundant (warning 4.8)
 
-<title> repeats itself around a separator: 47 characters: “Duplicate Fixture Page - Duplicate Fixture Page”
+<title> repeats itself around a separator
 
-Where: /duplicate
+Where: /duplicate: 47 characters: “Duplicate Fixture Page - Duplicate Fixture Page”
 Reads: `html.title`, expects `{"type":"string","pattern":"^(?!.*(.{2,120}?)\\s*[-|:–—·»]\\s*\\1$).*$"}`
 Fix: Remove the repeated suffix from <title>.
 Docs: https://developers.google.com/search/docs/appearance/title-link

@@ -495,11 +495,11 @@ msgstr "<meta charset> має оголошувати UTF-8 у перших 1024 
 msgid "<meta name=tdm-reservation> should be 0 or 1, found {got}"
 msgstr "<meta name=tdm-reservation> має бути 0 або 1, знайдено {got}"
 
-msgid "<title> repeats itself around a separator: {got}"
-msgstr "<title> повторюється навколо роздільника: {got}"
+msgid "<title> repeats itself around a separator"
+msgstr "<title> повторюється навколо роздільника"
 
-msgid "<title> should be 30–60 characters, found {got}"
-msgstr "<title> має містити 30–60 символів, знайдено {got}"
+msgid "<title> should be 30–60 characters"
+msgstr "<title> має містити 30–60 символів"
 
 msgid "a 503 should say when to retry with Retry-After"
 msgstr "відповідь 503 має вказувати, коли повторити запит, через Retry-After"
@@ -747,8 +747,8 @@ msgstr "один перегляд випромінює {got} г CO2e за мод
 msgid "only {got} page of the site links here"
 msgstr "сюди посилається лише {got} сторінка сайту"
 
-msgid "pages share one <title>: {got}"
-msgstr "кілька сторінок мають спільний <title>: {got}"
+msgid "pages share one <title>"
+msgstr "кілька сторінок мають спільний <title>"
 
 msgid "pages share one meta description: {got}"
 msgstr "кілька сторінок мають спільний мета-опис: {got}"
@@ -771,8 +771,8 @@ msgstr "досягається через тимчасове переспрям�
 msgid "Referrer-Policy breaks the Referrer Policy tokens: {got}"
 msgstr "Referrer-Policy порушує токени Referrer Policy: {got}"
 
-msgid "Referrer-Policy should not leak full URLs, found {got}"
-msgstr "Referrer-Policy не має розкривати повні URL, знайдено {got}"
+msgid "Referrer-Policy should not leak full URLs"
+msgstr "Referrer-Policy не має розкривати повні URL"
 
 msgid "Reporting-Endpoints breaks its structured-field grammar, so browsers ignore it: {got}"
 msgstr "Reporting-Endpoints порушує граматику структурованого поля, тому браузери його ігнорують: {got}"

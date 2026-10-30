@@ -248,7 +248,8 @@ describe("audit", () => {
     it("reports lengths with the actual value", () => {
         const [title] = of("html/title-length");
         assert.equal(title?.url, `${site.origin}/about`);
-        assert.match(title?.message ?? "", /^<title> should be 30–60 characters, found 11 characters: “About page!”$/);
+        assert.equal(title?.message, "<title> should be 30–60 characters");
+        assert.deepEqual(title?.data, { [`${site.origin}/about`]: { got: "11 characters: “About page!”" } });
         assert.deepEqual(of("html/description-length"), []);
     });
 
@@ -300,7 +301,7 @@ describe("audit", () => {
         const [title, ...restTitle] = of("html/title-redundant");
         assert.equal(restTitle.length, 0);
         assert.equal(title?.url, `${site.origin}/duplicate`);
-        assert.match(title?.message ?? "", /^<title> repeats itself around a separator: /);
+        assert.equal(title?.message, "<title> repeats itself around a separator");
         const description = of("html/description-redundant").find((finding) => finding.url === `${site.origin}/duplicate`);
         assert.match(description?.message ?? "", /^meta description repeats itself around a separator: /);
     });

@@ -36,7 +36,8 @@ rules:
     when: {http.parsed.referrer-policy.errors: {maxItems: 0}}
     severity: warning
     score: 5.1
-    message: "Referrer-Policy should not leak full URLs, found {got}"
+    message: "Referrer-Policy should not leak full URLs"
+    measured: true
     fix: "Send Referrer-Policy: strict-origin-when-cross-origin, or no-referrer."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Referrer-Policy
   http/frame-options:
