@@ -4,7 +4,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import path from "node:path";
-import { getCACertificates, setDefaultCACertificates } from "node:tls";
+import { setDefaultCACertificates } from "node:tls";
+import { systemCaCertificates } from "./ca.ts";
 import { Command, CommanderError, Option, type Help } from "commander";
 import { DESCRIPTION, HOMEPAGE, VERSION, normalizeVia } from "./agent.ts";
 import { painter, type Paint } from "./color.ts";
@@ -640,10 +641,10 @@ async function facts(command: string, config: Config, store: string | undefined,
     return pages.length === 0 ? 3 : 0;
 }
 
-// Trust the OS store beside Node’s bundled roots, as `node --use-system-ca` does.
-const systemRoots = getCACertificates("system");
-setDefaultCACertificates([...getCACertificates("default"), ...systemRoots]);
-log.debug({ system: systemRoots.length }, "system CA certificates trusted");
+// Trust the OS store beside Node’s bundled roots, including the CApath files Node’s getCACertificates("system") omits.
+const roots = systemCaCertificates();
+setDefaultCACertificates(roots);
+log.debug({ roots: roots.length }, "system CA certificates trusted");
 const telemetry = await startTelemetry("spiderlint");
 handleInterrupts();
 process.exitCode = await inSpan("spiderlint", {}, async (span) => {

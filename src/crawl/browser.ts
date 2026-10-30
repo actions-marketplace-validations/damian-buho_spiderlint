@@ -13,6 +13,7 @@ import { MIMEType } from "node:util";
 import { Configuration, PlaywrightCrawler, type PlaywrightCrawlerOptions, type PlaywrightCrawlingContext, type PlaywrightDirectNavigationOptions, type Request as CrawleeRequest } from "crawlee";
 import { chromium, firefox, webkit, type BrowserType, type Page, type Request, type Response } from "playwright";
 import { browserContext } from "../agent.ts";
+import { hasNssCaStore, systemCaCertificates } from "../ca.ts";
 import { ConfigError, type BrowserName, type Config } from "../config/index.ts";
 import { COOKIE_WRITES, headerFacts, observedResources, scriptCookies, redirectFacts, remoteFacts, timingFacts, tlsFacts, weightFacts, wireSize, withProbe } from "../facts/browser.ts";
 import { declaredHtml, extractHtml, HTML_TYPES } from "../facts/html.ts";
@@ -441,7 +442,7 @@ export async function browserCrawler(config: Config, onPage: OnPage, frontier: F
             // Snapshot with `page.content()`; crawlee’s shadow-root expansion writes `innerHTML` into the live page.
             ignoreShadowRoots: true,
             maxConcurrency: openPages,
-            launchContext: { launcher, userAgent: agent.userAgent, launchOptions: { args: config.browser === "chromium" ? [...chromiumArguments(), ...(proxy ? [] : [DIRECT])] : [] } },
+            launchContext: { launcher, userAgent: agent.userAgent, launchOptions: { args: config.browser === "chromium" ? [...chromiumArguments(), ...(proxy ? [] : [DIRECT]), ...(hasNssCaStore(systemCaCertificates()) ? [] : ["--allow-insecure-localhost"])] : [] } },
             browserPoolOptions: {
                 useFingerprints: false,
                 maxOpenPagesPerBrowser: openPages,

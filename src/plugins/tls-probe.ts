@@ -7,7 +7,7 @@ import { X509Certificate } from "node:crypto";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { getCACertificates } from "node:tls";
+import { systemCaCertificates } from "../ca.ts";
 import { reason } from "../crawl/fetch.ts";
 import { log } from "../logger.ts";
 import type { RuleSpec } from "../rules/types.ts";
@@ -84,7 +84,7 @@ function chainOf(certificates: X509Certificate[]): { sent: number; complete: boo
     const last = certificates.at(-1);
     if (!last) return;
     const isLinked = certificates.slice(0, -1).every((certificate, index) => isIssuedBy(certificate, certificates[index + 1] as X509Certificate));
-    const roots = [...getCACertificates("default"), ...getCACertificates("system")].map((pem) => new X509Certificate(pem));
+    const roots = systemCaCertificates().map((pem) => new X509Certificate(pem));
     // A cross-signed root is anchored by its own key in the store, whoever signed it.
     const isAnchored = isIssuedBy(last, last) || roots.some((root) => isIssuedBy(last, root) || (root.subject === last.subject && root.publicKey.equals(last.publicKey)));
     return { sent: certificates.length, complete: isLinked && isAnchored };
