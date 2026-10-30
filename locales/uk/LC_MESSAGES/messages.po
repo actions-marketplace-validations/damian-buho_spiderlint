@@ -1916,3 +1916,30 @@ msgstr "ці сервери імен перелічені для зони, ал�
 
 msgid "a script changes declarations the served HTML makes; rules judge the served ones"
 msgstr "скрипт змінює оголошення, які робить відданий HTML; правила оцінюють віддані"
+
+msgid "Examples"
+msgstr "Приклади"
+
+msgid "Example reports"
+msgstr "Приклади звітів"
+
+msgid "Example reports, page {page}"
+msgstr "Приклади звітів, сторінка {page}"
+
+msgid "Previous"
+msgstr "Попередня"
+
+msgid "Next"
+msgstr "Наступна"
+
+msgid "Page {page} of {pages}"
+msgstr "Сторінка {page} з {pages}"
+
+msgid "The first examples are being scanned. Come back soon."
+msgstr "Перші приклади зараз скануються. Завітайте трохи згодом."
+
+msgid "Well-known sites this instance scans by itself, again and again. Each card leads to the latest report."
+msgstr "Відомі сайти, які цей екземпляр сканує сам, раз за разом. Кожна картка веде до останнього звіту."
+
+msgid "spiderlint reports of well-known sites: search engine tags, security headers, TLS, links and more, rated S to F."
+msgstr "Звіти spiderlint про відомі сайти: теги для пошукових систем, заголовки безпеки, TLS, посилання та інше, з оцінкою від S до F."

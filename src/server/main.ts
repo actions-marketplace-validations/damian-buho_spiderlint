@@ -11,6 +11,7 @@ import { prepareBrowser } from "../crawl/browser.ts";
 import { log } from "../logger.ts";
 import { api } from "./api.ts";
 import { checkClock } from "./clock.ts";
+import { startExamples } from "./examples.ts";
 import { connect, scanQueue } from "./queue.ts";
 import { DEFAULT_PATH, watchSettings } from "./settings.ts";
 import { startWorker } from "./worker.ts";
@@ -49,8 +50,10 @@ async function main(): Promise<void> {
         const redis = connect(url, password);
         const queue = scanQueue(redis, retention);
         observeQueue(async () => queue.getJobCounts("waiting", "active", "delayed", "prioritized"));
+        const stopExamples = startExamples({ queue, redis, settings: settings.current });
         const server = serve({ fetch: api(queue, redis, settings.current).fetch, hostname: listen.host, port: listen.port }, (info) => log.info({ address: info.address, port: info.port }, "api listening"));
         closers.push(
+            async () => stopExamples(),
             async () => new Promise((resolve) => server.close(resolve)),
             async () => queue.close(),
             async () => redis.quit(),
@@ -59,7 +62,7 @@ async function main(): Promise<void> {
     if (mode !== "api") {
         await prepareWorkerBrowser();
         const redis = connect(url, password);
-        const worker = startWorker(redis, workers, retention, () => settings.current().recent);
+        const worker = startWorker(redis, workers, retention, settings.current);
         closers.push(
             async () => worker.close(),
             async () => redis.quit(),

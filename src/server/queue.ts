@@ -31,6 +31,8 @@ export interface ScanData {
     repeatKey?: string;
     // Set when the scan stays out of the latest reports and the badge.
     hidden?: boolean;
+    // Set when the scan is one of the instance’s examples, kept until its host’s next one replaces it.
+    example?: boolean;
     // The submitting request’s trace context as W3C headers, empty when telemetry is off.
     trace?: Record<string, string>;
 }
@@ -93,12 +95,20 @@ export function latestKey(host: string): string {
     return `${PREFIX}:latest:${host}`;
 }
 
+// The key holding a finished scan’s preview: its WebP `image` and the `title` the page showed.
+export function previewKey(id: string): string {
+    return `${PREFIX}:preview:${id}`;
+}
+
 // What the form lists of a host’s latest finished scan.
 export interface Recent {
     id: string;
     host: string;
     grade?: Grade;
     finished: number;
+    title?: string;
+    // Set when the scan has a preview under `previewKey`.
+    preview?: true;
 }
 
 // The hosts of the latest reports by finish time; each host’s entry sits under its own key.
@@ -106,9 +116,8 @@ const RECENT = `${PREFIX}:recent`;
 
 // Points the host’s badge at the finished scan and, while `limit` is above zero, lists it among the latest reports, dropping the oldest past `limit`.
 export async function recordLatest(redis: Redis, job: ScanJob, retention: number, limit: number): Promise<void> {
-    const { host } = job.data;
-    const grade = job.returnvalue.summary.rating?.grade;
-    const entry: Recent = { id: job.id as string, host, finished: job.finishedOn ?? Date.now(), ...(grade && { grade }) };
+    const entry = await recentOf(redis, job);
+    const { host, grade } = entry;
     const pending = redis.multi().set(latestKey(host), entry.id, "EX", retention);
     if (limit > 0)
         pending
@@ -117,6 +126,45 @@ export async function recordLatest(redis: Redis, job: ScanJob, retention: number
             .zremrangebyrank(RECENT, 0, -(limit + 1));
     await pending.exec();
     log.debug({ job: entry.id, host, grade, limit }, "latest scan recorded");
+}
+
+// What a card shows of the finished `job`.
+async function recentOf(redis: Redis, job: ScanJob): Promise<Recent> {
+    const grade = job.returnvalue.summary.rating?.grade;
+    const title = await redis.hget(previewKey(job.id as string), "title");
+    return { id: job.id as string, host: job.data.host, finished: job.finishedOn ?? Date.now(), ...(grade && { grade }), ...(title && { title }), ...(title !== null && { preview: true }) };
+}
+
+// The hash of example entries by host, never expiring.
+const EXAMPLES = `${PREFIX}:examples`;
+
+// Makes the finished example its host’s only one; returns the ID of the example it replaced.
+export async function recordExample(redis: Redis, job: ScanJob): Promise<string | undefined> {
+    const entry = await recentOf(redis, job);
+    const [[, previous]] = (await redis.multi().hget(EXAMPLES, entry.host).hset(EXAMPLES, entry.host, JSON.stringify(entry)).exec()) as [[unknown, string | null]];
+    const replaced = previous ? (JSON.parse(previous) as Recent).id : undefined;
+    log.info({ job: entry.id, host: entry.host, grade: entry.grade, replaced }, "example recorded");
+    return replaced === entry.id ? undefined : replaced;
+}
+
+// Every example entry by host; a Redis that fails reads as none.
+export async function exampleReports(redis: Redis): Promise<Map<string, Recent>> {
+    try {
+        const raw = await redis.hgetall(EXAMPLES);
+        log.debug({ examples: Object.keys(raw).length }, "examples read");
+        return new Map(Object.entries(raw).map(([host, entry]) => [host, JSON.parse(entry) as Recent]));
+    } catch (error) {
+        log.warn({ error: String(error) }, "examples not read");
+        return new Map();
+    }
+}
+
+// Forgets the example of `host`, returning the ID of the scan it named.
+export async function dropExample(redis: Redis, host: string): Promise<string | undefined> {
+    const [[, previous]] = (await redis.multi().hget(EXAMPLES, host).hdel(EXAMPLES, host).exec()) as [[unknown, string | null]];
+    const id = previous ? (JSON.parse(previous) as Recent).id : undefined;
+    log.info({ host, job: id }, "example dropped");
+    return id;
 }
 
 // The latest reports, newest first and at most `limit`; an entry whose scan expired is dropped, and a Redis that fails reads as none.

@@ -1916,3 +1916,30 @@ msgstr "estos servidores de nombres figuran para la zona pero no responden por e
 
 msgid "a script changes declarations the served HTML makes; rules judge the served ones"
 msgstr "un script cambia declaraciones que hace el HTML servido; las reglas juzgan las servidas"
+
+msgid "Examples"
+msgstr "Ejemplos"
+
+msgid "Example reports"
+msgstr "Informes de ejemplo"
+
+msgid "Example reports, page {page}"
+msgstr "Informes de ejemplo, página {page}"
+
+msgid "Previous"
+msgstr "Anterior"
+
+msgid "Next"
+msgstr "Siguiente"
+
+msgid "Page {page} of {pages}"
+msgstr "Página {page} de {pages}"
+
+msgid "The first examples are being scanned. Come back soon."
+msgstr "Se están analizando los primeros ejemplos. Vuelve pronto."
+
+msgid "Well-known sites this instance scans by itself, again and again. Each card leads to the latest report."
+msgstr "Sitios conocidos que esta instancia analiza por su cuenta una y otra vez. Cada tarjeta lleva al último informe."
+
+msgid "spiderlint reports of well-known sites: search engine tags, security headers, TLS, links and more, rated S to F."
+msgstr "Informes de spiderlint de sitios conocidos: etiquetas para buscadores, cabeceras de seguridad, TLS, enlaces y más, con nota de S a F."

@@ -43,6 +43,10 @@ export interface ServerSettings {
     retention: number;
     // Latest reports the form lists; 0 lists none.
     recent: number;
+    // Whether a finished scan keeps a thumbnail of its seed’s first screen.
+    previews: boolean;
+    // Seeds the instance scans by itself, each again once its last scan is `every` seconds old.
+    examples: { sites: string[]; every: number };
     workers: number;
     maxQueued: number;
     allowPrivate: boolean;
@@ -80,6 +84,8 @@ const schema = {
         listen: { type: "object", additionalProperties: false, properties: { host: { type: "string" }, port: { type: "integer", minimum: 1, maximum: 65_535 } } },
         retention: duration,
         recent: { type: "integer", minimum: 0 },
+        previews: { type: "boolean" },
+        examples: { type: "object", additionalProperties: false, properties: { every: duration, sites: { type: "array", uniqueItems: true, items: { type: "string", minLength: 1 } } } },
         workers: positive,
         "max-queued": positive,
         "allow-private": { type: "boolean" },
@@ -202,7 +208,9 @@ export function settingsOf(raw: unknown): ServerSettings {
         ...(value["redis-password-file"] !== undefined && { redisPasswordFile: value["redis-password-file"] as string }),
         listen: { host: value.listen?.host ?? "0.0.0.0", port: value.listen?.port ?? 8080 },
         retention: seconds((value.retention as string | number | undefined) ?? "7d"),
-        recent: (value.recent as number | undefined) ?? 16,
+        recent: (value.recent as number | undefined) ?? 10,
+        previews: (value.previews as boolean | undefined) ?? true,
+        examples: examplesOf(value.examples as { sites?: string[]; every?: string | number } | undefined),
         workers: (value.workers as number | undefined) ?? 2,
         maxQueued: (value["max-queued"] as number | undefined) ?? 100,
         allowPrivate,
@@ -213,6 +221,18 @@ export function settingsOf(raw: unknown): ServerSettings {
         page: pageOf(value.page),
         ...(value.analytics?.matomo && { matomo: matomoOf(value.analytics.matomo) }),
     };
+}
+
+// The example seeds as URLs, a bare domain as https, rescanned weekly unless set.
+function examplesOf(raw: { sites?: string[]; every?: string | number } | undefined): ServerSettings["examples"] {
+    const sites = (raw?.sites ?? []).map((site) => {
+        const url = /^[a-z][\d+.a-z-]*:\/\//i.test(site) ? site : `https://${site}/`;
+        if (!URL.canParse(url) || !/^https?:$/.test(new URL(url).protocol)) throw new ConfigError(`server/examples/sites: invalid site ${site}`);
+        return new URL(url).href;
+    });
+    const every = seconds(raw?.every ?? "7d");
+    log.info({ sites: sites.length, every }, "examples configured");
+    return { sites, every };
 }
 
 // The fragments and assets directory the settings name, read now so a bad one is refused.

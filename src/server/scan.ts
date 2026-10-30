@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { writeSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
 import { text } from "node:stream/consumers";
 import { setDefaultCACertificates } from "node:tls";
 import { systemCaCertificates } from "../ca.ts";
@@ -15,11 +16,23 @@ import { onProgress } from "../progress.ts";
 import { formatJson } from "../report/json.ts";
 import { inSpan, startTelemetry, withTraceCarrier } from "../telemetry.ts";
 import { NEVER_SERVED } from "./policy.ts";
+import { PREVIEW_FILE, preview } from "./preview.ts";
 import { PROGRESS_FD } from "./queue.ts";
+
+// The seed’s preview in `PREVIEW_FILE` before the epoch ms `by`; a failure leaves none and never fails the scan.
+async function takePreview(url: string, isPrivateAllowed: boolean, by: number): Promise<void> {
+    try {
+        const left = Math.max(0, by - Date.now());
+        const { image, title } = await preview(url, isPrivateAllowed, AbortSignal.timeout(left));
+        await writeFile(PREVIEW_FILE, JSON.stringify({ title, image: image.toString("base64") }));
+    } catch (error) {
+        log.warn({ url, by, error: error instanceof Error ? error.message : String(error) }, "preview not taken");
+    }
+}
 
 // Exit codes: 0 the report is on stdout, 2 the settings are invalid, 3 no page was fetched, 4 the run failed.
 async function main(): Promise<number> {
-    const { url, settings, deny, via, crawlDeadline, trace } = JSON.parse(await text(process.stdin)) as { url: string; settings: Record<string, unknown>; deny: string[]; via?: string; crawlDeadline: number; trace?: Record<string, string> };
+    const { url, settings, deny, via, crawlDeadline, previewBy, trace } = JSON.parse(await text(process.stdin)) as { url: string; settings: Record<string, unknown>; deny: string[]; via?: string; crawlDeadline: number; previewBy?: number; trace?: Record<string, string> };
     onProgress((progress) => writeSync(PROGRESS_FD, `${JSON.stringify(progress)}\n`));
     const telemetry = await startTelemetry("spiderlint");
     try {
@@ -27,6 +40,7 @@ async function main(): Promise<number> {
         log.info({ url, pages: report.pages.length, findings: report.findings.length }, "scan finished");
         if (report.pages.length === 0) return 3;
         process.stdout.write(formatJson(report));
+        if (previewBy) await takePreview(url, settings["allow-private"] === true, previewBy);
         return 0;
     } catch (error) {
         log.error({ url, error: error instanceof Error ? error.message : String(error) }, "scan aborted");

@@ -22,7 +22,7 @@ import { compress } from "./compress.ts";
 import { jobOf, submit, type Jobs } from "./jobs.ts";
 import { asset, type Sources } from "./page.ts";
 import { presetSettings, presetsOffered, Refusal, signalSettings } from "./policy.ts";
-import { latestKey, recentReports, type Recent, type ScanJob } from "./queue.ts";
+import { exampleReports, latestKey, previewKey, recentReports, type Recent, type ScanJob } from "./queue.ts";
 import type { ServerSettings } from "./settings.ts";
 
 declare module "hono" {
@@ -35,6 +35,8 @@ const BODY_MAX = 64 * 1024;
 const ASSET_MAX_AGE_S = 3600;
 const REFRESH_S = 5;
 const BADGE_MAX_AGE_S = 300;
+const PREVIEW_MAX_AGE_S = 86_400;
+const EXAMPLES_PER_PAGE = 12;
 const LINKS: [name: string, href: string][] = [
     ["dbuho.me", "https://dbuho.me/project/spiderlint/"],
     ["Kiota", "https://kiota.ch/damian-buho/spiderlint"],
@@ -137,9 +139,9 @@ function publicOrigin(c: Context): string {
 }
 
 // The page in the reader’s language with the owner’s fragments, never cached, under the page policy they extend; the view is reported to Matomo when one is set.
-function respond(c: Context, t: Translator, title: string, body: string, status: ContentfulStatusCode = 200, head = "", extra: { description?: string; host?: string } = {}): Response {
+function respond(c: Context, t: Translator, title: string, body: string, status: ContentfulStatusCode = 200, head = "", extra: { description?: string; host?: string; image?: string } = {}): Response {
     type Fragment = { html: string; sources: Sources };
-    const { page: owner, matomo } = c.get("settings");
+    const { page: owner, matomo, examples } = c.get("settings");
     const slots = (["head", "header", "footer"] as const).map((slot) => owner.fragments?.slot(slot, t.lang) ?? { html: "", sources: { script: [], style: [] } });
     const [fromHead, fromHeader, fromFooter] = slots as [Fragment, Fragment, Fragment];
     const sources = { script: slots.flatMap((slot) => slot.sources.script), style: slots.flatMap((slot) => slot.sources.style) };
@@ -147,9 +149,9 @@ function respond(c: Context, t: Translator, title: string, body: string, status:
     const origin = publicOrigin(c);
     const self = new URL(c.req.path, origin).href;
     const description = extra.description ?? t._("Check every page of a site: SEO tags, security headers, TLS, links and more.");
-    const seo = `<meta name="description" content="${escape(description)}"><link rel="canonical" href="${escape(self)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><meta property="og:image" content="${escape(`${origin}/logo.png`)}"><meta property="og:url" content="${escape(self)}"><meta property="og:type" content="website">`;
+    const seo = `<meta name="description" content="${escape(description)}"><link rel="canonical" href="${escape(self)}"><meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(description)}"><meta property="og:image" content="${escape(`${origin}${extra.image ?? "/logo.png"}`)}"><meta property="og:url" content="${escape(self)}"><meta property="og:type" content="website">`;
     const skip = `<a class="skip" href="#main">${escape(t._("Skip to main content"))}</a>`;
-    const nav = `<header class="site"><a class="brand" href="/"><img src="/logo.png" srcset="/logo-36.png 36w, /logo-72.png 72w" sizes="36px" alt="" width="36" height="36">spiderlint</a><nav><a href="/">${escape(t._("New scan"))}</a><a href="${SELF_HOST}" rel="noopener noreferrer">${escape(t._("Self-host"))}</a></nav></header>`;
+    const nav = `<header class="site"><a class="brand" href="/"><img src="/logo.png" srcset="/logo-36.png 36w, /logo-72.png 72w" sizes="36px" alt="" width="36" height="36">spiderlint</a><nav><a href="/">${escape(t._("New scan"))}</a>${examples.sites.length > 0 ? `<a href="/examples">${escape(t._("Examples"))}</a>` : ""}<a href="${SELF_HOST}" rel="noopener noreferrer">${escape(t._("Self-host"))}</a></nav></header>`;
     const links = LINKS.map(([name, href]) => `<a href="${escape(href)}" rel="noopener noreferrer">${escape(name)}</a>`).join("");
     const foot = `<footer class="foot"><p>${escape(t._("Self-host spiderlint: free software under the {license} licence.", { license: LICENSE }))}</p>${links}${privacy}</footer>`;
     c.header("content-security-policy", pageCsp(sources, owner.assets !== undefined));
@@ -177,15 +179,52 @@ function presetChoice(t: Translator, offered: string[], chosen?: string): string
     return `<fieldset><legend class="muted">${escape(t._("Checks"))}</legend>${options.join("")}</fieldset>`;
 }
 
-// The latest reports as a list of grade, domain and finish time, newest first; nothing while there are none.
-function recentBlock(t: Translator, recent: Recent[]): string {
-    if (recent.length === 0) return "";
+// One report as a card: its preview or a blank of the same shape, grade, title, domain and finish time.
+function card(t: Translator, entry: Recent, when: Intl.DateTimeFormat): string {
+    const host = domainToUnicode(entry.host) || entry.host;
+    const shot = entry.preview ? `<img src="/previews/${escape(entry.id)}.webp" alt="" width="480" height="300" loading="lazy">` : '<span class="shot"></span>';
+    const grade = `<span class="grade grade-${escape(entry.grade ?? "none")}" title="${escape(t._("Rating"))}">${escape(entry.grade ?? "–")}</span>`;
+    return `<li><a href="/jobs/${escape(entry.id)}">${shot}<span class="caption">${grade}<span><strong>${escape(entry.title ?? host)}</strong><span class="muted">${escape(host)}</span><br><time class="muted" datetime="${new Date(entry.finished).toISOString()}">${escape(when.format(entry.finished))}</time></span></span></a></li>`;
+}
+
+// Reports as a grid of cards in the order given.
+function cards(t: Translator, entries: Recent[]): string {
     const when = new Intl.DateTimeFormat(t.locale, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC", timeZoneName: "short" });
-    const items = recent.map(
-        (entry) =>
-            `<li><a href="/jobs/${escape(entry.id)}"><span class="grade grade-${escape(entry.grade ?? "none")}" title="${escape(t._("Rating"))}">${escape(entry.grade ?? "–")}</span><span>${escape(domainToUnicode(entry.host) || entry.host)}<br><time class="muted" datetime="${new Date(entry.finished).toISOString()}">${escape(when.format(entry.finished))}</time></span></a></li>`,
-    );
-    return `<section><h2>${escape(t._("Latest reports"))}</h2><ul class="recent">${items.join("")}</ul></section>`;
+    return `<ul class="cards">${entries.map((entry) => card(t, entry, when)).join("")}</ul>`;
+}
+
+// The latest reports as cards, newest first; nothing while there are none.
+function recentBlock(t: Translator, recent: Recent[]): string {
+    return recent.length === 0 ? "" : `<section><h2>${escape(t._("Latest reports"))}</h2>${cards(t, recent)}</section>`;
+}
+
+// The path of examples page `to`, the first one bare.
+function examplesHref(to: number): string {
+    return to === 1 ? "/examples" : `/examples/${to}`;
+}
+
+// Links to the previous and next page of examples around “page N of M”; nothing for one page.
+function pager(t: Translator, number: number, pages: number): string {
+    if (pages <= 1) return "";
+    const previous = number > 1 ? `<a href="${examplesHref(number - 1)}" rel="prev">${escape(t._("Previous"))}</a>` : "";
+    const next = number < pages ? `<a href="${examplesHref(number + 1)}" rel="next">${escape(t._("Next"))}</a>` : "";
+    return `<nav class="pager" aria-label="${escape(t._("Pages"))}">${previous}<span class="muted">${escape(t._("Page {page} of {pages}", { page: t.number(number), pages: t.number(pages) }))}</span>${next}</nav>`;
+}
+
+// One page of the examples that have a report, in the order the settings list them; a page past the last is a 404.
+async function examplesPage(c: Context, t: Translator, jobs: Jobs, number: number): Promise<Response> {
+    const { sites } = jobs.settings().examples;
+    if (sites.length === 0) throw new Refusal(404, "not-found", "this instance lists no examples");
+    const known = await exampleReports(jobs.redis);
+    const entries = sites.flatMap((site) => known.get(new URL(site).hostname) ?? []);
+    const pages = Math.max(1, Math.ceil(entries.length / EXAMPLES_PER_PAGE));
+    log.debug({ sites: sites.length, reports: entries.length, page: number, pages }, "examples page rendered");
+    if (!Number.isSafeInteger(number) || number < 1 || number > pages) throw new Refusal(404, "not-found", `examples page ${number}: out of 1–${pages}`);
+    const shown = entries.slice((number - 1) * EXAMPLES_PER_PAGE, number * EXAMPLES_PER_PAGE);
+    const list = shown.length > 0 ? cards(t, shown) : `<p class="muted">${escape(t._("The first examples are being scanned. Come back soon."))}</p>`;
+    const heading = number === 1 ? t._("Example reports") : t._("Example reports, page {page}", { page: t.number(number) });
+    const body = `<main id="main"><h1>${escape(heading)}</h1><p>${escape(t._("Well-known sites this instance scans by itself, again and again. Each card leads to the latest report."))}</p>${list}${pager(t, number, pages)}</main>`;
+    return respond(c, t, `${heading} — spiderlint`, body, 200, "", { description: t._("spiderlint reports of well-known sites: search engine tags, security headers, TLS, links and more, rated S to F.") });
 }
 
 // The box that keeps a scan out of the latest reports and the badge.
@@ -378,6 +417,23 @@ export function web(jobs: Jobs): Hono {
         return c.body(`Contact: mailto:damian.buho@proton.me\nExpires: ${expires}\nPreferred-Languages: en\n`);
     });
 
+    app.get("/examples", async (c) => examplesPage(c, translate(c), jobs, 1));
+
+    app.get("/examples/:page{[0-9]+}", async (c) => examplesPage(c, translate(c), jobs, Number(c.req.param("page"))));
+
+    // A finished scan’s thumbnail; its ID never names another image, so caches keep it a day.
+    app.get("/previews/:file", async (c) => {
+        const file = c.req.param("file");
+        const id = file.endsWith(".webp") ? file.slice(0, -".webp".length) : "";
+        const image = id ? await jobs.redis.hgetBuffer(previewKey(id), "image") : undefined;
+        log.debug({ job: id, bytes: image?.length }, "preview requested");
+        if (!image) throw new Refusal(404, "not-found", `${file}: no such preview`);
+        c.header("content-type", "image/webp");
+        c.header("content-security-policy", "default-src 'none'; sandbox");
+        c.header("cache-control", `public, max-age=${PREVIEW_MAX_AGE_S}`);
+        return c.body(new Uint8Array(image));
+    });
+
     app.get("/", async (c) => formPage(c, translate(c), offered(), await recent(), c.req.query("url") ?? ""));
 
     app.post("/", bodyLimit({ maxSize: BODY_MAX, onError: async (c) => formPage(c, translate(c), offered(), await recent(), "", new Refusal(400, "invalid-body", "form too large")) }), async (c) => {
@@ -416,7 +472,10 @@ export function web(jobs: Jobs): Hono {
         const wait = job.data.repeatKey ? await jobs.redis.ttl(job.data.repeatKey) : 0;
         const noindex = job.data.hidden ? '<meta name="robots" content="noindex">' : "";
         log.debug({ job: job.id, state, isRepeat, wait, hidden: job.data.hidden === true }, "job page rendered");
-        if (state === "completed") return respond(c, t, title, `<main id="main">${doneBody(t, job, wait, isRepeat)}</main>`, 200, noindex, extra);
+        if (state === "completed") {
+            const hasPreview = (await jobs.redis.exists(previewKey(job.id as string))) > 0;
+            return respond(c, t, title, `<main id="main">${doneBody(t, job, wait, isRepeat)}</main>`, 200, noindex, { ...extra, ...(hasPreview && { image: `/previews/${job.id}.webp` }) });
+        }
         if (state === "failed") return respond(c, t, title, `<main id="main"><h1>${escape(scanned)}</h1><p class="alert" role="alert">${escape(t._("The scan failed."))}</p><p><code>${escape(job.failedReason)}</code></p><p><a href="/">${escape(t._("Start a new scan"))}</a></p></main>`, 200, noindex, extra);
         const body = `<main id="main"><h1>${escape(scanned)}</h1>${isRepeat ? `<p class="notice">${escape(t._("This site was scanned recently, so this is the existing scan."))}</p>` : ""}${progressBody(t, job, state === "active" ? "running" : "queued")}</main><script>${SCRIPT}</script>`;
         return respond(c, t, title, body, 200, `<noscript><meta http-equiv="refresh" content="${REFRESH_S}"></noscript>${noindex}`, extra);

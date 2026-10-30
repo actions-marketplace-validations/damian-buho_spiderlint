@@ -11,7 +11,7 @@ import { normalizeVia } from "../agent.ts";
 import { log } from "../logger.ts";
 import { formatNames } from "../plugins/index.ts";
 import { Buckets, clientOf } from "./clients.ts";
-import { admit, Refusal, resolveRules } from "./policy.ts";
+import { admit, Refusal, resolveRules, type Admitted } from "./policy.ts";
 import { charge, jobId, repeatKey, type ScanData, type ScanJob, type ScanResult } from "./queue.ts";
 import type { ServerSettings } from "./settings.ts";
 import { traceCarrier } from "../telemetry.ts";
@@ -92,7 +92,12 @@ export async function submit(jobs: Jobs, body: unknown, c: Context): Promise<{ j
     const wait = rate ? jobs.buckets.take(clientAddress(c, jobs), rate) : 0;
     if (rate && wait > 0) throw new Refusal(429, "client-rate-limited", `a client may queue ${rate.jobs} scans per ${rate.seconds} s`, wait);
     await charge(jobs.redis, admitted);
-    const via = normalizeVia(c.req.header("host"));
+    return { job: await enqueue(jobs, admitted, normalizeVia(c.req.header("host"))), isRepeat: false };
+}
+
+// Queues the admitted scan and points its repeat key at it; an example is kept until its host’s next one replaces it.
+export async function enqueue(jobs: Pick<Jobs, "queue" | "redis">, admitted: Admitted, via: string, isExample = false): Promise<ScanJob> {
+    const key = repeatKey(admitted);
     const data: ScanData = {
         url: admitted.url,
         host: admitted.host,
@@ -103,10 +108,11 @@ export async function submit(jobs: Jobs, body: unknown, c: Context): Promise<{ j
         via,
         ...(admitted.policy.repeat && { repeatKey: key }),
         ...(admitted.hidden && { hidden: true }),
+        ...(isExample && { example: true }),
         trace: traceCarrier(),
     };
-    const job = (await jobs.queue.add("scan", data, { jobId: jobId(admitted.host) })) as ScanJob;
+    const job = (await jobs.queue.add("scan", data, { jobId: jobId(admitted.host), ...(isExample && { removeOnComplete: false }) })) as ScanJob;
     if (admitted.policy.repeat) await jobs.redis.set(key, job.id as string, "EX", admitted.policy.repeat);
-    log.info({ job: job.id, host: admitted.host, policy: admitted.policy.name, repeat: admitted.policy.repeat, hidden: admitted.hidden }, "scan queued");
-    return { job, isRepeat: false };
+    log.info({ job: job.id, host: admitted.host, policy: admitted.policy.name, repeat: admitted.policy.repeat, hidden: admitted.hidden, isExample }, "scan queued");
+    return job;
 }

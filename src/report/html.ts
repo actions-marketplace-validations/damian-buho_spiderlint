@@ -84,11 +84,15 @@ legend { padding: 0; }
 fieldset select { font: inherit; padding: .25rem .5rem; margin-inline-start: .5rem; border: 1px solid var(--line); color: inherit; background: var(--bg); }
 input[type=radio], input[type=checkbox] { flex: none; inline-size: auto; margin-inline-end: .5rem; }
 .check { flex: 1 1 100%; }
-.recent { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: .5rem; }
-.recent a { display: flex; gap: .75rem; align-items: center; padding: .5rem .75rem; background: var(--surface); border: 1px solid var(--line); color: var(--fg); text-decoration: none; }
-.recent a:hover { border-color: var(--accent); }
-.recent .grade { inline-size: 2.25rem; block-size: 2.25rem; font-size: 1.15rem; }
-.recent time { font-size: .85rem; }
+.cards { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 1rem; }
+.cards a { display: flex; flex-direction: column; block-size: 100%; background: var(--surface); border: 1px solid var(--line); color: var(--fg); text-decoration: none; }
+.cards a:hover { border-color: var(--accent); }
+.cards img, .cards .shot { display: block; inline-size: 100%; block-size: auto; aspect-ratio: 8 / 5; object-fit: cover; object-position: top; background: var(--line); border-block-end: 1px solid var(--line); }
+.caption { display: flex; gap: .75rem; align-items: flex-start; padding: .75rem; line-height: 1.4; }
+.caption strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
+.cards .grade { inline-size: 2.25rem; block-size: 2.25rem; font-size: 1.15rem; }
+.cards .muted { font-size: .85rem; }
+.pager { display: flex; gap: 1.5rem; justify-content: center; align-items: baseline; margin-block-start: 2rem; }
 input { flex: 1 1 20rem; font: inherit; padding: .75rem 1rem; border: 1px solid var(--line); color: inherit; background: var(--surface); }
 progress { inline-size: 100%; block-size: .75rem; accent-color: var(--accent); }
 .alert { border-inline-start: .25rem solid var(--error); padding: 1rem 1.25rem; background: light-dark(#fdecea, #2c1614); }

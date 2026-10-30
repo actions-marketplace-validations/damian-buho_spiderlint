@@ -20,6 +20,7 @@ import { Buckets, clientOf } from "../src/server/clients.ts";
 import { admit, policyFor, presetSettings, presetsOffered, Refusal, resolveRules, signalSettings } from "../src/server/policy.ts";
 import { addRanges } from "../src/server/providers.ts";
 import { connect, jobId, repeatKey, scanQueue } from "../src/server/queue.ts";
+import { tick } from "../src/server/examples.ts";
 import { hostSuffix, settingsOf } from "../src/server/settings.ts";
 import { startWorker } from "../src/server/worker.ts";
 import { serveFixture, type Fixture } from "./fixtures/server.ts";
@@ -56,8 +57,8 @@ describe("server settings", () => {
         assert.deepEqual([policy?.hosts, policy?.fetch, policy?.caps["max-pages"], policy?.scanTimeout], [["*"], ["http"], 100, 600]);
     });
 
-    it("lists 16 latest reports unless told otherwise, 0 for none, and refuses a negative count", () => {
-        assert.deepEqual([settingsOf({}).recent, settingsOf({ recent: 0 }).recent, settingsOf({ recent: 5 }).recent], [16, 0, 5]);
+    it("lists 10 latest reports unless told otherwise, 0 for none, and refuses a negative count", () => {
+        assert.deepEqual([settingsOf({}).recent, settingsOf({ recent: 0 }).recent, settingsOf({ recent: 5 }).recent], [10, 0, 5]);
         assert.throws(() => settingsOf({ recent: -1 }), ConfigError);
     });
 
@@ -168,7 +169,7 @@ describe("server pages without Redis", () => {
             stats: { "resources.length": stat, "html.text": stat },
         };
         const job = { id: "j1", data: { url: "https://a.test/", host: "a.test" }, returnvalue: { summary, findings: [] }, getState: async () => "completed" };
-        const response = await api({ getJob: async () => job } as unknown as Queue, {} as Redis, () => SETTINGS).request("/jobs/j1", { headers: { "accept-language": "de-DE,de;q=0.9" } });
+        const response = await api({ getJob: async () => job } as unknown as Queue, { exists: async () => 0 } as unknown as Redis, () => SETTINGS).request("/jobs/j1", { headers: { "accept-language": "de-DE,de;q=0.9" } });
         const html = await response.text();
         assert.match(html, /<html lang="en" dir="ltr">/);
         assert.ok(html.includes("31.536.000"), "German digits");
@@ -714,6 +715,135 @@ describe("hidden scans", () => {
     });
 });
 
+const HOUR = 3_600_000;
+const NOW = Date.UTC(2026, 9, 29, 12);
+
+// An examples hash entry for `host`, finished at `finished`.
+function exampleEntry(host: string, finished: number, extra: Record<string, unknown> = {}): string {
+    return JSON.stringify({ id: `${host}-1`, host, finished, ...extra });
+}
+
+// Settings listing `sites` as examples rescanned hourly.
+function hourly(sites: string[]): () => ReturnType<typeof settingsOf> {
+    const settings = settingsOf({ examples: { every: "1h", sites } });
+    return () => settings;
+}
+
+// A Redis and a queue answering `tick`, recording what it queued, removed and marked; a host in `taken` is already queued.
+function scheduling(known: Record<string, string>, waiting = 0, taken: string[] = []) {
+    const calls = { added: [] as string[], removed: [] as string[], marked: [] as string[] };
+    const multi = (host = "") => ({ hget: (_key: string, field: string) => multi(field), hdel: () => multi(host), exec: async () => [[undefined, known[host]]] });
+    const redis = {
+        hgetall: async () => known,
+        multi: () => multi(),
+        del: async () => 1,
+        set: async (key: string) => {
+            calls.marked.push(key);
+            return taken.some((host) => key.endsWith(`:${host}`)) ? undefined : "OK";
+        },
+    };
+    const queue = {
+        getWaitingCount: async () => waiting,
+        add: async (_name: string, data: { host: string }) => {
+            calls.added.push(data.host);
+            return { id: `${data.host}-new` };
+        },
+        remove: async (id: string) => {
+            calls.removed.push(id);
+        },
+    };
+    return { calls, jobs: { queue: queue as unknown as Queue, redis: redis as unknown as Redis } };
+}
+
+// The status and text of `path` on `app`.
+async function fetched(app: ReturnType<typeof api>, path: string): Promise<{ status: number; html: string; response: Response }> {
+    const response = await app.request(path);
+    return { status: response.status, html: await response.clone().text(), response };
+}
+
+describe("examples", () => {
+    it("reads bare domains as https seeds, rescans weekly and keeps previews unless told otherwise", () => {
+        const settings = settingsOf({ examples: { sites: ["elpais.com", "http://a.test/x"] } });
+        assert.deepEqual(settings.examples, { sites: ["https://elpais.com/", "http://a.test/x"], every: 604_800 });
+        assert.deepEqual([settingsOf({}).examples.sites, settingsOf({}).previews, settingsOf({ previews: false }).previews], [[], true, false]);
+        assert.throws(() => settingsOf({ examples: { sites: ["ftp://a.test/"] } }), ConfigError);
+        assert.throws(() => settingsOf({ examples: { sites: ["a.test", "a.test"] } }), ConfigError);
+        assert.throws(() => settingsOf({ examples: { every: 0 } }), ConfigError);
+    });
+
+    it("queues the unscanned site first, then the oldest, and none while a scan waits", async () => {
+        const known = { "b.test": exampleEntry("b.test", NOW - 3 * HOUR), "c.test": exampleEntry("c.test", NOW - 2 * HOUR) };
+        const sites = hourly(["c.test", "b.test", "a.test"]);
+        const first = scheduling(known);
+        assert.equal(await tick({ ...first.jobs, settings: sites }, NOW), "a.test-new");
+        const second = scheduling(known, 0, ["a.test"]);
+        assert.equal(await tick({ ...second.jobs, settings: sites }, NOW), "b.test-new");
+        assert.deepEqual(second.calls.marked, ["spiderlint:examples:queued:a.test", "spiderlint:examples:queued:b.test"]);
+        const busy = scheduling(known, 1);
+        assert.equal(await tick({ ...busy.jobs, settings: sites }, NOW), undefined);
+        assert.deepEqual(busy.calls.added, []);
+    });
+
+    it("rescans a site exactly when its report is `every` old, not a millisecond sooner", async () => {
+        const sites = hourly(["a.test"]);
+        const fresh = scheduling({ "a.test": exampleEntry("a.test", NOW - HOUR + 1) });
+        assert.equal(await tick({ ...fresh.jobs, settings: sites }, NOW), undefined);
+        const due = scheduling({ "a.test": exampleEntry("a.test", NOW - HOUR) });
+        assert.equal(await tick({ ...due.jobs, settings: sites }, NOW), "a.test-new");
+    });
+
+    it("removes the example of a site no longer configured", async () => {
+        const { calls, jobs } = scheduling({ "gone.test": exampleEntry("gone.test", NOW) });
+        await tick({ ...jobs, settings: hourly([]) }, NOW);
+        assert.deepEqual(calls.removed, ["gone.test-1"]);
+    });
+
+    it("pages examples twelve at a time in the configured order, and answers 404 past either end", async () => {
+        const hosts = Array.from({ length: 13 }, (_value, index) => `s${String(index).padStart(2, "0")}.test`);
+        const known = Object.fromEntries(hosts.map((host) => [host, exampleEntry(host, NOW, { grade: "B", title: `Site ${host}`, preview: true })]));
+        const app = api({} as Queue, { hgetall: async () => known } as unknown as Redis, hourly(hosts.toReversed()));
+        const { html: one } = await fetched(app, "/examples");
+        assert.equal(one.match(/<li>/g)?.length, 12);
+        assert.ok(one.indexOf("s12.test") < one.indexOf("s11.test"), "configured order");
+        assert.ok(one.includes('<img src="/previews/s12.test-1.webp" alt="" width="480" height="300" loading="lazy">'));
+        assert.ok(one.includes('<a href="/examples/2" rel="next">') && !one.includes('rel="prev"'));
+        assert.ok(one.includes('<a href="/examples">Examples</a>'), "nav link");
+        const { html: two } = await fetched(app, "/examples/2");
+        assert.equal(two.match(/<li>/g)?.length, 1);
+        assert.ok(two.includes('<a href="/examples" rel="prev">') && !two.includes('rel="next"') && two.includes("Page 2 of 2"));
+        const [past, before] = await Promise.all([fetched(app, "/examples/3"), fetched(app, "/examples/0")]);
+        assert.deepEqual([past.status, before.status], [404, 404]);
+    });
+
+    it("has no examples page or nav link when none are configured", async () => {
+        const app = api({} as Queue, {} as Redis, () => SETTINGS);
+        const [examples, form] = await Promise.all([fetched(app, "/examples"), fetched(app, "/")]);
+        assert.equal(examples.status, 404);
+        assert.ok(!form.html.includes('href="/examples"'));
+    });
+
+    it("serves a stored preview as WebP and answers 404 for a missing one", async () => {
+        const image = Buffer.from("RIFF0000WEBP");
+        const redis = { hgetBuffer: async (key: string) => (key === "spiderlint:preview:a.test-1" ? image : undefined) };
+        const app = api({} as Queue, redis as unknown as Redis, () => SETTINGS);
+        const { status, response } = await fetched(app, "/previews/a.test-1.webp");
+        const body = Buffer.from(await response.arrayBuffer());
+        assert.deepEqual([status, response.headers.get("content-type"), body.equals(image)], [200, "image/webp", true]);
+        const [other, png] = await Promise.all([fetched(app, "/previews/b.test-1.webp"), fetched(app, "/previews/a.test-1.png")]);
+        assert.deepEqual([other.status, png.status], [404, 404]);
+    });
+
+    it("shows a finished scan’s preview as its page’s og:image", async () => {
+        const summary = { started: "2026-10-29T12:00:00Z", durationMs: 1, pages: 1, bytes: 1, groups: {}, statuses: {}, findings: { total: 0, error: 0, warning: 0, info: 0, hint: 0 }, rules: 0, checks: { total: 0, passed: 0, failed: 0, errored: 0 }, byRule: {}, cost: {}, stats: {} };
+        const job = { id: "a.test-1", data: { url: "https://a.test/", host: "a.test" }, returnvalue: { summary, findings: [] }, getState: async () => "completed" };
+        const { html } = await fetched(
+            api({ getJob: async () => job } as unknown as Queue, { exists: async () => 1 } as unknown as Redis, () => SETTINGS),
+            "/jobs/a.test-1",
+        );
+        assert.ok(html.includes('<meta property="og:image" content="http://localhost/previews/a.test-1.webp">'));
+    });
+});
+
 describe("job IDs", () => {
     it("name the host and the queue time, then 48 random bits", () => {
         assert.match(jobId("example.org", new Date("2026-10-14T17:15:05.123Z")), /^example\.org-20261014T171505Z-[\da-f]{12}$/);
@@ -733,7 +863,7 @@ describe("server over Redis", { skip: process.env.SPIDERLINT_TEST_REDIS === unde
     let site: Fixture;
     const [redis, workerRedis] = [connect(process.env.SPIDERLINT_TEST_REDIS ?? ""), connect(process.env.SPIDERLINT_TEST_REDIS ?? "")];
     const queue = scanQueue(redis, 60);
-    const worker = startWorker(workerRedis, 1, 60, () => 16);
+    const worker = startWorker(workerRedis, 1, 60, () => settingsOf({ previews: false }));
     let settings = settingsOf({ "allow-private": true, policies: [{ name: "fixture", hosts: ["127.0.0.1"], rate: { jobs: 1, per: 60 }, caps: { "max-pages": 3 } }] });
     const app = api(queue, redis, () => settings);
     let first = "";
