@@ -510,8 +510,8 @@ msgstr "блок JSON-LD не розбирається"
 msgid "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative: {got}"
 msgstr "Alt-Svc порушує RFC 7838 §3, тому клієнти ніколи не пробують альтернативу: {got}"
 
-msgid "Alt-Svc should advertise h3, found {got}"
-msgstr "Alt-Svc має оголошувати h3, знайдено {got}"
+msgid "Alt-Svc should advertise h3"
+msgstr "Alt-Svc має оголошувати h3"
 
 msgid "an <img> has no alt attribute"
 msgstr "<img> не має атрибута alt"
@@ -552,8 +552,8 @@ msgstr "переспрямування не вказує через Redirect-By,
 msgid "a right-to-left language should set <html dir=rtl>"
 msgstr "мова справа наліво має задавати <html dir=rtl>"
 
-msgid "a script in <head> without async, defer or type=module blocks rendering: {got}"
-msgstr "скрипт у <head> без async, defer чи type=module блокує відображення: {got}"
+msgid "a script in <head> without async, defer or type=module blocks rendering"
+msgstr "скрипт у <head> без async, defer чи type=module блокує відображення"
 
 msgid "a text response over 1 KB should be sent br, zstd or gzip"
 msgstr "текстова відповідь понад 1 КБ має надсилатися через br, zstd або gzip"
@@ -645,8 +645,8 @@ msgstr "Cross-Origin-Resource-Policy має бути same-origin, same-site аб
 msgid "Date should be an IMF-fixdate"
 msgstr "Date має бути IMF-fixdate"
 
-msgid "Deprecation should be @ and Unix seconds, found {got}"
-msgstr "Deprecation має бути @ і секундами Unix, знайдено {got}"
+msgid "Deprecation should be @ and Unix seconds"
+msgstr "Deprecation має бути @ і секундами Unix"
 
 msgid "hreflang alternates should include x-default"
 msgstr "альтернативи hreflang мають містити x-default"
@@ -789,8 +789,8 @@ msgstr "Strict-Transport-Security має містити includeSubDomains"
 msgid "Strict-Transport-Security should carry max-age of 1000000 or more"
 msgstr "Strict-Transport-Security має містити max-age від 1000000"
 
-msgid "Sunset should be an HTTP-date, found {got}"
-msgstr "Sunset має бути HTTP-date, знайдено {got}"
+msgid "Sunset should be an HTTP-date"
+msgstr "Sunset має бути HTTP-date"
 
 msgid "takes more than 2 redirects to land"
 msgstr "потребує понад 2 переспрямувань, щоб дійти до місця"
@@ -810,8 +810,8 @@ msgstr "сертифікат містить ключ RSA, тоді як ключ
 msgid "the certificate chain is signed with SHA-1 or MD5"
 msgstr "ланцюжок сертифікатів підписано за допомогою SHA-1 або MD5"
 
-msgid "the first <img> is usually above the fold, and loading=lazy delays it: {got}"
-msgstr "перше <img> зазвичай видно одразу, а loading=lazy його затримує: {got}"
+msgid "the first <img> is usually above the fold, and loading=lazy delays it"
+msgstr "перше <img> зазвичай видно одразу, а loading=lazy його затримує"
 
 msgid "the h1 exists only after JavaScript runs"
 msgstr "h1 з’являється лише після виконання JavaScript"

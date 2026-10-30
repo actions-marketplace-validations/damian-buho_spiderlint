@@ -510,8 +510,8 @@ msgstr "un bloque JSON-LD no se puede interpretar"
 msgid "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative: {got}"
 msgstr "Alt-Svc incumple la RFC 7838 §3, así que los clientes nunca prueban la alternativa: {got}"
 
-msgid "Alt-Svc should advertise h3, found {got}"
-msgstr "Alt-Svc debe anunciar h3, se encontró {got}"
+msgid "Alt-Svc should advertise h3"
+msgstr "Alt-Svc debe anunciar h3"
 
 msgid "an <img> has no alt attribute"
 msgstr "un <img> no tiene atributo alt"
@@ -552,8 +552,8 @@ msgstr "una redirección no dice qué componente la envió con Redirect-By"
 msgid "a right-to-left language should set <html dir=rtl>"
 msgstr "un idioma de derecha a izquierda debe fijar <html dir=rtl>"
 
-msgid "a script in <head> without async, defer or type=module blocks rendering: {got}"
-msgstr "un script en <head> sin async, defer ni type=module bloquea el renderizado: {got}"
+msgid "a script in <head> without async, defer or type=module blocks rendering"
+msgstr "un script en <head> sin async, defer ni type=module bloquea el renderizado"
 
 msgid "a text response over 1 KB should be sent br, zstd or gzip"
 msgstr "una respuesta de texto de más de 1 KB debe enviarse con br, zstd o gzip"
@@ -645,8 +645,8 @@ msgstr "Cross-Origin-Resource-Policy debe ser same-origin, same-site o cross-ori
 msgid "Date should be an IMF-fixdate"
 msgstr "Date debe ser una IMF-fixdate"
 
-msgid "Deprecation should be @ and Unix seconds, found {got}"
-msgstr "Deprecation debe ser @ y segundos Unix, se encontró {got}"
+msgid "Deprecation should be @ and Unix seconds"
+msgstr "Deprecation debe ser @ y segundos Unix"
 
 msgid "hreflang alternates should include x-default"
 msgstr "las alternativas hreflang deben incluir x-default"
@@ -789,8 +789,8 @@ msgstr "Strict-Transport-Security debe llevar includeSubDomains"
 msgid "Strict-Transport-Security should carry max-age of 1000000 or more"
 msgstr "Strict-Transport-Security debe llevar max-age de 1000000 o más"
 
-msgid "Sunset should be an HTTP-date, found {got}"
-msgstr "Sunset debe ser una HTTP-date, se encontró {got}"
+msgid "Sunset should be an HTTP-date"
+msgstr "Sunset debe ser una HTTP-date"
 
 msgid "takes more than 2 redirects to land"
 msgstr "requiere más de 2 redirecciones para llegar"
@@ -810,8 +810,8 @@ msgstr "el certificado lleva una clave RSA, cuando una clave EC hace un handshak
 msgid "the certificate chain is signed with SHA-1 or MD5"
 msgstr "la cadena de certificados está firmada con SHA-1 o MD5"
 
-msgid "the first <img> is usually above the fold, and loading=lazy delays it: {got}"
-msgstr "el primer <img> suele estar en la primera pantalla, y loading=lazy lo retrasa: {got}"
+msgid "the first <img> is usually above the fold, and loading=lazy delays it"
+msgstr "el primer <img> suele estar en la primera pantalla, y loading=lazy lo retrasa"
 
 msgid "the h1 exists only after JavaScript runs"
 msgstr "el h1 solo existe tras ejecutar JavaScript"

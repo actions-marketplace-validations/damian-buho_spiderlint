@@ -84,7 +84,8 @@ rules:
     when: {url.protocol: "https:", http.version: {not: {const: "3.0"}}, http.parsed.alt-svc.errors: {maxItems: 0}}
     severity: warning
     score: 5.2
-    message: "Alt-Svc should advertise h3, found {got}"
+    message: "Alt-Svc should advertise h3"
+    measured: true
     fix: "Add h3 to the Alt-Svc header."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Alt-Svc
   tls/ec-key:
@@ -111,7 +112,8 @@ rules:
     when: {http.headers.sunset: {type: string}}
     severity: warning
     score: 3.7
-    message: "Sunset should be an HTTP-date, found {got}"
+    message: "Sunset should be an HTTP-date"
+    measured: true
     fix: "Send Sunset as an HTTP-date, e.g. Sun, 01 Jan 2027 00:00:00 GMT."
     docs: https://www.rfc-editor.org/rfc/rfc8594
   http/deprecation-format:
@@ -120,7 +122,8 @@ rules:
     when: {http.headers.deprecation: {type: string}}
     severity: warning
     score: 3.6
-    message: "Deprecation should be @ and Unix seconds, found {got}"
+    message: "Deprecation should be @ and Unix seconds"
+    measured: true
     fix: "Send Deprecation: @1704067200 with the Unix timestamp of the removal."
     docs: https://www.rfc-editor.org/rfc/rfc9745
   html/render-blocking-script:
@@ -128,7 +131,8 @@ rules:
     expect: {items: {if: {required: [src], properties: {head: {const: true}, async: {const: false}, defer: {const: false}}}, then: {required: [type], properties: {type: {const: module}}}}}
     severity: info
     score: 3.0
-    message: "a script in <head> without async, defer or type=module blocks rendering: {got}"
+    message: "a script in <head> without async, defer or type=module blocks rendering"
+    measured: true
     fix: "Add async, defer, or type=module to the script, or move it to the end of <body>."
     docs: https://developer.mozilla.org/docs/Web/HTML/Element/script#defer
   html/first-img-lazy:
@@ -136,7 +140,8 @@ rules:
     expect: {not: {type: object, required: [loading], properties: {loading: {pattern: "^(?i:lazy)$"}}}}
     severity: info
     score: 2.9
-    message: "the first <img> is usually above the fold, and loading=lazy delays it: {got}"
+    message: "the first <img> is usually above the fold, and loading=lazy delays it"
+    measured: true
     fix: "Remove loading=lazy from the first <img>, or set it to eager."
     docs: https://web.dev/articles/lcp-lazy-loading
   html/img-dimensions:
