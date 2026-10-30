@@ -242,7 +242,8 @@ rules:
     when: {http.parsed.referrer-policy: {type: object}}
     severity: warning
     score: 4.0
-    message: "Referrer-Policy breaks the Referrer Policy tokens: {got}"
+    message: "Referrer-Policy breaks the Referrer Policy tokens"
+    measured: true
     fix: "Send Referrer-Policy: strict-origin-when-cross-origin."
     docs: https://www.w3.org/TR/referrer-policy/#referrer-policy-header
   http/coop-syntax:
@@ -251,7 +252,8 @@ rules:
     when: {http.document: true, http.parsed.cross-origin-opener-policy: {type: object}}
     severity: warning
     score: 3.9
-    message: "Cross-Origin-Opener-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
+    message: "Cross-Origin-Opener-Policy breaks its structured-field grammar, so browsers ignore it"
+    measured: true
     fix: "Send Cross-Origin-Opener-Policy: same-origin."
     docs: https://html.spec.whatwg.org/multipage/browsers.html#the-coop-headers
   http/coep-syntax:
@@ -260,7 +262,8 @@ rules:
     when: {http.parsed.cross-origin-embedder-policy: {type: object}}
     severity: warning
     score: 3.8
-    message: "Cross-Origin-Embedder-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
+    message: "Cross-Origin-Embedder-Policy breaks its structured-field grammar, so browsers ignore it"
+    measured: true
     fix: "Send Cross-Origin-Embedder-Policy: credentialless."
     docs: https://html.spec.whatwg.org/multipage/browsers.html#the-coep-headers
   http/reporting-endpoints-syntax:
@@ -269,6 +272,7 @@ rules:
     when: {http.parsed.reporting-endpoints: {type: object}}
     severity: warning
     score: 3.4
-    message: "Reporting-Endpoints breaks its structured-field grammar, so browsers ignore it: {got}"
+    message: "Reporting-Endpoints breaks its structured-field grammar, so browsers ignore it"
+    measured: true
     fix: "Send Reporting-Endpoints: default=\"/reports\"."
     docs: https://www.w3.org/TR/reporting-1/#header

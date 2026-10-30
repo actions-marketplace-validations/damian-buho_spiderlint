@@ -480,8 +480,8 @@ msgstr "посилання недоступне: {error}; на нього пос
 msgid "the link answers {status}; linked from these pages"
 msgstr "посилання відповідає {status}; на нього посилаються ці сторінки"
 
-msgid "<html lang> should be a BCP 47 language tag, found {got}"
-msgstr "<html lang> має бути мовним тегом BCP 47, знайдено {got}"
+msgid "<html lang> should be a BCP 47 language tag"
+msgstr "<html lang> має бути мовним тегом BCP 47"
 
 msgid "<meta charset> should declare UTF-8 within the first 1024 bytes, found {got}"
 msgstr "<meta charset> має оголошувати UTF-8 у перших 1024 байтах, знайдено {got}"
@@ -627,14 +627,14 @@ msgstr "Content-Security-Policy має задавати object-src 'none'"
 msgid "Content-Type breaks RFC 9110 §8.3.1: {got}"
 msgstr "Content-Type порушує RFC 9110 §8.3.1: {got}"
 
-msgid "Cross-Origin-Embedder-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
-msgstr "Cross-Origin-Embedder-Policy порушує граматику структурованого поля, тому браузери його ігнорують: {got}"
+msgid "Cross-Origin-Embedder-Policy breaks its structured-field grammar, so browsers ignore it"
+msgstr "Cross-Origin-Embedder-Policy порушує граматику структурованого поля, тому браузери його ігнорують"
 
 msgid "Cross-Origin-Embedder-Policy should be require-corp or credentialless, found {got}"
 msgstr "Cross-Origin-Embedder-Policy має бути require-corp або credentialless, знайдено {got}"
 
-msgid "Cross-Origin-Opener-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
-msgstr "Cross-Origin-Opener-Policy порушує граматику структурованого поля, тому браузери його ігнорують: {got}"
+msgid "Cross-Origin-Opener-Policy breaks its structured-field grammar, so browsers ignore it"
+msgstr "Cross-Origin-Opener-Policy порушує граматику структурованого поля, тому браузери його ігнорують"
 
 msgid "Cross-Origin-Opener-Policy should be same-origin or same-origin-allow-popups"
 msgstr "Cross-Origin-Opener-Policy має бути same-origin або same-origin-allow-popups"
@@ -762,14 +762,14 @@ msgstr "Priority порушує граматику структурованог�
 msgid "reached through a temporary redirect ({got})"
 msgstr "досягається через тимчасове переспрямування ({got})"
 
-msgid "Referrer-Policy breaks the Referrer Policy tokens: {got}"
-msgstr "Referrer-Policy порушує токени Referrer Policy: {got}"
+msgid "Referrer-Policy breaks the Referrer Policy tokens"
+msgstr "Referrer-Policy порушує токени Referrer Policy"
 
 msgid "Referrer-Policy should not leak full URLs"
 msgstr "Referrer-Policy не має розкривати повні URL"
 
-msgid "Reporting-Endpoints breaks its structured-field grammar, so browsers ignore it: {got}"
-msgstr "Reporting-Endpoints порушує граматику структурованого поля, тому браузери його ігнорують: {got}"
+msgid "Reporting-Endpoints breaks its structured-field grammar, so browsers ignore it"
+msgstr "Reporting-Endpoints порушує граматику структурованого поля, тому браузери його ігнорують"
 
 msgid "Retry-After asks clients back in {got} seconds, which brings the load straight back to a server that is shedding it"
 msgstr "Retry-After просить клієнтів повернутися за {got} с, що одразу повертає навантаження серверу, який намагається його скинути"
