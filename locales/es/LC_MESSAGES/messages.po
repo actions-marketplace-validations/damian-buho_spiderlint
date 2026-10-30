@@ -525,8 +525,8 @@ msgstr "un artículo no da fecha de publicación para su vista previa de enlace"
 msgid "an article names no author for its link preview"
 msgstr "un artículo no nombra autor para su vista previa de enlace"
 
-msgid "an article names no fediverse:creator account for Mastodon previews, found {got}"
-msgstr "un artículo no nombra una cuenta fediverse:creator para las vistas previas de Mastodon, se encontró {got}"
+msgid "an article names no fediverse:creator account for Mastodon previews"
+msgstr "un artículo no nombra una cuenta fediverse:creator para las vistas previas de Mastodon"
 
 msgid "a page is {got} links away from the start page, more than 3"
 msgstr "una página está a {got} enlaces de la página de inicio, más de 3"
@@ -546,8 +546,8 @@ msgstr "una página que lista el sitemap dice noindex, en <meta name=robots> o X
 msgid "a preloaded resource went unused ({got})"
 msgstr "un recurso precargado no se usó ({got})"
 
-msgid "a redirect does not say which component sent it with Redirect-By ({got})"
-msgstr "una redirección no dice qué componente la envió con Redirect-By ({got})"
+msgid "a redirect does not say which component sent it with Redirect-By"
+msgstr "una redirección no dice qué componente la envió con Redirect-By"
 
 msgid "a right-to-left language should set <html dir=rtl>"
 msgstr "un idioma de derecha a izquierda debe fijar <html dir=rtl>"
@@ -630,8 +630,8 @@ msgstr "Content-Type incumple la RFC 9110 §8.3.1: {got}"
 msgid "Cross-Origin-Embedder-Policy breaks its structured-field grammar, so browsers ignore it"
 msgstr "Cross-Origin-Embedder-Policy rompe su gramática de campo estructurado, así que los navegadores la ignoran"
 
-msgid "Cross-Origin-Embedder-Policy should be require-corp or credentialless, found {got}"
-msgstr "Cross-Origin-Embedder-Policy debe ser require-corp o credentialless, se encontró {got}"
+msgid "Cross-Origin-Embedder-Policy should be require-corp or credentialless"
+msgstr "Cross-Origin-Embedder-Policy debe ser require-corp o credentialless"
 
 msgid "Cross-Origin-Opener-Policy breaks its structured-field grammar, so browsers ignore it"
 msgstr "Cross-Origin-Opener-Policy rompe su gramática de campo estructurado, así que los navegadores la ignoran"
@@ -735,8 +735,8 @@ msgstr "og:type debe ser un tipo de Open Graph o namespace:type"
 msgid "og:url should be an absolute http(s) URL"
 msgstr "og:url debe ser una URL http(s) absoluta"
 
-msgid "one view emits {got} g CO2e by the Sustainable Web Design model, above the 0.209 g budget (rating C)"
-msgstr "una vista emite {got} g de CO2e según el modelo Sustainable Web Design, por encima del presupuesto de 0,209 g (calificación C)"
+msgid "one view emits too much CO2e by the Sustainable Web Design model, above the 0.209 g budget (rating C)"
+msgstr "una vista emite demasiado CO2e según el modelo Sustainable Web Design, por encima del presupuesto de 0,209 g (calificación C)"
 
 msgid "only {got} page of the site links here"
 msgstr "solo {got} página del sitio enlaza aquí"
@@ -792,8 +792,8 @@ msgstr "Strict-Transport-Security debe llevar max-age de 1000000 o más"
 msgid "Sunset should be an HTTP-date, found {got}"
 msgstr "Sunset debe ser una HTTP-date, se encontró {got}"
 
-msgid "takes more than 2 redirects to land ({got})"
-msgstr "requiere más de 2 redirecciones para llegar ({got})"
+msgid "takes more than 2 redirects to land"
+msgstr "requiere más de 2 redirecciones para llegar"
 
 msgid "tdm-reservation should be 0 or 1"
 msgstr "tdm-reservation debe ser 0 o 1"

@@ -525,8 +525,8 @@ msgstr "стаття не вказує дату публікації для по
 msgid "an article names no author for its link preview"
 msgstr "стаття не називає автора для попереднього перегляду посилання"
 
-msgid "an article names no fediverse:creator account for Mastodon previews, found {got}"
-msgstr "стаття не називає облікового запису fediverse:creator для попереднього перегляду в Mastodon, знайдено {got}"
+msgid "an article names no fediverse:creator account for Mastodon previews"
+msgstr "стаття не називає облікового запису fediverse:creator для попереднього перегляду в Mastodon"
 
 msgid "a page is {got} links away from the start page, more than 3"
 msgstr "сторінка віддалена від початкової на {got} посилань, більше ніж 3"
@@ -546,8 +546,8 @@ msgstr "сторінка зі sitemap каже noindex у <meta name=robots> а�
 msgid "a preloaded resource went unused ({got})"
 msgstr "попередньо завантажений ресурс не використано ({got})"
 
-msgid "a redirect does not say which component sent it with Redirect-By ({got})"
-msgstr "переспрямування не вказує через Redirect-By, який компонент його надіслав ({got})"
+msgid "a redirect does not say which component sent it with Redirect-By"
+msgstr "переспрямування не вказує через Redirect-By, який компонент його надіслав"
 
 msgid "a right-to-left language should set <html dir=rtl>"
 msgstr "мова справа наліво має задавати <html dir=rtl>"
@@ -630,8 +630,8 @@ msgstr "Content-Type порушує RFC 9110 §8.3.1: {got}"
 msgid "Cross-Origin-Embedder-Policy breaks its structured-field grammar, so browsers ignore it"
 msgstr "Cross-Origin-Embedder-Policy порушує граматику структурованого поля, тому браузери його ігнорують"
 
-msgid "Cross-Origin-Embedder-Policy should be require-corp or credentialless, found {got}"
-msgstr "Cross-Origin-Embedder-Policy має бути require-corp або credentialless, знайдено {got}"
+msgid "Cross-Origin-Embedder-Policy should be require-corp or credentialless"
+msgstr "Cross-Origin-Embedder-Policy має бути require-corp або credentialless"
 
 msgid "Cross-Origin-Opener-Policy breaks its structured-field grammar, so browsers ignore it"
 msgstr "Cross-Origin-Opener-Policy порушує граматику структурованого поля, тому браузери його ігнорують"
@@ -735,8 +735,8 @@ msgstr "og:type має бути типом Open Graph або namespace:type"
 msgid "og:url should be an absolute http(s) URL"
 msgstr "og:url має бути абсолютним URL http(s)"
 
-msgid "one view emits {got} g CO2e by the Sustainable Web Design model, above the 0.209 g budget (rating C)"
-msgstr "один перегляд випромінює {got} г CO2e за моделлю Sustainable Web Design, понад бюджет 0,209 г (оцінка C)"
+msgid "one view emits too much CO2e by the Sustainable Web Design model, above the 0.209 g budget (rating C)"
+msgstr "один перегляд випромінює забагато CO2e за моделлю Sustainable Web Design, понад бюджет 0,209 г (оцінка C)"
 
 msgid "only {got} page of the site links here"
 msgstr "сюди посилається лише {got} сторінка сайту"
@@ -792,8 +792,8 @@ msgstr "Strict-Transport-Security має містити max-age від 1000000"
 msgid "Sunset should be an HTTP-date, found {got}"
 msgstr "Sunset має бути HTTP-date, знайдено {got}"
 
-msgid "takes more than 2 redirects to land ({got})"
-msgstr "потребує понад 2 переспрямувань, щоб дійти до місця ({got})"
+msgid "takes more than 2 redirects to land"
+msgstr "потребує понад 2 переспрямувань, щоб дійти до місця"
 
 msgid "tdm-reservation should be 0 or 1"
 msgstr "tdm-reservation має бути 0 або 1"
