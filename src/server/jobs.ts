@@ -109,6 +109,7 @@ export async function enqueue(jobs: Pick<Jobs, "queue" | "redis">, admitted: Adm
         ...(admitted.policy.repeat && { repeatKey: key }),
         ...(admitted.hidden && { hidden: true }),
         ...(isExample && { example: true }),
+        ...(admitted["content-signals"] && { "content-signals": admitted["content-signals"] }),
         trace: traceCarrier(),
     };
     const job = (await jobs.queue.add("scan", data, { jobId: jobId(admitted.host), ...(isExample && { removeOnComplete: false }) })) as ScanJob;

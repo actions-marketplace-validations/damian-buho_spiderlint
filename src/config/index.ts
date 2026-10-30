@@ -34,7 +34,7 @@ export interface Config {
     canonicalOrigin?: string;
     // What the site is for, the `site.role` fact rules gate on.
     role: Role;
-    // What crawlers may do with the content, the `site.content-signals` fact; unset is no stance.
+    // What crawlers may do with the content, from org.projectfile.ai.content-signals; unset is no stance.
     contentSignals?: Stance;
     fetch: FetchMode;
     browser: BrowserName;

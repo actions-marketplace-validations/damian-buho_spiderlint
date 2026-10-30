@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { Ajv2020, type ErrorObject } from "ajv/dist/2020.js";
-import { CONTENT_SIGNALS, ConfigError, PROFILES, ROLES } from "./index.ts";
+import { ConfigError, PROFILES, ROLES } from "./index.ts";
 
 const ajv = new Ajv2020({ strictTypes: false, allErrors: true });
 
@@ -41,7 +41,6 @@ const site = {
         targets: { type: "array", items: { type: "string" } },
         "canonical-origin": { type: "string" },
         role: { enum: ROLES },
-        "content-signals": { type: "object", additionalProperties: false, properties: Object.fromEntries(CONTENT_SIGNALS.map((signal) => [signal, { enum: ["yes", "no"] }])) },
         resolver: { type: "string" },
         resolve: { type: "array", items: { type: "string" } },
         rules: { type: "array", items: { type: "string" } },

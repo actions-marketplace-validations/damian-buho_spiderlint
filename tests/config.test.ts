@@ -217,7 +217,7 @@ describe("loadSettings", () => {
         assert.deepEqual(sites.a?.pluginSettings, { images: { oversize: 3 }, other: { x: 1 } });
     });
 
-    it("takes the stance from org.projectfile.ai.content-signals unless org.spiderlint sets one", () => {
+    it("takes the stance from org.projectfile.ai.content-signals, with or without pf-cli", () => {
         const declared = path.join(directory, "signals.yaml");
         writeFileSync(declared, ["org:", "  projectfile:", "    ai:", "      attitude: allowed", "      content-signals: [search]", "  spiderlint:", "    max-pages: 5"].join("\n"));
         const expected = { search: "yes", "ai-input": "no", "ai-train": "no" };
@@ -226,10 +226,8 @@ describe("loadSettings", () => {
             withoutPfCli(() => loadSettings(declared).settings.contentSignals),
             expected,
         );
-        const own = path.join(directory, "signals-own.yaml");
-        writeFileSync(own, ["org:", "  projectfile:", "    ai:", "      attitude: allowed", "      content-signals: [search]", "  spiderlint:", "    content-signals: { ai-train: yes }"].join("\n"));
-        assert.deepEqual(loadSettings(own).settings.contentSignals, { "ai-train": "yes" });
-        assert.throws(() => loadSettings(writeAndName(path.join(directory, "signals-bad.yaml"), ["org:", "  spiderlint:", "    content-signals: { ai-train: maybe }"])), /content-signals\/ai-train/);
+        const none = writeAndName(path.join(directory, "signals-none.yaml"), ["org:", "  spiderlint:", "    max-pages: 5"]);
+        assert.equal(loadSettings(none).settings.contentSignals, undefined);
     });
 
     it("rejects shared targets beside sites", () => {

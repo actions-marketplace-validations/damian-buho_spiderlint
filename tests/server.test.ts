@@ -17,7 +17,7 @@ import { ConfigError } from "../src/config/index.ts";
 import { negotiate, readerLocale, translator } from "../src/i18n.ts";
 import { api } from "../src/server/api.ts";
 import { Buckets, clientOf } from "../src/server/clients.ts";
-import { admit, policyFor, presetSettings, presetsOffered, Refusal, resolveRules, signalSettings } from "../src/server/policy.ts";
+import { admit, policyFor, presetSettings, presetsOffered, Refusal, grantedSignals, resolveRules } from "../src/server/policy.ts";
 import { addRanges } from "../src/server/providers.ts";
 import { connect, jobId, repeatKey, scanQueue } from "../src/server/queue.ts";
 import { tick } from "../src/server/examples.ts";
@@ -210,19 +210,28 @@ describe("server pages without Redis", () => {
         assert.match(await refused.text(), /<input id="hidden" type="checkbox" name="hidden" value="1" checked>/);
     });
 
-    it("offers a no-opinion select per content signal, kept after a refusal", async () => {
+    it("offers a policy box and one box per granted signal, all unticked at first and kept after a refusal", async () => {
         const response = await app.request("/", { headers: { "accept-language": "es" } });
         const html = await response.text();
-        assert.match(html, /<label for="signal-ai-train">Entrenamiento de IA <select id="signal-ai-train" name="signal-ai-train"><option value="" selected>Sin opinión<\/option>/);
-        assert.equal(html.match(/<select /g)?.length, 3);
-        const refused = await app.request("/", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ url: "", "signal-ai-train": "no" }).toString() });
-        assert.match(await refused.text(), /name="signal-ai-train"><option value="">[^<]*<\/option><option value="yes">[^<]*<\/option><option value="no" selected>/);
+        assert.match(html, /<input id="declare" type="checkbox" name="declare" value="1"> Exigir esta política al sitio/);
+        assert.match(html, /<input id="grant-ai-train" type="checkbox" name="grant-ai-train" value="1"> La IA puede entrenarse con él/);
+        assert.equal(html.match(/name="grant-/g)?.length, 3);
+        const refused = await app.request("/", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ url: "", declare: "1", "grant-search": "1" }).toString() });
+        const again = await refused.text();
+        assert.match(again, /name="declare" value="1" checked>/);
+        assert.match(again, /name="grant-search" value="1" checked>/);
+        assert.match(again, /name="grant-ai-train" value="1">/);
     });
 
-    it("turns the chosen signals into content-signals a request may carry, and ignores no stance or garbage", () => {
-        assert.deepEqual(signalSettings({ "signal-search": "yes", "signal-ai-input": "", "signal-ai-train": "no", "signal-other": "no" }), { "content-signals": { search: "yes", "ai-train": "no" } });
-        assert.deepEqual(signalSettings({ "signal-ai-train": "maybe" }), {});
-        assert.deepEqual(admit({ url: "https://example.com/", settings: { ...presetSettings("web-quick"), ...signalSettings({ "signal-ai-train": "no" }) } }, SETTINGS).settings["content-signals"], { "ai-train": "no" });
+    it("grants the ticked signals only once a policy is declared, and carries them beside the settings", () => {
+        assert.deepEqual(grantedSignals({ declare: "1", "grant-search": "1", "grant-other": "1" }), ["search"]);
+        assert.deepEqual(grantedSignals({ declare: "1" }), []);
+        assert.equal(grantedSignals({ "grant-search": "1" }), undefined);
+        const admitted = admit({ url: "https://example.com/", "content-signals": ["search"], settings: presetSettings("web-quick") }, SETTINGS);
+        assert.deepEqual(admitted["content-signals"], ["search"]);
+        assert.equal(admitted.settings["content-signals"], undefined);
+        assert.throws(() => admit({ url: "https://example.com/", "content-signals": "search" }, SETTINGS), { code: "invalid-body" });
+        assert.throws(() => admit({ url: "https://example.com/", settings: { "content-signals": { search: "yes" } } }, SETTINGS), { code: "forbidden-setting" });
     });
 
     it("lists the latest reports newest first in the reader’s language and drops one whose scan expired", async () => {

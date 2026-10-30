@@ -8,7 +8,7 @@ import { text } from "node:stream/consumers";
 import { setDefaultCACertificates } from "node:tls";
 import { systemCaCertificates } from "../ca.ts";
 import { ConfigError } from "../config/index.ts";
-import { fromSubtree } from "../config/policy.ts";
+import { fromSubtree, stanceOf } from "../config/policy.ts";
 import { validateSubtree } from "../config/schema.ts";
 import { audit } from "../index.ts";
 import { log } from "../logger.ts";
@@ -32,11 +32,22 @@ async function takePreview(url: string, isPrivateAllowed: boolean, by: number): 
 
 // Exit codes: 0 the report is on stdout, 2 the settings are invalid, 3 no page was fetched, 4 the run failed.
 async function main(): Promise<number> {
-    const { url, settings, deny, via, crawlDeadline, previewBy, trace } = JSON.parse(await text(process.stdin)) as { url: string; settings: Record<string, unknown>; deny: string[]; via?: string; crawlDeadline: number; previewBy?: number; trace?: Record<string, string> };
+    const {
+        url,
+        settings,
+        deny,
+        via,
+        "content-signals": signals,
+        crawlDeadline,
+        previewBy,
+        trace,
+    } = JSON.parse(await text(process.stdin)) as { url: string; settings: Record<string, unknown>; deny: string[]; via?: string; "content-signals"?: string[]; crawlDeadline: number; previewBy?: number; trace?: Record<string, string> };
     onProgress((progress) => writeSync(PROGRESS_FD, `${JSON.stringify(progress)}\n`));
     const telemetry = await startTelemetry("spiderlint");
     try {
-        const report = await withTraceCarrier(trace, async () => inSpan("scan", { "url.full": url }, async () => audit({ ...fromSubtree(validateSubtree(settings, "settings")), ...(via && { via }), seeds: [url], crawlDeadline, cacheMode: "off", denyRules: [...deny, ...NEVER_SERVED] })));
+        const report = await withTraceCarrier(trace, async () =>
+            inSpan("scan", { "url.full": url }, async () => audit({ ...fromSubtree(validateSubtree(settings, "settings")), ...(via && { via }), ...(signals && { contentSignals: stanceOf(signals) }), seeds: [url], crawlDeadline, cacheMode: "off", denyRules: [...deny, ...NEVER_SERVED] })),
+        );
         log.info({ url, pages: report.pages.length, findings: report.findings.length }, "scan finished");
         if (report.pages.length === 0) return 3;
         process.stdout.write(formatJson(report));

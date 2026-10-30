@@ -86,7 +86,6 @@ form { display: flex; flex-wrap: wrap; gap: .75rem; margin-block: 2rem; }
 form label.muted { flex: 1 1 100%; }
 fieldset { flex: 1 1 100%; border: 0; padding: 0; margin: 1rem 0 0; display: grid; gap: .5rem; } fieldset label { display: block; padding: .75rem 1rem; background: var(--surface); border: 1px solid var(--line); }
 legend { padding: 0; }
-fieldset select { font: inherit; padding: .25rem .5rem; margin-inline-start: .5rem; border: 1px solid var(--line); color: inherit; background: var(--bg); }
 input[type=radio], input[type=checkbox] { flex: none; inline-size: auto; margin-inline-end: .5rem; }
 .check { flex: 1 1 100%; }
 .cards { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 1rem; }

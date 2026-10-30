@@ -78,7 +78,6 @@ export type Settings = Partial<
 const KEYS: [string, keyof Settings][] = [
     ["targets", "seeds"],
     ["role", "role"],
-    ["content-signals", "contentSignals"],
     ["fetch", "fetch"],
     ["browser", "browser"],
     ["browser-install", "browserInstall"],
@@ -209,9 +208,9 @@ function declaredStance(document: string): Stance | undefined {
     return stance;
 }
 
-// The shared settings, with the declared stance under them when org.spiderlint sets none.
+// The shared settings with the project’s declared stance.
 function withStance(resolved: ReturnType<typeof resolve>, document: string): ReturnType<typeof resolve> {
-    const contentSignals = resolved.settings.contentSignals ?? declaredStance(document);
+    const contentSignals = declaredStance(document);
     return { ...resolved, settings: { ...resolved.settings, ...(contentSignals && { contentSignals }) } };
 }
 

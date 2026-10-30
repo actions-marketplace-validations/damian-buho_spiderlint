@@ -11,7 +11,7 @@ import { log } from "../logger.ts";
 import { CAPPED, type Policy, type ServerSettings } from "./settings.ts";
 
 // `org.spiderlint` keys a request may set; the rest read files, load code, leave the address guard or skip robots.txt.
-const REQUEST_KEYS = new Set(["canonical-origin", "content-signals", "rules", "exclude-rules", "override", "groups", "fetch", "browser", "scope", "concurrency", "rate", "timeout", "max-pages", "max-depth", "max-body-size", "keepalive", "include-urls", "exclude-urls", "resources", "links", "sitemap", "fold"]);
+const REQUEST_KEYS = new Set(["canonical-origin", "rules", "exclude-rules", "override", "groups", "fetch", "browser", "scope", "concurrency", "rate", "timeout", "max-pages", "max-depth", "max-body-size", "keepalive", "include-urls", "exclude-urls", "resources", "links", "sitemap", "fold"]);
 
 // Rules whose extractors connect to ports a stranger’s URL must never aim the server at.
 export const NEVER_SERVED = ["sshfp", "sshfp/*"];
@@ -45,6 +45,8 @@ export interface Admitted {
     settings: Record<string, unknown>;
     // True when the requester keeps the scan out of the latest reports and the badge.
     hidden: boolean;
+    // The signals the requester grants, as org.projectfile.ai.content-signals lists them; unset declares none.
+    "content-signals"?: string[];
 }
 
 // The http or https seed, without credentials, and its lowercase host without a trailing dot.
@@ -86,11 +88,11 @@ function checkRules(settings: Record<string, unknown>, policy: Policy): void {
     }
 }
 
-// The `content-signals` a form’s `signal-<name>` fields set; an empty or unknown value takes no stance.
-export function signalSettings(form: Record<string, unknown>): Record<string, unknown> {
-    const stance = Object.fromEntries(CONTENT_SIGNALS.flatMap((signal) => (form[`signal-${signal}`] === "yes" || form[`signal-${signal}`] === "no" ? [[signal, form[`signal-${signal}`]]] : [])));
-    log.debug({ stance }, "web content signals chosen");
-    return Object.keys(stance).length > 0 ? { "content-signals": stance } : {};
+// The signals a form grants, as org.projectfile.ai.content-signals lists them; none unless the form declares a policy.
+export function grantedSignals(form: Record<string, unknown>): string[] | undefined {
+    const granted = CONTENT_SIGNALS.filter((signal) => form[`grant-${signal}`] !== undefined);
+    log.debug({ isDeclared: form.declare !== undefined, granted }, "web content signals chosen");
+    return form.declare === undefined ? undefined : granted;
 }
 
 // The request settings of the web preset `name`, or a refusal when the form never offered it.
@@ -129,9 +131,10 @@ function checkFetch(settings: Record<string, unknown>, policy: Policy): Record<s
 
 // The request as the scan will run it, or the Refusal naming why it may not run.
 export function admit(body: unknown, server: ServerSettings): Admitted {
-    const { url: rawUrl, settings: requested = {}, hidden = false } = (body ?? {}) as { url?: unknown; settings?: unknown; hidden?: unknown };
+    const { url: rawUrl, settings: requested = {}, hidden = false, "content-signals": signals } = (body ?? {}) as { url?: unknown; settings?: unknown; hidden?: unknown; "content-signals"?: unknown };
     const { url, host } = seedOf(rawUrl);
     if (typeof hidden !== "boolean") throw new Refusal(400, "invalid-body", "hidden: expected true or false");
+    if (signals !== undefined && !(Array.isArray(signals) && signals.every((signal) => typeof signal === "string"))) throw new Refusal(400, "invalid-body", "content-signals: expected a list of signal names");
     const policy = policyFor(host, server.policies);
     log.info({ host, policy: policy?.name, isBanned: policy?.ban !== undefined }, "policy matched");
     if (!policy) throw new Refusal(403, "no-policy", `${host}: no policy admits this host`);
@@ -150,7 +153,7 @@ export function admit(body: unknown, server: ServerSettings): Admitted {
     settings = checkFetch(settings, policy);
     const caps = Object.fromEntries(CAPPED.map((key) => [key, capped(settings[key], policy.caps[key])]).filter(([, value]) => value !== undefined));
     log.debug({ host, policy: policy.name, caps, denied: policy.rules.deny.length }, "request clamped");
-    return { url, host, policy, hidden, settings: { ...settings, ...caps, robots: true, "allow-private": server.allowPrivate, "browser-install": false } };
+    return { url, host, policy, hidden, ...(signals !== undefined && { "content-signals": signals as string[] }), settings: { ...settings, ...caps, robots: true, "allow-private": server.allowPrivate, "browser-install": false } };
 }
 
 // Refuses a scan naming a ruleset or rule no configured plugin defines, before any window is charged.

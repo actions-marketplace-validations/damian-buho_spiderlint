@@ -122,29 +122,23 @@ msgstr "Приховано з результатів: цей звіт відкр
 msgid "Hide from results"
 msgstr "Приховати з результатів"
 
-msgid "Search engines"
-msgstr "Пошукові системи"
+msgid "AI policy"
+msgstr "Політика щодо ШІ"
 
-msgid "AI answers"
-msgstr "Відповіді ШІ"
+msgid "Hold the site to this policy"
+msgstr "Перевіряти сайт за цією політикою"
 
-msgid "AI training"
-msgstr "Навчання ШІ"
+msgid "Unticked, the site’s own Content-Signal in robots.txt is the policy."
+msgstr "Без позначки політикою є власний Content-Signal у robots.txt сайту."
 
-msgid "No opinion"
-msgstr "Без думки"
+msgid "Search engines may list it"
+msgstr "Пошукові системи можуть його показувати"
 
-msgid "Welcome"
-msgstr "Бажаний"
+msgid "AI may answer from it"
+msgstr "ШІ може відповідати на його основі"
 
-msgid "Unwelcome"
-msgstr "Небажаний"
-
-msgid "Crawlers"
-msgstr "Краулери"
-
-msgid "A welcome crawler the site blocks, or an unwelcome one it lets in, is reported."
-msgstr "Звіт називає бажаного краулера, якого сайт блокує, або небажаного, якого він пропускає."
+msgid "AI may train on it"
+msgstr "ШІ може на ньому навчатися"
 
 msgid "Hint"
 msgstr "Порада"

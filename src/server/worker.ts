@@ -80,7 +80,7 @@ async function storePreview(redis: Redis, job: ScanJob, cwd: string, retention: 
 
 // One scan in a runner child under a temporary working directory, its progress relayed at most once per second.
 async function runScan(job: ScanJob, redis: Redis, server: ServerSettings): Promise<ScanResult> {
-    const { url, settings, scanTimeout, deny, via } = job.data;
+    const { url, settings, scanTimeout, deny, via, "content-signals": signals } = job.data;
     const previewBy = server.previews && !job.data.hidden ? Date.now() + (scanTimeout - PREVIEW_MARGIN_S) * 1000 : undefined;
     const cwd = await mkdtemp(path.join(tmpdir(), "spiderlint-scan-"));
     const child = spawn(process.execPath, ["--experimental-strip-types", RUNNER], { cwd, stdio: ["pipe", "pipe", "pipe", "pipe"], env: { ...process.env, SPIDERLINT_LOG_FORMAT: "json" } });
@@ -113,7 +113,7 @@ async function runScan(job: ScanJob, redis: Redis, server: ServerSettings): Prom
         progress.sent = now;
         store(line);
     });
-    child.stdin?.end(JSON.stringify({ url, settings, deny, via, crawlDeadline: Math.floor(scanTimeout * CRAWL_SHARE), previewBy, trace: traceCarrier() }));
+    child.stdin?.end(JSON.stringify({ url, settings, deny, via, "content-signals": signals, crawlDeadline: Math.floor(scanTimeout * CRAWL_SHARE), previewBy, trace: traceCarrier() }));
     const [code, signal] = await new Promise<[number | null, NodeJS.Signals | null]>((resolve) => child.once("close", (exitCode, exitSignal) => resolve([exitCode, exitSignal])));
     clearTimeout(timer);
     if (progress.held) store(progress.held);

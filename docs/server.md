@@ -113,11 +113,12 @@ available”. List `web-*` in `allow` to offer them where `allow` is set. A pres
 lowers `max-pages` and never raises a cap past the policy’s. The job page and the
 report header name the rule set.
 
-Under them, one select per Content Signal (search engines `search`, AI answers
-`ai-input`, AI training `ai-train`) offers no opinion, welcome or unwelcome. A
-choice other than no opinion is sent as `content-signals`, an ordinary request
-key: crawlers the site blocks while welcome, or lets in while unwelcome, are
-reported. With no choice, the scan takes the site’s own `Content-Signal` lines.
+Under them, an AI policy box declares a policy, and one box per Content Signal
+(`search`, `ai-input`, `ai-train`) grants it. A declared policy is sent as the
+request’s `content-signals` list, the shape of `org.projectfile.ai.content-signals`:
+a crawler the site blocks while its signal is granted, or lets in while it is not,
+is reported. With no policy declared, the scan takes the site’s own `Content-Signal`
+lines.
 
 A request that names no rules runs `recommended`, so an `allow` list without it
 refuses such a request. Settings a request may never set: `plugins`, `sources`,
@@ -167,6 +168,10 @@ The request body carries the target and, optionally, `org.spiderlint` keys:
   }
 }
 ```
+
+`"content-signals": ["search", "ai-input"]` holds the site to that AI policy, read as
+`org.projectfile.ai.content-signals` is: a known signal left out is withheld. It is
+not a setting, so `settings` never carries it.
 
 `"hidden": true` keeps the scan out of the host’s badge and out of the latest reports.
 The job reports `hidden`, its page asks search engines to skip it, and it has a repeat

@@ -420,7 +420,7 @@ Runs after all page-scope findings exist, per `(group, rule)`:
 
 ### Content signals
 
-- The stance is `content-signals` (per `sites.<name>`, settable by a server request), else `org.projectfile.ai.content-signals` read through pf-cli: a listed signal is `yes`, a known one left out `no`, no list no stance. It becomes the fact `site.content-signals`.
+- The stance is `org.projectfile.ai.content-signals`, read through pf-cli, or a server request’s top-level `content-signals` list of the same shape; spiderlint has no key of its own for it: a listed signal is `yes`, a known one left out `no`, no list no stance. It becomes the fact `site.content-signals`.
 - `CRAWLERS` in `rules/robots.ts` maps each token to a purpose and `SIGNAL_OF` maps a purpose to its signal: `index` (search engines) to `search`, AI `search` and `user` to `ai-input`, `training` to `ai-train`; `retired` answers to none.
 - `robots/crawler-access` (warning) judges each `robots.txt` a 2xx or 4xx answered: a token the groups RFC 9309 picks for it shut out of `/` while its signal is `yes`, or, with a declared stance only, let in while it is `no`. `search` is `yes` unless the stance says otherwise, so a blocked search engine is always a finding. With no declared stance the file’s own `Content-Signal` for `*` is the stance, and its `no` is never second-guessed, since a signal governs use, not access.
 - `html/noai` (warning) wants no `noai` or `noimageai` (`<meta name=robots>`, `X-Robots-Tag`) on a page while the stance says `ai-train=yes`.
@@ -484,7 +484,6 @@ org:
     targets: [https://f.dbuho.me/]     # optional; the command-line urls win
     canonical-origin: https://dbuho.me # optional; the origin a staging twin’s pages are built for
     role: production                   # production | staging | development
-    content-signals: {}                # { search, ai-input, ai-train: yes | no }; unset reads org.projectfile.ai.content-signals
     resolver: system                   # or 9.9.9.9,[2620:fe::fe]:53; the servers the crawl and the dns plugin ask
     resolve: []                        # host[:port]:address pins, as curl’s --resolve
     rules: [all]                       # optional; replaces every group's rules

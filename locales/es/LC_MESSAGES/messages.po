@@ -125,29 +125,23 @@ msgstr "Oculto de los resultados: solo quien tenga este enlace puede abrir este 
 msgid "Hide from results"
 msgstr "Ocultar de los resultados"
 
-msgid "Search engines"
-msgstr "Buscadores"
+msgid "AI policy"
+msgstr "Política de IA"
 
-msgid "AI answers"
-msgstr "Respuestas de IA"
+msgid "Hold the site to this policy"
+msgstr "Exigir esta política al sitio"
 
-msgid "AI training"
-msgstr "Entrenamiento de IA"
+msgid "Unticked, the site’s own Content-Signal in robots.txt is the policy."
+msgstr "Sin marcar, la política es el propio Content-Signal del robots.txt del sitio."
 
-msgid "No opinion"
-msgstr "Sin opinión"
+msgid "Search engines may list it"
+msgstr "Los buscadores pueden listarlo"
 
-msgid "Welcome"
-msgstr "Bienvenido"
+msgid "AI may answer from it"
+msgstr "La IA puede responder con él"
 
-msgid "Unwelcome"
-msgstr "No bienvenido"
-
-msgid "Crawlers"
-msgstr "Rastreadores"
-
-msgid "A welcome crawler the site blocks, or an unwelcome one it lets in, is reported."
-msgstr "Se informa de un rastreador bienvenido que el sitio bloquea, o de uno no bienvenido al que deja pasar."
+msgid "AI may train on it"
+msgstr "La IA puede entrenarse con él"
 
 msgid "Hint"
 msgstr "Sugerencia"

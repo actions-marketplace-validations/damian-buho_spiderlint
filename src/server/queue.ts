@@ -33,6 +33,8 @@ export interface ScanData {
     hidden?: boolean;
     // Set when the scan is one of the instance’s examples, kept until its host’s next one replaces it.
     example?: boolean;
+    // The signals the requester grants; unset declares none.
+    "content-signals"?: string[];
     // The submitting request’s trace context as W3C headers, empty when telemetry is off.
     trace?: Record<string, string>;
 }
@@ -80,7 +82,7 @@ export async function charge(redis: Redis, admitted: Admitted): Promise<void> {
 export function repeatKey(admitted: Admitted): string {
     const sorted = JSON.stringify(admitted.settings, (_key, value: unknown) => (value && typeof value === "object" && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).toSorted(([a], [b]) => a.localeCompare(b))) : value));
     return `${PREFIX}:repeat:${admitted.policy.name}:${createHash("sha256")
-        .update(`${admitted.url}\n${sorted}${admitted.hidden ? "\nhidden" : ""}`)
+        .update(`${admitted.url}\n${sorted}${admitted.hidden ? "\nhidden" : ""}${admitted["content-signals"] ? `\n${admitted["content-signals"].join(",")}` : ""}`)
         .digest("hex")}`;
 }
 
