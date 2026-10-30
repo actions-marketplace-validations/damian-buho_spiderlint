@@ -252,7 +252,8 @@ rules:
     expect: {type: string, pattern: "^(?:website|article|book|profile|music\\.(?:song|album|playlist|radio_station)|video\\.(?:movie|episode|tv_show|other)|[a-z][\\w-]*:[\\w.-]+)$"}
     severity: info
     score: 1.1
-    message: "og:type should be an Open Graph type or namespace:type, found {got}"
+    message: "og:type should be an Open Graph type or namespace:type"
+    measured: true
     docs: https://ogp.me/#types
     fix: "Set og:type to website, or article on a post."
   html/og-url:
@@ -260,7 +261,8 @@ rules:
     expect: {type: string, format: uri, pattern: "^(?i:https?)://"}
     severity: info
     score: 2.5
-    message: "og:url should be an absolute http(s) URL, found {got}"
+    message: "og:url should be an absolute http(s) URL"
+    measured: true
     docs: https://ogp.me/#metadata
     fix: "Make og:url an absolute URL of this page."
   html/author:
@@ -295,7 +297,8 @@ rules:
     scope: site
     severity: warning
     score: 5.6
-    message: "pages share one meta description: {got}"
+    message: "pages share one meta description"
+    measured: true
     docs: https://developers.google.com/search/docs/appearance/snippet
     fix: "Give each page a distinct meta description."
   html/unique-og-title:
@@ -303,7 +306,8 @@ rules:
     scope: site
     severity: warning
     score: 4.2
-    message: "pages share one og:title: {got}"
+    message: "pages share one og:title"
+    measured: true
     docs: https://ogp.me/#metadata
     fix: "Give each page a distinct og:title."
   html/unique-og-description:
@@ -311,7 +315,8 @@ rules:
     scope: site
     severity: warning
     score: 4.1
-    message: "pages share one og:description: {got}"
+    message: "pages share one og:description"
+    measured: true
     docs: https://ogp.me/#optional
     fix: "Give each page a distinct og:description."
   html/noindex-twin:

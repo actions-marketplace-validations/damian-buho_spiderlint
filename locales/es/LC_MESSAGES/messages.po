@@ -729,11 +729,11 @@ msgstr "og:image debe ser una URL http(s) absoluta"
 msgid "og:title should be 10–90 characters"
 msgstr "og:title debe tener entre 10 y 90 caracteres"
 
-msgid "og:type should be an Open Graph type or namespace:type, found {got}"
-msgstr "og:type debe ser un tipo de Open Graph o namespace:type, se encontró {got}"
+msgid "og:type should be an Open Graph type or namespace:type"
+msgstr "og:type debe ser un tipo de Open Graph o namespace:type"
 
-msgid "og:url should be an absolute http(s) URL, found {got}"
-msgstr "og:url debe ser una URL http(s) absoluta, se encontró {got}"
+msgid "og:url should be an absolute http(s) URL"
+msgstr "og:url debe ser una URL http(s) absoluta"
 
 msgid "one view emits {got} g CO2e by the Sustainable Web Design model, above the 0.209 g budget (rating C)"
 msgstr "una vista emite {got} g de CO2e según el modelo Sustainable Web Design, por encima del presupuesto de 0,209 g (calificación C)"
@@ -744,14 +744,14 @@ msgstr "solo {got} página del sitio enlaza aquí"
 msgid "pages share one <title>"
 msgstr "varias páginas comparten un <title>"
 
-msgid "pages share one meta description: {got}"
-msgstr "varias páginas comparten una meta descripción: {got}"
+msgid "pages share one meta description"
+msgstr "varias páginas comparten una meta descripción"
 
-msgid "pages share one og:description: {got}"
-msgstr "varias páginas comparten un og:description: {got}"
+msgid "pages share one og:description"
+msgstr "varias páginas comparten un og:description"
 
-msgid "pages share one og:title: {got}"
-msgstr "varias páginas comparten un og:title: {got}"
+msgid "pages share one og:title"
+msgstr "varias páginas comparten un og:title"
 
 msgid "Permissions-Policy breaks its structured-field grammar, so browsers ignore it"
 msgstr "Permissions-Policy rompe su gramática de campo estructurado, así que los navegadores la ignoran"
