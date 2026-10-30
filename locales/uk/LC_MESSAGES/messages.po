@@ -528,8 +528,8 @@ msgstr "стаття не називає автора для попереднь�
 msgid "an article names no fediverse:creator account for Mastodon previews"
 msgstr "стаття не називає облікового запису fediverse:creator для попереднього перегляду в Mastodon"
 
-msgid "a page is {got} links away from the start page, more than 3"
-msgstr "сторінка віддалена від початкової на {got} посилань, більше ніж 3"
+msgid "a page is more than 3 links away from the start page"
+msgstr "сторінка віддалена від початкової більше ніж на 3 посилання"
 
 msgid "a page links to no other page of the site"
 msgstr "сторінка не посилається на жодну іншу сторінку сайту"
@@ -555,8 +555,8 @@ msgstr "мова справа наліво має задавати <html dir=rtl
 msgid "a script in <head> without async, defer or type=module blocks rendering: {got}"
 msgstr "скрипт у <head> без async, defer чи type=module блокує відображення: {got}"
 
-msgid "a text response over 1 KB should be sent br, zstd or gzip, found {got}"
-msgstr "текстова відповідь понад 1 КБ має надсилатися через br, zstd або gzip, знайдено {got}"
+msgid "a text response over 1 KB should be sent br, zstd or gzip"
+msgstr "текстова відповідь понад 1 КБ має надсилатися через br, zstd або gzip"
 
 msgid "a URL with a query has no No-Vary-Search to say which parameters change the page"
 msgstr "URL із запитом не має No-Vary-Search, що вказував би, які параметри змінюють сторінку"
@@ -642,8 +642,8 @@ msgstr "Cross-Origin-Opener-Policy має бути same-origin або same-origi
 msgid "Cross-Origin-Resource-Policy should be same-origin, same-site or cross-origin"
 msgstr "Cross-Origin-Resource-Policy має бути same-origin, same-site або cross-origin"
 
-msgid "Date should be an IMF-fixdate, found {got}"
-msgstr "Date має бути IMF-fixdate, знайдено {got}"
+msgid "Date should be an IMF-fixdate"
+msgstr "Date має бути IMF-fixdate"
 
 msgid "Deprecation should be @ and Unix seconds, found {got}"
 msgstr "Deprecation має бути @ і секундами Unix, знайдено {got}"
@@ -738,8 +738,8 @@ msgstr "og:url має бути абсолютним URL http(s)"
 msgid "one view emits too much CO2e by the Sustainable Web Design model, above the 0.209 g budget (rating C)"
 msgstr "один перегляд випромінює забагато CO2e за моделлю Sustainable Web Design, понад бюджет 0,209 г (оцінка C)"
 
-msgid "only {got} page of the site links here"
-msgstr "сюди посилається лише {got} сторінка сайту"
+msgid "only a few pages of the site link here"
+msgstr "сюди посилається лише кілька сторінок сайту"
 
 msgid "pages share one <title>"
 msgstr "кілька сторінок мають спільний <title>"
@@ -759,8 +759,8 @@ msgstr "Permissions-Policy порушує граматику структуро�
 msgid "Priority breaks its structured-field grammar, so clients ignore it: {got}"
 msgstr "Priority порушує граматику структурованого поля, тому клієнти його ігнорують: {got}"
 
-msgid "reached through a temporary redirect ({got})"
-msgstr "досягається через тимчасове переспрямування ({got})"
+msgid "reached through a temporary redirect"
+msgstr "досягається через тимчасове переспрямування"
 
 msgid "Referrer-Policy breaks the Referrer Policy tokens"
 msgstr "Referrer-Policy порушує токени Referrer Policy"

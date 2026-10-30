@@ -13,7 +13,8 @@ rules:
       http.size.decoded: {minimum: 1024}
     severity: warning
     score: 6.3
-    message: "a text response over 1 KB should be sent br, zstd or gzip, found {got}"
+    message: "a text response over 1 KB should be sent br, zstd or gzip"
+    measured: true
     fix: "Compress text responses with br, zstd or gzip at the edge or in the server."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Compression
   http/vary-encoding:

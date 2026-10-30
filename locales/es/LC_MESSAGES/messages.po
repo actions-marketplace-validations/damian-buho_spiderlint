@@ -528,8 +528,8 @@ msgstr "un artículo no nombra autor para su vista previa de enlace"
 msgid "an article names no fediverse:creator account for Mastodon previews"
 msgstr "un artículo no nombra una cuenta fediverse:creator para las vistas previas de Mastodon"
 
-msgid "a page is {got} links away from the start page, more than 3"
-msgstr "una página está a {got} enlaces de la página de inicio, más de 3"
+msgid "a page is more than 3 links away from the start page"
+msgstr "una página está a más de 3 enlaces de la página de inicio"
 
 msgid "a page links to no other page of the site"
 msgstr "una página no enlaza a ninguna otra página del sitio"
@@ -555,8 +555,8 @@ msgstr "un idioma de derecha a izquierda debe fijar <html dir=rtl>"
 msgid "a script in <head> without async, defer or type=module blocks rendering: {got}"
 msgstr "un script en <head> sin async, defer ni type=module bloquea el renderizado: {got}"
 
-msgid "a text response over 1 KB should be sent br, zstd or gzip, found {got}"
-msgstr "una respuesta de texto de más de 1 KB debe enviarse con br, zstd o gzip, se encontró {got}"
+msgid "a text response over 1 KB should be sent br, zstd or gzip"
+msgstr "una respuesta de texto de más de 1 KB debe enviarse con br, zstd o gzip"
 
 msgid "a URL with a query has no No-Vary-Search to say which parameters change the page"
 msgstr "una URL con consulta no tiene No-Vary-Search que indique qué parámetros cambian la página"
@@ -642,8 +642,8 @@ msgstr "Cross-Origin-Opener-Policy debe ser same-origin o same-origin-allow-popu
 msgid "Cross-Origin-Resource-Policy should be same-origin, same-site or cross-origin"
 msgstr "Cross-Origin-Resource-Policy debe ser same-origin, same-site o cross-origin"
 
-msgid "Date should be an IMF-fixdate, found {got}"
-msgstr "Date debe ser una IMF-fixdate, se encontró {got}"
+msgid "Date should be an IMF-fixdate"
+msgstr "Date debe ser una IMF-fixdate"
 
 msgid "Deprecation should be @ and Unix seconds, found {got}"
 msgstr "Deprecation debe ser @ y segundos Unix, se encontró {got}"
@@ -738,8 +738,8 @@ msgstr "og:url debe ser una URL http(s) absoluta"
 msgid "one view emits too much CO2e by the Sustainable Web Design model, above the 0.209 g budget (rating C)"
 msgstr "una vista emite demasiado CO2e según el modelo Sustainable Web Design, por encima del presupuesto de 0,209 g (calificación C)"
 
-msgid "only {got} page of the site links here"
-msgstr "solo {got} página del sitio enlaza aquí"
+msgid "only a few pages of the site link here"
+msgstr "solo unas pocas páginas del sitio enlazan aquí"
 
 msgid "pages share one <title>"
 msgstr "varias páginas comparten un <title>"
@@ -759,8 +759,8 @@ msgstr "Permissions-Policy rompe su gramática de campo estructurado, así que l
 msgid "Priority breaks its structured-field grammar, so clients ignore it: {got}"
 msgstr "Priority rompe su gramática de campo estructurado, así que los clientes la ignoran: {got}"
 
-msgid "reached through a temporary redirect ({got})"
-msgstr "se llega mediante una redirección temporal ({got})"
+msgid "reached through a temporary redirect"
+msgstr "se llega mediante una redirección temporal"
 
 msgid "Referrer-Policy breaks the Referrer Policy tokens"
 msgstr "Referrer-Policy incumple los tokens de Referrer Policy"

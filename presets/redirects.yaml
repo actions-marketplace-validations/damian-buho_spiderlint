@@ -19,6 +19,7 @@ rules:
     when: {http.status: {minimum: 200, maximum: 299}}
     severity: info
     score: 2.4
-    message: "reached through a temporary redirect ({got})"
+    message: "reached through a temporary redirect"
+    measured: true
     fix: "Answer a moved page with 301 or 308, not 302, 303 or 307."
     docs: https://developers.google.com/search/docs/crawling-indexing/301-redirects#permanent-server-side
