@@ -516,8 +516,8 @@ msgstr "Alt-Svc має оголошувати h3"
 msgid "an <img> has no alt attribute"
 msgstr "<img> не має атрибута alt"
 
-msgid "an <img> without width and height shifts the layout as it loads: {got}"
-msgstr "<img> без width і height зсуває макет під час завантаження: {got}"
+msgid "an <img> without width and height shifts the layout as it loads"
+msgstr "<img> без width і height зсуває макет під час завантаження"
 
 msgid "an article gives no publication date for its link preview"
 msgstr "стаття не вказує дату публікації для попереднього перегляду посилання"
@@ -561,8 +561,8 @@ msgstr "текстова відповідь понад 1 КБ має надси�
 msgid "a URL with a query has no No-Vary-Search to say which parameters change the page"
 msgstr "URL із запитом не має No-Vary-Search, що вказував би, які параметри змінюють сторінку"
 
-msgid "Cache-Control breaks RFC 9111 §5.2, and caches ignore what they cannot read: {got}"
-msgstr "Cache-Control порушує RFC 9111 §5.2, а кеші ігнорують те, чого не можуть прочитати: {got}"
+msgid "Cache-Control breaks RFC 9111 §5.2, and caches ignore what they cannot read"
+msgstr "Cache-Control порушує RFC 9111 §5.2, а кеші ігнорують те, чого не можуть прочитати"
 
 msgid "Cache-Control no-store keeps the page out of the back/forward cache"
 msgstr "Cache-Control no-store виключає сторінку з кешу переходів назад/вперед"
@@ -654,8 +654,8 @@ msgstr "альтернативи hreflang мають містити x-default"
 msgid "internal links exist only after JavaScript runs"
 msgstr "внутрішні посилання з’являються лише після виконання JavaScript"
 
-msgid "Link breaks RFC 8288 §3, so clients drop the links they cannot read: {got}"
-msgstr "Link порушує RFC 8288 §3, тому клієнти відкидають посилання, яких не можуть прочитати: {got}"
+msgid "Link breaks RFC 8288 §3, so clients drop the links they cannot read"
+msgstr "Link порушує RFC 8288 §3, тому клієнти відкидають посилання, яких не можуть прочитати"
 
 msgid "listed in the sitemap, yet no crawled page links here"
 msgstr "є у sitemap, але жодна просканована сторінка не посилається сюди"
@@ -678,8 +678,8 @@ msgstr "meta viewport має задавати width=device-width і дозвол
 msgid "missing from the sitemap"
 msgstr "відсутня у sitemap"
 
-msgid "more than one stylesheet in <head> blocks rendering: {got}"
-msgstr "більше одного аркуша стилів у <head> блокує відображення: {got}"
+msgid "more than one stylesheet in <head> blocks rendering"
+msgstr "більше одного аркуша стилів у <head> блокує відображення"
 
 msgid "no <link rel=icon> in the head"
 msgstr "у head немає <link rel=icon>"
@@ -861,8 +861,8 @@ msgstr "шлях URL має бути малими літерами, з дефі�
 msgid "Use-As-Dictionary breaks its structured-field grammar, so clients ignore it: {got}"
 msgstr "Use-As-Dictionary порушує граматику структурованого поля, тому клієнти його ігнорують: {got}"
 
-msgid "Use-As-Dictionary needs a match=\"<URL pattern>\" member, found {got}"
-msgstr "Use-As-Dictionary потребує члена match=\"<шаблон URL>\", знайдено {got}"
+msgid "Use-As-Dictionary needs a match=\"<URL pattern>\" member"
+msgstr "Use-As-Dictionary потребує члена match=\"<шаблон URL>\""
 
 msgid "Vary breaks RFC 9110 §12.5.5: {got}"
 msgstr "Vary порушує RFC 9110 §12.5.5: {got}"

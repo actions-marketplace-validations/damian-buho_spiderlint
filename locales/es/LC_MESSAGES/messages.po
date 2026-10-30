@@ -516,8 +516,8 @@ msgstr "Alt-Svc debe anunciar h3"
 msgid "an <img> has no alt attribute"
 msgstr "un <img> no tiene atributo alt"
 
-msgid "an <img> without width and height shifts the layout as it loads: {got}"
-msgstr "un <img> sin width y height desplaza el diseño al cargar: {got}"
+msgid "an <img> without width and height shifts the layout as it loads"
+msgstr "un <img> sin width y height desplaza el diseño al cargar"
 
 msgid "an article gives no publication date for its link preview"
 msgstr "un artículo no da fecha de publicación para su vista previa de enlace"
@@ -561,8 +561,8 @@ msgstr "una respuesta de texto de más de 1 KB debe enviarse con br, zstd o gzip
 msgid "a URL with a query has no No-Vary-Search to say which parameters change the page"
 msgstr "una URL con consulta no tiene No-Vary-Search que indique qué parámetros cambian la página"
 
-msgid "Cache-Control breaks RFC 9111 §5.2, and caches ignore what they cannot read: {got}"
-msgstr "Cache-Control incumple la RFC 9111 §5.2, y las cachés ignoran lo que no pueden leer: {got}"
+msgid "Cache-Control breaks RFC 9111 §5.2, and caches ignore what they cannot read"
+msgstr "Cache-Control incumple la RFC 9111 §5.2, y las cachés ignoran lo que no pueden leer"
 
 msgid "Cache-Control no-store keeps the page out of the back/forward cache"
 msgstr "Cache-Control no-store deja la página fuera de la caché de ir atrás/adelante"
@@ -654,8 +654,8 @@ msgstr "las alternativas hreflang deben incluir x-default"
 msgid "internal links exist only after JavaScript runs"
 msgstr "los enlaces internos solo existen tras ejecutar JavaScript"
 
-msgid "Link breaks RFC 8288 §3, so clients drop the links they cannot read: {got}"
-msgstr "Link incumple la RFC 8288 §3, así que los clientes descartan los enlaces que no pueden leer: {got}"
+msgid "Link breaks RFC 8288 §3, so clients drop the links they cannot read"
+msgstr "Link incumple la RFC 8288 §3, así que los clientes descartan los enlaces que no pueden leer"
 
 msgid "listed in the sitemap, yet no crawled page links here"
 msgstr "figura en el sitemap, pero ninguna página rastreada enlaza aquí"
@@ -678,8 +678,8 @@ msgstr "meta viewport debe fijar width=device-width y permitir zoom"
 msgid "missing from the sitemap"
 msgstr "falta en el sitemap"
 
-msgid "more than one stylesheet in <head> blocks rendering: {got}"
-msgstr "más de una hoja de estilos en <head> bloquea el renderizado: {got}"
+msgid "more than one stylesheet in <head> blocks rendering"
+msgstr "más de una hoja de estilos en <head> bloquea el renderizado"
 
 msgid "no <link rel=icon> in the head"
 msgstr "no hay <link rel=icon> en la cabecera"
@@ -861,8 +861,8 @@ msgstr "la ruta de la URL debe estar en minúsculas, con guiones y sin segmentos
 msgid "Use-As-Dictionary breaks its structured-field grammar, so clients ignore it: {got}"
 msgstr "Use-As-Dictionary rompe su gramática de campo estructurado, así que los clientes la ignoran: {got}"
 
-msgid "Use-As-Dictionary needs a match=\"<URL pattern>\" member, found {got}"
-msgstr "Use-As-Dictionary necesita un miembro match=\"<patrón de URL>\", se encontró {got}"
+msgid "Use-As-Dictionary needs a match=\"<URL pattern>\" member"
+msgstr "Use-As-Dictionary necesita un miembro match=\"<patrón de URL>\""
 
 msgid "Vary breaks RFC 9110 §12.5.5: {got}"
 msgstr "Vary incumple la RFC 9110 §12.5.5: {got}"

@@ -149,7 +149,8 @@ rules:
     expect: {items: {if: {not: {required: [noscript]}}, then: {required: [width, height]}}}
     severity: warning
     score: 6.0
-    message: "an <img> without width and height shifts the layout as it loads: {got}"
+    message: "an <img> without width and height shifts the layout as it loads"
+    measured: true
     fix: "Add width and height attributes to the <img>."
     docs: https://web.dev/articles/optimize-cls#images-without-dimensions
   http/early-hints-preload:
@@ -170,7 +171,8 @@ rules:
     when: {http.parsed.link: {type: object}}
     severity: warning
     score: 4.6
-    message: "Link breaks RFC 8288 §3, so clients drop the links they cannot read: {got}"
+    message: "Link breaks RFC 8288 §3, so clients drop the links they cannot read"
+    measured: true
     fix: "Write each Link entry as <https://example.com/a>; rel=preload, separated by commas."
     docs: https://www.rfc-editor.org/rfc/rfc8288#section-3
   http/dictionary-format:
@@ -179,7 +181,8 @@ rules:
     when: {http.parsed.use-as-dictionary.value: {type: object}}
     severity: warning
     score: 3.5
-    message: "Use-As-Dictionary needs a match=\"<URL pattern>\" member, found {got}"
+    message: "Use-As-Dictionary needs a match=\"<URL pattern>\" member"
+    measured: true
     fix: "Send Use-As-Dictionary: match=\"/assets/app-*.js\"."
     docs: https://www.rfc-editor.org/rfc/rfc9842#section-2.1
   html/render-blocking-css:
@@ -187,7 +190,8 @@ rules:
     expect: {minContains: 0, maxContains: 1, contains: {required: [rel], properties: {rel: {pattern: "^\\s*(?i:stylesheet)\\s*$"}, media: {pattern: "^\\s*(?i:all|screen)?\\s*$"}}}}
     severity: info
     score: 2.3
-    message: "more than one stylesheet in <head> blocks rendering: {got}"
+    message: "more than one stylesheet in <head> blocks rendering"
+    measured: true
     fix: "Inline the critical CSS and load the rest with media=print onload, or merge the stylesheets into one."
     docs: https://web.dev/articles/defer-non-critical-css
   http/cache-control-syntax:
@@ -196,7 +200,8 @@ rules:
     when: {http.parsed.cache-control: {type: object}}
     severity: warning
     score: 5.0
-    message: "Cache-Control breaks RFC 9111 §5.2, and caches ignore what they cannot read: {got}"
+    message: "Cache-Control breaks RFC 9111 §5.2, and caches ignore what they cannot read"
+    measured: true
     fix: "Write Cache-Control with registered directives only, as in public, max-age=3600."
     docs: https://www.rfc-editor.org/rfc/rfc9111#section-5.2
   http/vary-syntax:
