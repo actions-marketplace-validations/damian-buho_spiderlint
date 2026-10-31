@@ -65,7 +65,7 @@ describe("server disclosure", () => {
             ],
         );
         assert.equal(findings[0]?.message, "the host names its software in {field}".replace("{field}", "server"));
-        assert.deepEqual(findings[0]?.data, { "site.test": { value: "Apache/2.4.58" } });
+        assert.deepEqual(findings[0]?.data, { "https://site.test/": { value: "Apache/2.4.58" }, "https://site.test/b": { value: "Apache/2.4.58" } });
     });
 
     it("reads the generator meta as a disclosing field", () => {

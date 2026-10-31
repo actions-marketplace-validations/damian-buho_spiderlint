@@ -10,7 +10,7 @@ rules:
     when: {url.protocol: "https:", http.parsed.strict-transport-security.errors: {maxItems: 0}}
     severity: warning
     score: 5.8
-    message: "Strict-Transport-Security should carry max-age of 1000000 or more, found {got}"
+    message: "Strict-Transport-Security should carry max-age of 1000000 or more"
     fix: "Send Strict-Transport-Security: max-age=63072000; includeSubDomains."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Strict-Transport-Security
   http/csp:
@@ -27,7 +27,7 @@ rules:
     expect: {type: string, pattern: "^nosniff$"}
     severity: warning
     score: 5.7
-    message: "X-Content-Type-Options should be nosniff, found {got}"
+    message: "X-Content-Type-Options should be nosniff"
     fix: "Send X-Content-Type-Options: nosniff."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/X-Content-Type-Options
   http/referrer-policy:
@@ -36,7 +36,7 @@ rules:
     when: {http.parsed.referrer-policy.errors: {maxItems: 0}}
     severity: warning
     score: 5.1
-    message: "Referrer-Policy should not leak full URLs, found {got}"
+    message: "Referrer-Policy should not leak full URLs"
     fix: "Send Referrer-Policy: strict-origin-when-cross-origin, or no-referrer."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Referrer-Policy
   http/frame-options:
@@ -50,7 +50,7 @@ rules:
     when: {url.protocol: "https:", http.parsed.strict-transport-security.value: {type: object}}
     severity: info
     score: 2.5
-    message: "Strict-Transport-Security should carry includeSubDomains, found {got}"
+    message: "Strict-Transport-Security should carry includeSubDomains"
     fix: "Add includeSubDomains to the Strict-Transport-Security header."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Strict-Transport-Security#includesubdomains
   http/permissions-policy:
@@ -59,7 +59,7 @@ rules:
     when: {http.document: true, http.parsed.permissions-policy.errors: {maxItems: 0}}
     severity: info
     score: 1.8
-    message: "no Permissions-Policy header naming a feature, found {got}"
+    message: "no Permissions-Policy header naming a feature"
     fix: "Send a Permissions-Policy header listing the features the page uses."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Permissions-Policy
   http/coop:
@@ -68,7 +68,7 @@ rules:
     when: {http.document: true, http.parsed.cross-origin-opener-policy.errors: {maxItems: 0}}
     severity: info
     score: 2.2
-    message: "Cross-Origin-Opener-Policy should be same-origin or same-origin-allow-popups, found {got}"
+    message: "Cross-Origin-Opener-Policy should be same-origin or same-origin-allow-popups"
     fix: "Send Cross-Origin-Opener-Policy: same-origin."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy
   http/corp:
@@ -76,7 +76,7 @@ rules:
     expect: {enum: [same-origin, same-site, cross-origin]}
     severity: info
     score: 2.1
-    message: "Cross-Origin-Resource-Policy should be same-origin, same-site or cross-origin, found {got}"
+    message: "Cross-Origin-Resource-Policy should be same-origin, same-site or cross-origin"
     fix: "Send Cross-Origin-Resource-Policy: same-origin, or same-site if the resource is shared."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy
   http/csp-upgrade-insecure:
@@ -115,7 +115,7 @@ rules:
     when: {http.document: true, http.csp.directives: {type: object}}
     severity: warning
     score: 6.2
-    message: "Content-Security-Policy allows inline scripts with 'unsafe-inline' and no nonce or hash: {got}"
+    message: "Content-Security-Policy allows inline scripts with 'unsafe-inline' and no nonce or hash"
     fix: "Replace 'unsafe-inline' with nonces or hashes."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Content-Security-Policy/script-src#unsafe_inline_script
   http/csp-unsafe-eval:
@@ -127,7 +127,7 @@ rules:
     when: {http.document: true, http.csp.directives: {type: object}}
     severity: warning
     score: 6.0
-    message: "Content-Security-Policy allows eval() with 'unsafe-eval': {got}"
+    message: "Content-Security-Policy allows eval() with 'unsafe-eval'"
     fix: "Remove 'unsafe-eval' from script-src."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Content-Security-Policy/script-src#unsafe_eval_expressions
   http/csp-script-wildcard:
@@ -139,7 +139,7 @@ rules:
     when: {http.document: true, http.csp.directives: {type: object}}
     severity: warning
     score: 6.1
-    message: "Content-Security-Policy loads scripts from any host through a * or scheme-only source: {got}"
+    message: "Content-Security-Policy loads scripts from any host through a * or scheme-only source"
     fix: "Replace * and scheme-only sources with specific origins."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Content-Security-Policy/Sources
   http/csp-object-src:
@@ -151,7 +151,7 @@ rules:
     when: {http.document: true, http.csp.directives: {type: object}}
     severity: warning
     score: 5.5
-    message: "Content-Security-Policy should set object-src 'none', found {got}"
+    message: "Content-Security-Policy should set object-src 'none'"
     fix: "Set object-src 'none' in the Content-Security-Policy."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Content-Security-Policy/object-src
   http/csp-base-uri:
@@ -178,7 +178,7 @@ rules:
     when: {http.parsed.reporting-endpoints.errors: {maxItems: 0}}
     severity: info
     score: 1.5
-    message: "no Reporting-Endpoints header naming an endpoint, found {got}"
+    message: "no Reporting-Endpoints header naming an endpoint"
     fix: "Send a Reporting-Endpoints header naming your reporting endpoints."
     extra: ["Report Relay https://dbuho.me/project/report-relay/ collects these reports and sends them to your Grafana: open source, self-hosted, free."]
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Reporting-Endpoints
@@ -187,7 +187,7 @@ rules:
     expect: {properties: {x-xss-protection: {pattern: "^\\s*0\\s*$"}}}
     severity: warning
     score: 4.5
-    message: "X-XSS-Protection should be absent or 0, found {got}"
+    message: "X-XSS-Protection should be absent or 0"
     fix: "Remove X-XSS-Protection."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/X-XSS-Protection
   http/deprecated-header:
@@ -199,7 +199,7 @@ rules:
     when: {http.parsed.strict-transport-security: {type: object}}
     severity: warning
     score: 5.6
-    message: "Strict-Transport-Security breaks RFC 6797 §6.1, so browsers ignore it: {got}"
+    message: "Strict-Transport-Security breaks RFC 6797 §6.1, so browsers ignore it"
     fix: "Send Strict-Transport-Security once, as max-age=63072000; includeSubDomains."
     docs: https://www.rfc-editor.org/rfc/rfc6797#section-6.1
   http/csp-syntax:
@@ -208,7 +208,7 @@ rules:
     when: {http.document: true, http.parsed.content-security-policy: {type: object}}
     severity: warning
     score: 5.9
-    message: "Content-Security-Policy breaks CSP 3, and browsers drop what they cannot read: {got}"
+    message: "Content-Security-Policy breaks CSP 3, and browsers drop what they cannot read"
     fix: "Spell every directive as CSP 3 names it and quote keywords, as in script-src 'self'."
     docs: https://www.w3.org/TR/CSP3/#framework-directives
   http/permissions-policy-syntax:
@@ -217,7 +217,7 @@ rules:
     when: {http.document: true, http.parsed.permissions-policy: {type: object}}
     severity: warning
     score: 3.7
-    message: "Permissions-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
+    message: "Permissions-Policy breaks its structured-field grammar, so browsers ignore it"
     fix: "Write Permissions-Policy as a dictionary, as in camera=(), geolocation=(self)."
     docs: https://www.w3.org/TR/permissions-policy/#permissions-policy-http-header-field
   http/referrer-policy-syntax:
@@ -226,7 +226,7 @@ rules:
     when: {http.parsed.referrer-policy: {type: object}}
     severity: warning
     score: 4.0
-    message: "Referrer-Policy breaks the Referrer Policy tokens: {got}"
+    message: "Referrer-Policy breaks the Referrer Policy tokens"
     fix: "Send Referrer-Policy: strict-origin-when-cross-origin."
     docs: https://www.w3.org/TR/referrer-policy/#referrer-policy-header
   http/coop-syntax:
@@ -235,7 +235,7 @@ rules:
     when: {http.document: true, http.parsed.cross-origin-opener-policy: {type: object}}
     severity: warning
     score: 3.9
-    message: "Cross-Origin-Opener-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
+    message: "Cross-Origin-Opener-Policy breaks its structured-field grammar, so browsers ignore it"
     fix: "Send Cross-Origin-Opener-Policy: same-origin."
     docs: https://html.spec.whatwg.org/multipage/browsers.html#the-coop-headers
   http/coep-syntax:
@@ -244,7 +244,7 @@ rules:
     when: {http.parsed.cross-origin-embedder-policy: {type: object}}
     severity: warning
     score: 3.8
-    message: "Cross-Origin-Embedder-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
+    message: "Cross-Origin-Embedder-Policy breaks its structured-field grammar, so browsers ignore it"
     fix: "Send Cross-Origin-Embedder-Policy: credentialless."
     docs: https://html.spec.whatwg.org/multipage/browsers.html#the-coep-headers
   http/reporting-endpoints-syntax:
@@ -253,6 +253,6 @@ rules:
     when: {http.parsed.reporting-endpoints: {type: object}}
     severity: warning
     score: 3.4
-    message: "Reporting-Endpoints breaks its structured-field grammar, so browsers ignore it: {got}"
+    message: "Reporting-Endpoints breaks its structured-field grammar, so browsers ignore it"
     fix: "Send Reporting-Endpoints: default=\"/reports\"."
     docs: https://www.w3.org/TR/reporting-1/#header

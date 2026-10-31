@@ -38,6 +38,7 @@ function elide(text: string): string {
 
 // Rendering of an offending value for the finding message; a title or description shows whole.
 export function describe(value: unknown): string {
+    if (value === undefined) return "none";
     if (typeof value === "string") return `${value.length} characters: “${elide(value)}”`;
     if (Array.isArray(value) && value.length === 0) return "none";
     if (Array.isArray(value)) return value.every((item) => typeof item === "string" || typeof item === "number") ? `${value.length} items: ${elide(value.map((item) => (typeof item === "string" ? `“${item}”` : String(item))).join(", "))}` : `${value.length} items`;
@@ -45,13 +46,17 @@ export function describe(value: unknown): string {
     return json.length > 80 ? `${json.slice(0, 77)}…` : json;
 }
 
+// The rendering of the offending value, quoted alone for an exact `const` or `enum` miss.
+function offendingGot(value: unknown, error: ErrorObject): string {
+    const actual = value === undefined ? undefined : at(value, error.instancePath);
+    return value === undefined ? "none" : typeof actual === "string" && ["const", "enum"].includes(error.keyword) ? `“${actual}”` : describe(actual);
+}
+
 // The rule’s own sentence as a template over `{got}` and `{field}`, else AJV’s wording against the fact path.
 function message(fact: string, value: unknown, error: ErrorObject, text: string | undefined): Pick<Finding, "message" | "text" | "variables"> {
-    const actual = value === undefined ? undefined : at(value, error.instancePath);
-    // A length says nothing against an exact value, so a `const` or `enum` miss shows the value alone.
-    const got = value === undefined ? "none" : typeof actual === "string" && ["const", "enum"].includes(error.keyword) ? `“${actual}”` : describe(actual);
+    const got = offendingGot(value, error);
     const field = error.instancePath.slice(1).replaceAll("/", ".") || (fact.split(".").at(-1) as string);
-    if (text) return said(text, { got, field });
+    if (text) return said(text, text.includes("{got}") ? { got, field } : { field });
     const name = label(fact) ?? fact;
     return { message: value === undefined ? `${name} is absent` : `${name}${error.instancePath} ${error.message} (got ${got})` };
 }
@@ -108,7 +113,8 @@ function compilePage(id: string, spec: RuleSpec, fact: string, validate: Validat
             const value = get(page, fact);
             if (validate(value)) return [];
             const error = validate.errors?.[0] as ErrorObject;
-            return [{ rule: id, severity, scope: "page", url: page.url.href, group: page.group, ...message(fact, value, error, spec.message), value }];
+            const finding: Finding = { rule: id, severity, scope: "page", url: page.url.href, group: page.group, ...message(fact, value, error, spec.message), value, data: { [page.url.href]: { got: offendingGot(value, error) } } };
+            return [finding];
         },
     };
 }
@@ -132,7 +138,17 @@ function compileUnique(id: string, spec: RuleSpec, fact: string): AggregateRule 
             for (const [value, urls] of byValue) {
                 if (urls.length < 2) continue;
                 log.debug({ rule: id, group, value, pages: urls.length }, "duplicate value");
-                findings.push({ rule: id, severity, scope, url: urls[0] as string, group, ...(spec.message ? said(spec.message, { got: describe(value) }) : { message: `${label(fact) ?? fact} is shared by ${urls.length} pages (${describe(value)})` }), value, urls });
+                findings.push({
+                    rule: id,
+                    severity,
+                    scope,
+                    url: urls[0] as string,
+                    group,
+                    ...(spec.message ? said(spec.message, spec.message.includes("{got}") ? { got: describe(value) } : {}) : { message: `${label(fact) ?? fact} is shared by ${urls.length} pages (${describe(value)})` }),
+                    data: Object.fromEntries(urls.map((url) => [url, { got: describe(value) }])),
+                    value,
+                    urls,
+                });
             }
             return findings;
         },

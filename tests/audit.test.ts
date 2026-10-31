@@ -137,7 +137,7 @@ describe("audit", () => {
         assert.deepEqual(about?.html?.jsonld[0], { "@context": "https://schema.org", "@type": "AboutPage" });
         assert.ok(Object.hasOwn(about?.html?.jsonld[1] as object, "@error"));
         assert.deepEqual(about?.html?.scripts[0], { src: `${site.origin.replace("127.0.0.1", "localhost")}/cdn/lib.js`, async: false, defer: false, head: true });
-        assert.deepEqual(about?.robots, { noindex: false, nofollow: true });
+        assert.deepEqual(about?.robots, { noindex: false, nofollow: true, noai: false });
         assert.ok(!site.requested.includes("/es/about"), "a head alternate is not a link to follow");
     });
 
@@ -235,20 +235,21 @@ describe("audit", () => {
         assert.equal(h1?.occurrences, 5);
         assert.equal(h1?.coverage, 1);
         assert.equal(h1?.samples?.length, 3);
-        assert.match(h1?.message ?? "", /^should have exactly one <h1>, found none$/);
+        assert.match(h1?.message ?? "", /^should have exactly one <h1>$/);
     });
 
     it("keeps a one-page defect on its page", () => {
         const [alt, ...rest] = of("html/img-alt");
         assert.equal(rest.length, 0);
         assert.equal(alt?.url, `${site.origin}/posts/3`);
-        assert.match(alt?.message ?? "", /^an <img> has no alt attribute: \{"src":"\/figure\.png"\}$/);
+        assert.match(alt?.message ?? "", /^an <img> has no alt attribute$/);
     });
 
     it("reports lengths with the actual value", () => {
         const [title] = of("html/title-length");
         assert.equal(title?.url, `${site.origin}/about`);
-        assert.match(title?.message ?? "", /^<title> should be 30–60 characters, found 11 characters: “About page!”$/);
+        assert.equal(title?.message, "<title> should be 30–60 characters");
+        assert.deepEqual(title?.data, { [`${site.origin}/about`]: { got: "11 characters: “About page!”" } });
         assert.deepEqual(of("html/description-length"), []);
     });
 
@@ -300,9 +301,9 @@ describe("audit", () => {
         const [title, ...restTitle] = of("html/title-redundant");
         assert.equal(restTitle.length, 0);
         assert.equal(title?.url, `${site.origin}/duplicate`);
-        assert.match(title?.message ?? "", /^<title> repeats itself around a separator: /);
+        assert.equal(title?.message, "<title> repeats itself around a separator");
         const description = of("html/description-redundant").find((finding) => finding.url === `${site.origin}/duplicate`);
-        assert.match(description?.message ?? "", /^meta description repeats itself around a separator: /);
+        assert.match(description?.message ?? "", /^meta description repeats itself around a separator$/);
     });
 
     it("reports an internal link answering a redirect once, with the pages carrying it, and counts them as referrers", () => {
@@ -598,7 +599,7 @@ describe("audit options", () => {
         );
         assert.deepEqual(
             report.findings.map((finding) => [finding.rule, finding.message]),
-            [["redirects/permanent", "reached through a temporary redirect (302)"]],
+            [["redirects/permanent", "reached through a temporary redirect"]],
         );
     });
 
@@ -656,9 +657,12 @@ describe("audit options", () => {
         const before = site.headers.length;
         await audit({ seeds: [`${site.origin}/about`], maxPages: 1, sitemap: false, cacheMode: "off" });
         assert.ok(site.requested.slice(before).includes("/robots.txt"));
-        const agents = new Set(site.headers.slice(before).map((headers) => headers["user-agent"]));
-        assert.deepEqual([...agents], [`spiderlint/${VERSION} (+https://kiota.ch/damian-buho/spiderlint)`]);
-        for (const headers of site.headers.slice(before)) {
+        const own = `spiderlint/${VERSION} (+https://kiota.ch/damian-buho/spiderlint)`;
+        const sent = site.headers.slice(before);
+        const agents = new Set(sent.map((headers) => headers["user-agent"] ?? ""));
+        for (const agent of agents) assert.ok(agent.endsWith(own), `tool named: ${agent}`);
+        for (const headers of sent) {
+            if (headers["user-agent"] !== own) continue;
             assert.ok(headers["sec-ch-ua"] !== undefined, "client hints travel with the user agent");
             assert.ok(headers["sec-ch-ua-mobile"] !== undefined, "client hints travel with the user agent");
             assert.ok(headers["sec-ch-ua-platform"] !== undefined, "client hints travel with the user agent");

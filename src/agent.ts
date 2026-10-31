@@ -53,6 +53,11 @@ export function browserContext(real: string, via: string = SCAN.via): { userAgen
     return { userAgent: browserAgent(real, via), ...(chromeMajorOf(real) && { extraHTTPHeaders: clientHints(real) }) };
 }
 
+// A crawler’s own UA with the tool token appended, so a bot rule matches and the owner still knows who knocked.
+export function botAgent(crawler: string, via: string = SCAN.via): string {
+    return `${crawler} ${userAgent(via)}`;
+}
+
 // The headers every own-client request sends: the token with `via`, and the Client Hints.
 export function agentHeaders(via: string = SCAN.via): Record<string, string> {
     return { "user-agent": userAgent(via), ...clientHints() };

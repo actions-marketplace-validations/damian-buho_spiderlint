@@ -149,13 +149,13 @@ describe("formatHtml", () => {
         const input = { ...report, findings: [resource, own], rules };
         const html = formatHtml(input, undefined, false, "en");
         assert.ok(html.includes("https://other.test/pixel.php?id=3"), "resource named");
-        assert.ok(html.includes(">/a</a>") && html.includes("— /c</span>"), "same-origin URLs trimmed");
+        assert.ok(html.includes(">/a</a>") && html.includes('<span class="rule-subject">/c</span>'), "same-origin URLs trimmed");
         const heads = html.split('<summary class="rule-head">').slice(1);
         for (const part of heads) {
             const head = part.split("</summary>", 1)[0] ?? "";
             assert.ok(!head.includes("<a"), "no nested link in a card head");
         }
-        assert.ok(html.includes(" — https://other.test/pixel.php?id=3</span>"), "subject still named as text");
+        assert.ok(html.includes('<span class="rule-subject">https://other.test/pixel.php?id=3</span>'), "subject still named as text");
         assert.ok(html.includes("Fix: Serve the image.") && html.includes('href="https://example.test/status"'), "fix and docs");
         for (const text of [formatHuman(input), formatAgent(input)]) {
             assert.ok(text.includes("https://other.test/pixel.php?id=3"), text);
@@ -169,7 +169,7 @@ describe("formatHtml", () => {
         const some: Finding = { rule: "seo/h1", severity: "error", scope: "group", group: "default", url: `${site.origin}/p0`, message: "h1 is missing", occurrences: 40, coverage: 0.4, samples: pages.slice(0, 2) };
         const input = { ...report, pages: report.pages, findings: [fold, some], summary: { ...report.summary, pages: 100, groups: { default: 100 } } };
         const html = formatHtml(input, undefined, false, "en");
-        assert.equal(html.match(/<article class="rule-card (error|warning|info|hint)">/g)?.length, 2);
+        assert.equal(html.match(/<article class="rule-card (error|warning|info|hint)" style=/g)?.length, 2);
         assert.ok(
             html
                 .split("<article")
@@ -184,6 +184,9 @@ describe("formatHtml", () => {
         assert.ok(wholeSite?.includes("Whole site") && !wholeSite.includes("<ul>"), "whole-site finding lists no pages");
         assert.ok(wholeSite?.includes("Impact: 500<"), "impact is score times pages");
         assert.ok(html.indexOf("title is missing") < html.indexOf("h1 is missing"), "highest impact first");
+        assert.ok(wholeSite?.includes("--by-impact: 0; --by-score: 1; --by-scope: 0"), "each card carries its rank by impact, score and scope");
+        assert.ok(html.includes('<input type="radio" name="sort" id="sort-impact" checked>') && html.includes('id="sort-score"') && html.includes('id="sort-scope"'), "sort control offers impact, score and scope");
+        assert.match(wholeSite?.split("</summary>", 1)[0] ?? "", /Impact: 500<.*Scope: Whole site<.*rule-message/, "impact and scope sit in the head, before the message");
         assert.ok(wholeSite?.includes("rule-arrow"), "collapsible arrow ends the header");
         assert.ok(wholeSite?.includes('<footer class="rule-foot"><code>seo/title</code>') && !wholeSite.split("</summary>", 1)[0]?.includes("seo/title"), "rule named in the footer, not the head");
         const grouped = formatHtml({ ...input, summary: { ...input.summary, groups: { default: 60, posts: 40 } } }, undefined, false, "en");

@@ -1,6 +1,6 @@
 {
   "name": "spiderlint",
-  "version": "0.145.4",
+  "version": "0.146.0",
   "type": "module",
   "description": "Site-wide linter for SEO tags, security headers, TLS and links",
   "license": "AGPL-3.0-only",
@@ -45,8 +45,8 @@
     "any-ascii": "0.3.3",
     "axe-core": "4.14.0",
     "browserslist": "4.29.5",
-    "bullmq": "6.5.0",
-    "caniuse-lite": "1.0.30001819",
+    "bullmq": "6.5.1",
+    "caniuse-lite": "1.0.30001820",
     "cheerio": "1.2.0",
     "commander": "15.0.0",
     "crawlee": "3.18.2",
@@ -91,7 +91,7 @@
     "@types/dns-packet": "5.6.5",
     "@types/gettext-parser": "9.0.0",
     "@types/http-cache-semantics": "4.2.0",
-    "@types/node": "26.6.5",
+    "@types/node": "26.6.6",
     "@types/picomatch": "4.0.3",
     "@types/proper-lockfile": "4.1.4",
     "eslint": "10.13.0",
@@ -157,6 +157,7 @@
     "url": "https://github.com/damian-buho/spiderlint/issues"
   },
   "overrides": {
-    "katex": "0.18.2"
+    "katex": "0.18.2",
+    "re2js": "2.9.1"
   }
 }

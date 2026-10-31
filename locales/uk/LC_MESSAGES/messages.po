@@ -122,6 +122,24 @@ msgstr "Приховано з результатів: цей звіт відкр
 msgid "Hide from results"
 msgstr "Приховати з результатів"
 
+msgid "AI policy"
+msgstr "Політика щодо ШІ"
+
+msgid "Hold the site to this policy"
+msgstr "Перевіряти сайт за цією політикою"
+
+msgid "Unticked, the site’s own Content-Signal in robots.txt is the policy."
+msgstr "Без позначки політикою є власний Content-Signal у robots.txt сайту."
+
+msgid "Search engines may list it"
+msgstr "Пошукові системи можуть його показувати"
+
+msgid "AI may answer from it"
+msgstr "ШІ може відповідати на його основі"
+
+msgid "AI may train on it"
+msgstr "ШІ може на ньому навчатися"
+
 msgid "Hint"
 msgstr "Порада"
 
@@ -462,44 +480,44 @@ msgstr "посилання недоступне: {error}; на нього пос
 msgid "the link answers {status}; linked from these pages"
 msgstr "посилання відповідає {status}; на нього посилаються ці сторінки"
 
-msgid "<html lang> should be a BCP 47 language tag, found {got}"
-msgstr "<html lang> має бути мовним тегом BCP 47, знайдено {got}"
+msgid "<html lang> should be a BCP 47 language tag"
+msgstr "<html lang> має бути мовним тегом BCP 47"
 
-msgid "<meta charset> should declare UTF-8 within the first 1024 bytes, found {got}"
-msgstr "<meta charset> має оголошувати UTF-8 у перших 1024 байтах, знайдено {got}"
+msgid "<meta charset> should declare UTF-8 within the first 1024 bytes"
+msgstr "<meta charset> має оголошувати UTF-8 у перших 1024 байтах"
 
-msgid "<meta name=tdm-reservation> should be 0 or 1, found {got}"
-msgstr "<meta name=tdm-reservation> має бути 0 або 1, знайдено {got}"
+msgid "<meta name=tdm-reservation> should be 0 or 1"
+msgstr "<meta name=tdm-reservation> має бути 0 або 1"
 
-msgid "<title> repeats itself around a separator: {got}"
-msgstr "<title> повторюється навколо роздільника: {got}"
+msgid "<title> repeats itself around a separator"
+msgstr "<title> повторюється навколо роздільника"
 
-msgid "<title> should be 30–60 characters, found {got}"
-msgstr "<title> має містити 30–60 символів, знайдено {got}"
+msgid "<title> should be 30–60 characters"
+msgstr "<title> має містити 30–60 символів"
 
 msgid "a 503 should say when to retry with Retry-After"
 msgstr "відповідь 503 має вказувати, коли повторити запит, через Retry-After"
 
-msgid "Accept-CH breaks its structured-field grammar, so browsers ignore it: {got}"
-msgstr "Accept-CH порушує граматику структурованого поля, тому браузери його ігнорують: {got}"
+msgid "Accept-CH breaks its structured-field grammar, so browsers ignore it"
+msgstr "Accept-CH порушує граматику структурованого поля, тому браузери його ігнорують"
 
-msgid "a compressed response should carry Vary: Accept-Encoding, found {got}"
-msgstr "стиснена відповідь має містити Vary: Accept-Encoding, знайдено {got}"
+msgid "a compressed response should carry Vary: Accept-Encoding"
+msgstr "стиснена відповідь має містити Vary: Accept-Encoding"
 
-msgid "a JSON-LD block does not parse: {got}"
-msgstr "блок JSON-LD не розбирається: {got}"
+msgid "a JSON-LD block does not parse"
+msgstr "блок JSON-LD не розбирається"
 
-msgid "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative: {got}"
-msgstr "Alt-Svc порушує RFC 7838 §3, тому клієнти ніколи не пробують альтернативу: {got}"
+msgid "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative"
+msgstr "Alt-Svc порушує RFC 7838 §3, тому клієнти ніколи не пробують альтернативу"
 
-msgid "Alt-Svc should advertise h3, found {got}"
-msgstr "Alt-Svc має оголошувати h3, знайдено {got}"
+msgid "Alt-Svc should advertise h3"
+msgstr "Alt-Svc має оголошувати h3"
 
-msgid "an <img> has no alt attribute: {got}"
-msgstr "<img> не має атрибута alt: {got}"
+msgid "an <img> has no alt attribute"
+msgstr "<img> не має атрибута alt"
 
-msgid "an <img> without width and height shifts the layout as it loads: {got}"
-msgstr "<img> без width і height зсуває макет під час завантаження: {got}"
+msgid "an <img> without width and height shifts the layout as it loads"
+msgstr "<img> без width і height зсуває макет під час завантаження"
 
 msgid "an article gives no publication date for its link preview"
 msgstr "стаття не вказує дату публікації для попереднього перегляду посилання"
@@ -507,11 +525,11 @@ msgstr "стаття не вказує дату публікації для по
 msgid "an article names no author for its link preview"
 msgstr "стаття не називає автора для попереднього перегляду посилання"
 
-msgid "an article names no fediverse:creator account for Mastodon previews, found {got}"
-msgstr "стаття не називає облікового запису fediverse:creator для попереднього перегляду в Mastodon, знайдено {got}"
+msgid "an article names no fediverse:creator account for Mastodon previews"
+msgstr "стаття не називає облікового запису fediverse:creator для попереднього перегляду в Mastodon"
 
-msgid "a page is {got} links away from the start page, more than 3"
-msgstr "сторінка віддалена від початкової на {got} посилань, більше ніж 3"
+msgid "a page is more than 3 links away from the start page"
+msgstr "сторінка віддалена від початкової більше ніж на 3 посилання"
 
 msgid "a page links to no other page of the site"
 msgstr "сторінка не посилається на жодну іншу сторінку сайту"
@@ -525,50 +543,50 @@ msgstr "сторінка поза канонічним origin індексуєт
 msgid "a page the sitemap lists says noindex, in <meta name=robots> or X-Robots-Tag"
 msgstr "сторінка зі sitemap каже noindex у <meta name=robots> або X-Robots-Tag"
 
-msgid "a preloaded resource went unused ({got})"
-msgstr "попередньо завантажений ресурс не використано ({got})"
+msgid "a preloaded resource went unused"
+msgstr "попередньо завантажений ресурс не використано"
 
-msgid "a redirect does not say which component sent it with Redirect-By ({got})"
-msgstr "переспрямування не вказує через Redirect-By, який компонент його надіслав ({got})"
+msgid "a redirect does not say which component sent it with Redirect-By"
+msgstr "переспрямування не вказує через Redirect-By, який компонент його надіслав"
 
-msgid "a right-to-left language should set <html dir=rtl>, found {got}"
-msgstr "мова справа наліво має задавати <html dir=rtl>, знайдено {got}"
+msgid "a right-to-left language should set <html dir=rtl>"
+msgstr "мова справа наліво має задавати <html dir=rtl>"
 
-msgid "a script in <head> without async, defer or type=module blocks rendering: {got}"
-msgstr "скрипт у <head> без async, defer чи type=module блокує відображення: {got}"
+msgid "a script in <head> without async, defer or type=module blocks rendering"
+msgstr "скрипт у <head> без async, defer чи type=module блокує відображення"
 
-msgid "a text response over 1 KB should be sent br, zstd or gzip, found {got}"
-msgstr "текстова відповідь понад 1 КБ має надсилатися через br, zstd або gzip, знайдено {got}"
+msgid "a text response over 1 KB should be sent br, zstd or gzip"
+msgstr "текстова відповідь понад 1 КБ має надсилатися через br, zstd або gzip"
 
 msgid "a URL with a query has no No-Vary-Search to say which parameters change the page"
 msgstr "URL із запитом не має No-Vary-Search, що вказував би, які параметри змінюють сторінку"
 
-msgid "Cache-Control breaks RFC 9111 §5.2, and caches ignore what they cannot read: {got}"
-msgstr "Cache-Control порушує RFC 9111 §5.2, а кеші ігнорують те, чого не можуть прочитати: {got}"
+msgid "Cache-Control breaks RFC 9111 §5.2, and caches ignore what they cannot read"
+msgstr "Cache-Control порушує RFC 9111 §5.2, а кеші ігнорують те, чого не можуть прочитати"
 
-msgid "Cache-Control no-store keeps the page out of the back/forward cache, found {got}"
-msgstr "Cache-Control no-store виключає сторінку з кешу переходів назад/вперед, знайдено {got}"
+msgid "Cache-Control no-store keeps the page out of the back/forward cache"
+msgstr "Cache-Control no-store виключає сторінку з кешу переходів назад/вперед"
 
-msgid "Cache-Status breaks its structured-field grammar: {got}"
-msgstr "Cache-Status порушує граматику структурованого поля: {got}"
+msgid "Cache-Status breaks its structured-field grammar"
+msgstr "Cache-Status порушує граматику структурованого поля"
 
-msgid "canonical link should be an absolute URL, found {got}"
-msgstr "канонічне посилання має бути абсолютним URL, знайдено {got}"
+msgid "canonical link should be an absolute URL"
+msgstr "канонічне посилання має бути абсолютним URL"
 
-msgid "certificate expires within 14 days ({got} left)"
-msgstr "сертифікат спливає менш ніж за 14 днів (залишилося {got})"
+msgid "certificate expires within 14 days"
+msgstr "сертифікат спливає менш ніж за 14 днів"
 
-msgid "certificate expires within 2 days ({got} left)"
-msgstr "сертифікат спливає менш ніж за 2 дні (залишилося {got})"
+msgid "certificate expires within 2 days"
+msgstr "сертифікат спливає менш ніж за 2 дні"
 
-msgid "certificate has expired ({got} days left)"
-msgstr "сертифікат прострочено (залишилося днів: {got})"
+msgid "certificate has expired"
+msgstr "сертифікат прострочено"
 
 msgid "certificate is not trusted"
 msgstr "сертифікат не є довіреним"
 
-msgid "certificate key is weaker than RSA 2048 or EC P-256: {got}"
-msgstr "ключ сертифіката слабший за RSA 2048 або EC P-256: {got}"
+msgid "certificate key is weaker than RSA 2048 or EC P-256"
+msgstr "ключ сертифіката слабший за RSA 2048 або EC P-256"
 
 msgid "Cloudflare’s Email Address Obfuscation rewrites every address into a link only JavaScript decodes, so a visitor without JavaScript sees no address"
 msgstr "приховування адрес електронної пошти в Cloudflare перетворює кожну адресу на посилання, яке розшифровує лише JavaScript, тому відвідувач без JavaScript не бачить жодної адреси"
@@ -576,14 +594,14 @@ msgstr "приховування адрес електронної пошти в
 msgid "color-scheme names light and dark, but no theme-color pair carries a prefers-color-scheme media"
 msgstr "color-scheme називає світлу й темну схеми, але жодна пара theme-color не має media prefers-color-scheme"
 
-msgid "Content-Security-Policy allows eval() with 'unsafe-eval': {got}"
-msgstr "Content-Security-Policy дозволяє eval() через 'unsafe-eval': {got}"
+msgid "Content-Security-Policy allows eval() with 'unsafe-eval'"
+msgstr "Content-Security-Policy дозволяє eval() через 'unsafe-eval'"
 
-msgid "Content-Security-Policy allows inline scripts with 'unsafe-inline' and no nonce or hash: {got}"
-msgstr "Content-Security-Policy дозволяє вбудовані скрипти через 'unsafe-inline' без nonce чи хеша: {got}"
+msgid "Content-Security-Policy allows inline scripts with 'unsafe-inline' and no nonce or hash"
+msgstr "Content-Security-Policy дозволяє вбудовані скрипти через 'unsafe-inline' без nonce чи хеша"
 
-msgid "Content-Security-Policy breaks CSP 3, and browsers drop what they cannot read: {got}"
-msgstr "Content-Security-Policy порушує CSP 3, а браузери відкидають те, чого не можуть прочитати: {got}"
+msgid "Content-Security-Policy breaks CSP 3, and browsers drop what they cannot read"
+msgstr "Content-Security-Policy порушує CSP 3, а браузери відкидають те, чого не можуть прочитати"
 
 msgid "Content-Security-Policy lacks base-uri, so an injected <base> can redirect relative scripts"
 msgstr "Content-Security-Policy не має base-uri, тому ін’єктований <base> може переспрямувати відносні скрипти"
@@ -597,71 +615,71 @@ msgstr "Content-Security-Policy не має require-trusted-types-for 'script'"
 msgid "Content-Security-Policy lacks upgrade-insecure-requests"
 msgstr "Content-Security-Policy не має upgrade-insecure-requests"
 
-msgid "Content-Security-Policy loads scripts from any host through a * or scheme-only source: {got}"
-msgstr "Content-Security-Policy завантажує скрипти з будь-якого хоста через джерело * або лише зі схемою: {got}"
+msgid "Content-Security-Policy loads scripts from any host through a * or scheme-only source"
+msgstr "Content-Security-Policy завантажує скрипти з будь-якого хоста через джерело * або лише зі схемою"
 
 msgid "Content-Security-Policy sets neither script-src nor default-src, so any script loads"
 msgstr "Content-Security-Policy не задає ні script-src, ні default-src, тож завантажується будь-який скрипт"
 
-msgid "Content-Security-Policy should set object-src 'none', found {got}"
-msgstr "Content-Security-Policy має задавати object-src 'none', знайдено {got}"
+msgid "Content-Security-Policy should set object-src 'none'"
+msgstr "Content-Security-Policy має задавати object-src 'none'"
 
-msgid "Content-Type breaks RFC 9110 §8.3.1: {got}"
-msgstr "Content-Type порушує RFC 9110 §8.3.1: {got}"
+msgid "Content-Type breaks RFC 9110 §8.3.1"
+msgstr "Content-Type порушує RFC 9110 §8.3.1"
 
-msgid "Cross-Origin-Embedder-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
-msgstr "Cross-Origin-Embedder-Policy порушує граматику структурованого поля, тому браузери його ігнорують: {got}"
+msgid "Cross-Origin-Embedder-Policy breaks its structured-field grammar, so browsers ignore it"
+msgstr "Cross-Origin-Embedder-Policy порушує граматику структурованого поля, тому браузери його ігнорують"
 
-msgid "Cross-Origin-Embedder-Policy should be require-corp or credentialless, found {got}"
-msgstr "Cross-Origin-Embedder-Policy має бути require-corp або credentialless, знайдено {got}"
+msgid "Cross-Origin-Embedder-Policy should be require-corp or credentialless"
+msgstr "Cross-Origin-Embedder-Policy має бути require-corp або credentialless"
 
-msgid "Cross-Origin-Opener-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
-msgstr "Cross-Origin-Opener-Policy порушує граматику структурованого поля, тому браузери його ігнорують: {got}"
+msgid "Cross-Origin-Opener-Policy breaks its structured-field grammar, so browsers ignore it"
+msgstr "Cross-Origin-Opener-Policy порушує граматику структурованого поля, тому браузери його ігнорують"
 
-msgid "Cross-Origin-Opener-Policy should be same-origin or same-origin-allow-popups, found {got}"
-msgstr "Cross-Origin-Opener-Policy має бути same-origin або same-origin-allow-popups, знайдено {got}"
+msgid "Cross-Origin-Opener-Policy should be same-origin or same-origin-allow-popups"
+msgstr "Cross-Origin-Opener-Policy має бути same-origin або same-origin-allow-popups"
 
-msgid "Cross-Origin-Resource-Policy should be same-origin, same-site or cross-origin, found {got}"
-msgstr "Cross-Origin-Resource-Policy має бути same-origin, same-site або cross-origin, знайдено {got}"
+msgid "Cross-Origin-Resource-Policy should be same-origin, same-site or cross-origin"
+msgstr "Cross-Origin-Resource-Policy має бути same-origin, same-site або cross-origin"
 
-msgid "Date should be an IMF-fixdate, found {got}"
-msgstr "Date має бути IMF-fixdate, знайдено {got}"
+msgid "Date should be an IMF-fixdate"
+msgstr "Date має бути IMF-fixdate"
 
-msgid "Deprecation should be @ and Unix seconds, found {got}"
-msgstr "Deprecation має бути @ і секундами Unix, знайдено {got}"
+msgid "Deprecation should be @ and Unix seconds"
+msgstr "Deprecation має бути @ і секундами Unix"
 
-msgid "hreflang alternates should include x-default, found {got}"
-msgstr "альтернативи hreflang мають містити x-default, знайдено {got}"
+msgid "hreflang alternates should include x-default"
+msgstr "альтернативи hreflang мають містити x-default"
 
-msgid "internal links exist only after JavaScript runs: {got}"
-msgstr "внутрішні посилання з’являються лише після виконання JavaScript: {got}"
+msgid "internal links exist only after JavaScript runs"
+msgstr "внутрішні посилання з’являються лише після виконання JavaScript"
 
-msgid "Link breaks RFC 8288 §3, so clients drop the links they cannot read: {got}"
-msgstr "Link порушує RFC 8288 §3, тому клієнти відкидають посилання, яких не можуть прочитати: {got}"
+msgid "Link breaks RFC 8288 §3, so clients drop the links they cannot read"
+msgstr "Link порушує RFC 8288 §3, тому клієнти відкидають посилання, яких не можуть прочитати"
 
 msgid "listed in the sitemap, yet no crawled page links here"
 msgstr "є у sitemap, але жодна просканована сторінка не посилається сюди"
 
-msgid "loads an accessibility overlay, which does not fix the page and gets in the way of assistive tools ({got})"
-msgstr "завантажує накладку доступності, яка не виправляє сторінку й заважає допоміжним технологіям ({got})"
+msgid "loads an accessibility overlay, which does not fix the page and gets in the way of assistive tools"
+msgstr "завантажує накладку доступності, яка не виправляє сторінку й заважає допоміжним технологіям"
 
-msgid "meta color-scheme should be normal, or scheme names such as light dark, found {got}"
-msgstr "meta color-scheme має бути normal або назвами схем, як-от light dark, знайдено {got}"
+msgid "meta color-scheme should be normal, or scheme names such as light dark"
+msgstr "meta color-scheme має бути normal або назвами схем, як-от light dark"
 
-msgid "meta description repeats itself around a separator: {got}"
-msgstr "мета-опис повторюється навколо роздільника: {got}"
+msgid "meta description repeats itself around a separator"
+msgstr "мета-опис повторюється навколо роздільника"
 
-msgid "meta description should be 50–160 characters, found {got}"
-msgstr "мета-опис має містити 50–160 символів, знайдено {got}"
+msgid "meta description should be 50–160 characters"
+msgstr "мета-опис має містити 50–160 символів"
 
-msgid "meta viewport should set width=device-width and allow zoom, found {got}"
-msgstr "meta viewport має задавати width=device-width і дозволяти масштабування, знайдено {got}"
+msgid "meta viewport should set width=device-width and allow zoom"
+msgstr "meta viewport має задавати width=device-width і дозволяти масштабування"
 
 msgid "missing from the sitemap"
 msgstr "відсутня у sitemap"
 
-msgid "more than one stylesheet in <head> blocks rendering: {got}"
-msgstr "більше одного аркуша стилів у <head> блокує відображення: {got}"
+msgid "more than one stylesheet in <head> blocks rendering"
+msgstr "більше одного аркуша стилів у <head> блокує відображення"
 
 msgid "no <link rel=icon> in the head"
 msgstr "у head немає <link rel=icon>"
@@ -669,8 +687,8 @@ msgstr "у head немає <link rel=icon>"
 msgid "no <title>"
 msgstr "немає <title>"
 
-msgid "no Cache-Control directive on an HTML page, found {got}"
-msgstr "жодної директиви Cache-Control на HTML-сторінці, знайдено {got}"
+msgid "no Cache-Control directive on an HTML page"
+msgstr "жодної директиви Cache-Control на HTML-сторінці"
 
 msgid "no Content-Digest or Repr-Digest lets a client check the body"
 msgstr "без Content-Digest чи Repr-Digest клієнт не може перевірити тіло"
@@ -690,11 +708,11 @@ msgstr "немає мета-опису"
 msgid "no meta theme-color"
 msgstr "немає meta theme-color"
 
-msgid "no Permissions-Policy header naming a feature, found {got}"
-msgstr "жоден заголовок Permissions-Policy не називає функції, знайдено {got}"
+msgid "no Permissions-Policy header naming a feature"
+msgstr "жоден заголовок Permissions-Policy не називає функції"
 
-msgid "no Reporting-Endpoints header naming an endpoint, found {got}"
-msgstr "жоден заголовок Reporting-Endpoints не називає кінцевої точки, знайдено {got}"
+msgid "no Reporting-Endpoints header naming an endpoint"
+msgstr "жоден заголовок Reporting-Endpoints не називає кінцевої точки"
 
 msgid "no Server-Timing header shows where the server spent its time"
 msgstr "жоден заголовок Server-Timing не показує, на що сервер витратив час"
@@ -702,101 +720,101 @@ msgstr "жоден заголовок Server-Timing не показує, на щ
 msgid "no Speculation Rules script or header prefetches likely next pages"
 msgstr "жоден скрипт чи заголовок Speculation Rules не попередньо завантажує ймовірні наступні сторінки"
 
-msgid "og:description should be 50–200 characters, found {got}"
-msgstr "og:description має містити 50–200 символів, знайдено {got}"
+msgid "og:description should be 50–200 characters"
+msgstr "og:description має містити 50–200 символів"
 
-msgid "og:image should be an absolute http(s) URL, found {got}"
-msgstr "og:image має бути абсолютним URL http(s), знайдено {got}"
+msgid "og:image should be an absolute http(s) URL"
+msgstr "og:image має бути абсолютним URL http(s)"
 
-msgid "og:title should be 10–90 characters, found {got}"
-msgstr "og:title має містити 10–90 символів, знайдено {got}"
+msgid "og:title should be 10–90 characters"
+msgstr "og:title має містити 10–90 символів"
 
-msgid "og:type should be an Open Graph type or namespace:type, found {got}"
-msgstr "og:type має бути типом Open Graph або namespace:type, знайдено {got}"
+msgid "og:type should be an Open Graph type or namespace:type"
+msgstr "og:type має бути типом Open Graph або namespace:type"
 
-msgid "og:url should be an absolute http(s) URL, found {got}"
-msgstr "og:url має бути абсолютним URL http(s), знайдено {got}"
+msgid "og:url should be an absolute http(s) URL"
+msgstr "og:url має бути абсолютним URL http(s)"
 
-msgid "one view emits {got} g CO2e by the Sustainable Web Design model, above the 0.209 g budget (rating C)"
-msgstr "один перегляд випромінює {got} г CO2e за моделлю Sustainable Web Design, понад бюджет 0,209 г (оцінка C)"
+msgid "one view emits too much CO2e by the Sustainable Web Design model, above the 0.209 g budget (rating C)"
+msgstr "один перегляд випромінює забагато CO2e за моделлю Sustainable Web Design, понад бюджет 0,209 г (оцінка C)"
 
-msgid "only {got} page of the site links here"
-msgstr "сюди посилається лише {got} сторінка сайту"
+msgid "only a few pages of the site link here"
+msgstr "сюди посилається лише кілька сторінок сайту"
 
-msgid "pages share one <title>: {got}"
-msgstr "кілька сторінок мають спільний <title>: {got}"
+msgid "pages share one <title>"
+msgstr "кілька сторінок мають спільний <title>"
 
-msgid "pages share one meta description: {got}"
-msgstr "кілька сторінок мають спільний мета-опис: {got}"
+msgid "pages share one meta description"
+msgstr "кілька сторінок мають спільний мета-опис"
 
-msgid "pages share one og:description: {got}"
-msgstr "кілька сторінок мають спільний og:description: {got}"
+msgid "pages share one og:description"
+msgstr "кілька сторінок мають спільний og:description"
 
-msgid "pages share one og:title: {got}"
-msgstr "кілька сторінок мають спільний og:title: {got}"
+msgid "pages share one og:title"
+msgstr "кілька сторінок мають спільний og:title"
 
-msgid "Permissions-Policy breaks its structured-field grammar, so browsers ignore it: {got}"
-msgstr "Permissions-Policy порушує граматику структурованого поля, тому браузери його ігнорують: {got}"
+msgid "Permissions-Policy breaks its structured-field grammar, so browsers ignore it"
+msgstr "Permissions-Policy порушує граматику структурованого поля, тому браузери його ігнорують"
 
-msgid "Priority breaks its structured-field grammar, so clients ignore it: {got}"
-msgstr "Priority порушує граматику структурованого поля, тому клієнти його ігнорують: {got}"
+msgid "Priority breaks its structured-field grammar, so clients ignore it"
+msgstr "Priority порушує граматику структурованого поля, тому клієнти його ігнорують"
 
-msgid "reached through a temporary redirect ({got})"
-msgstr "досягається через тимчасове переспрямування ({got})"
+msgid "reached through a temporary redirect"
+msgstr "досягається через тимчасове переспрямування"
 
-msgid "Referrer-Policy breaks the Referrer Policy tokens: {got}"
-msgstr "Referrer-Policy порушує токени Referrer Policy: {got}"
+msgid "Referrer-Policy breaks the Referrer Policy tokens"
+msgstr "Referrer-Policy порушує токени Referrer Policy"
 
-msgid "Referrer-Policy should not leak full URLs, found {got}"
-msgstr "Referrer-Policy не має розкривати повні URL, знайдено {got}"
+msgid "Referrer-Policy should not leak full URLs"
+msgstr "Referrer-Policy не має розкривати повні URL"
 
-msgid "Reporting-Endpoints breaks its structured-field grammar, so browsers ignore it: {got}"
-msgstr "Reporting-Endpoints порушує граматику структурованого поля, тому браузери його ігнорують: {got}"
+msgid "Reporting-Endpoints breaks its structured-field grammar, so browsers ignore it"
+msgstr "Reporting-Endpoints порушує граматику структурованого поля, тому браузери його ігнорують"
 
-msgid "Retry-After asks clients back in {got} seconds, which brings the load straight back to a server that is shedding it"
-msgstr "Retry-After просить клієнтів повернутися за {got} с, що одразу повертає навантаження серверу, який намагається його скинути"
+msgid "Retry-After asks clients back too soon, which brings the load straight back to a server that is shedding it"
+msgstr "Retry-After просить клієнтів повернутися занадто скоро, що одразу повертає навантаження серверу, який намагається його скинути"
 
-msgid "Retry-After breaks RFC 9110 §10.2.3, so clients cannot tell when to retry: {got}"
-msgstr "Retry-After порушує RFC 9110 §10.2.3, тому клієнти не знають, коли повторити запит: {got}"
+msgid "Retry-After breaks RFC 9110 §10.2.3, so clients cannot tell when to retry"
+msgstr "Retry-After порушує RFC 9110 §10.2.3, тому клієнти не знають, коли повторити запит"
 
-msgid "should have exactly one <h1>, found {got}"
-msgstr "має містити рівно один <h1>, знайдено {got}"
+msgid "should have exactly one <h1>"
+msgstr "має містити рівно один <h1>"
 
-msgid "Strict-Transport-Security breaks RFC 6797 §6.1, so browsers ignore it: {got}"
-msgstr "Strict-Transport-Security порушує RFC 6797 §6.1, тому браузери його ігнорують: {got}"
+msgid "Strict-Transport-Security breaks RFC 6797 §6.1, so browsers ignore it"
+msgstr "Strict-Transport-Security порушує RFC 6797 §6.1, тому браузери його ігнорують"
 
-msgid "Strict-Transport-Security should carry includeSubDomains, found {got}"
-msgstr "Strict-Transport-Security має містити includeSubDomains, знайдено {got}"
+msgid "Strict-Transport-Security should carry includeSubDomains"
+msgstr "Strict-Transport-Security має містити includeSubDomains"
 
-msgid "Strict-Transport-Security should carry max-age of 1000000 or more, found {got}"
-msgstr "Strict-Transport-Security має містити max-age від 1000000, знайдено {got}"
+msgid "Strict-Transport-Security should carry max-age of 1000000 or more"
+msgstr "Strict-Transport-Security має містити max-age від 1000000"
 
-msgid "Sunset should be an HTTP-date, found {got}"
-msgstr "Sunset має бути HTTP-date, знайдено {got}"
+msgid "Sunset should be an HTTP-date"
+msgstr "Sunset має бути HTTP-date"
 
-msgid "takes more than 2 redirects to land ({got})"
-msgstr "потребує понад 2 переспрямувань, щоб дійти до місця ({got})"
+msgid "takes more than 2 redirects to land"
+msgstr "потребує понад 2 переспрямувань, щоб дійти до місця"
 
-msgid "tdm-reservation should be 0 or 1, found {got}"
-msgstr "tdm-reservation має бути 0 або 1, знайдено {got}"
+msgid "tdm-reservation should be 0 or 1"
+msgstr "tdm-reservation має бути 0 або 1"
 
-msgid "the browser console logged errors ({got})"
-msgstr "консоль браузера зафіксувала помилки ({got})"
+msgid "the browser console logged errors"
+msgstr "консоль браузера зафіксувала помилки"
 
-msgid "the canonical link exists only after JavaScript runs: {got}"
-msgstr "канонічне посилання з’являється лише після виконання JavaScript: {got}"
+msgid "the canonical link exists only after JavaScript runs"
+msgstr "канонічне посилання з’являється лише після виконання JavaScript"
 
 msgid "the certificate carries an RSA key, where an EC key makes a smaller handshake"
 msgstr "сертифікат містить ключ RSA, тоді як ключ EC робить рукостискання меншим"
 
-msgid "the certificate chain is signed with SHA-1 or MD5: {got}"
-msgstr "ланцюжок сертифікатів підписано за допомогою SHA-1 або MD5: {got}"
+msgid "the certificate chain is signed with SHA-1 or MD5"
+msgstr "ланцюжок сертифікатів підписано за допомогою SHA-1 або MD5"
 
-msgid "the first <img> is usually above the fold, and loading=lazy delays it: {got}"
-msgstr "перше <img> зазвичай видно одразу, а loading=lazy його затримує: {got}"
+msgid "the first <img> is usually above the fold, and loading=lazy delays it"
+msgstr "перше <img> зазвичай видно одразу, а loading=lazy його затримує"
 
-msgid "the h1 exists only after JavaScript runs: {got}"
-msgstr "h1 з’являється лише після виконання JavaScript: {got}"
+msgid "the h1 exists only after JavaScript runs"
+msgstr "h1 з’являється лише після виконання JavaScript"
 
 msgid "the home page links no machine-readable alternate (feed, JSON, Markdown)"
 msgstr "головна сторінка не посилається на машинозчитувану альтернативу (стрічку, JSON, Markdown)"
@@ -807,56 +825,56 @@ msgstr "головна сторінка не посилається на кін�
 msgid "the home page links no RSS, Atom or JSON feed"
 msgstr "головна сторінка не посилається на стрічку RSS, Atom чи JSON"
 
-msgid "the meta description exists only after JavaScript runs: {got}"
-msgstr "мета-опис з’являється лише після виконання JavaScript: {got}"
+msgid "the meta description exists only after JavaScript runs"
+msgstr "мета-опис з’являється лише після виконання JavaScript"
 
-msgid "the path exposes the server technology in its extension: {got}"
-msgstr "шлях розкриває технологію сервера у своєму розширенні: {got}"
+msgid "the path exposes the server technology in its extension"
+msgstr "шлях розкриває технологію сервера у своєму розширенні"
 
-msgid "the path has an empty segment: {got}"
-msgstr "шлях містить порожній сегмент: {got}"
+msgid "the path has an empty segment"
+msgstr "шлях містить порожній сегмент"
 
-msgid "the path has uppercase letters, which a server may treat as another URL: {got}"
-msgstr "шлях містить великі літери, які сервер може вважати іншим URL: {got}"
+msgid "the path has uppercase letters, which a server may treat as another URL"
+msgstr "шлях містить великі літери, які сервер може вважати іншим URL"
 
-msgid "the raw HTML carries a {got} share of the text the rendered page shows"
-msgstr "сирий HTML містить частку {got} тексту, який показує відображена сторінка"
+msgid "the raw HTML carries a share of the text the rendered page shows"
+msgstr "сирий HTML містить частку тексту, який показує відображена сторінка"
 
-msgid "the server should speak HTTP/2 or HTTP/3, found {got}"
-msgstr "сервер має підтримувати HTTP/2 або HTTP/3, знайдено {got}"
+msgid "the server should speak HTTP/2 or HTTP/3"
+msgstr "сервер має підтримувати HTTP/2 або HTTP/3"
 
-msgid "the title exists only after JavaScript runs: {got}"
-msgstr "заголовок з’являється лише після виконання JavaScript: {got}"
+msgid "the title exists only after JavaScript runs"
+msgstr "заголовок з’являється лише після виконання JavaScript"
 
-msgid "the URL carries a session ID: {got}"
-msgstr "URL містить ідентифікатор сеансу: {got}"
+msgid "the URL carries a session ID"
+msgstr "URL містить ідентифікатор сеансу"
 
-msgid "the URL is longer than 100 characters: {got}"
-msgstr "URL довший за 100 символів: {got}"
+msgid "the URL is longer than 100 characters"
+msgstr "URL довший за 100 символів"
 
-msgid "TLS should be 1.2 or 1.3, found {got}"
-msgstr "TLS має бути 1.2 або 1.3, знайдено {got}"
+msgid "TLS should be 1.2 or 1.3"
+msgstr "TLS має бути 1.2 або 1.3"
 
-msgid "URL path should be lowercase, with hyphens and no empty segment, found {got}"
-msgstr "шлях URL має бути малими літерами, з дефісами й без порожніх сегментів, знайдено {got}"
+msgid "URL path should be lowercase, with hyphens and no empty segment"
+msgstr "шлях URL має бути малими літерами, з дефісами й без порожніх сегментів"
 
-msgid "Use-As-Dictionary breaks its structured-field grammar, so clients ignore it: {got}"
-msgstr "Use-As-Dictionary порушує граматику структурованого поля, тому клієнти його ігнорують: {got}"
+msgid "Use-As-Dictionary breaks its structured-field grammar, so clients ignore it"
+msgstr "Use-As-Dictionary порушує граматику структурованого поля, тому клієнти його ігнорують"
 
-msgid "Use-As-Dictionary needs a match=\"<URL pattern>\" member, found {got}"
-msgstr "Use-As-Dictionary потребує члена match=\"<шаблон URL>\", знайдено {got}"
+msgid "Use-As-Dictionary needs a match=\"<URL pattern>\" member"
+msgstr "Use-As-Dictionary потребує члена match=\"<шаблон URL>\""
 
-msgid "Vary breaks RFC 9110 §12.5.5: {got}"
-msgstr "Vary порушує RFC 9110 §12.5.5: {got}"
+msgid "Vary breaks RFC 9110 §12.5.5"
+msgstr "Vary порушує RFC 9110 §12.5.5"
 
-msgid "Vary: * makes the response uncacheable, found {got}"
-msgstr "Vary: * робить відповідь некешованою, знайдено {got}"
+msgid "Vary: * makes the response uncacheable"
+msgstr "Vary: * робить відповідь некешованою"
 
-msgid "X-Content-Type-Options should be nosniff, found {got}"
-msgstr "X-Content-Type-Options має бути nosniff, знайдено {got}"
+msgid "X-Content-Type-Options should be nosniff"
+msgstr "X-Content-Type-Options має бути nosniff"
 
-msgid "X-XSS-Protection should be absent or 0, found {got}"
-msgstr "X-XSS-Protection має бути відсутнім або 0, знайдено {got}"
+msgid "X-XSS-Protection should be absent or 0"
+msgstr "X-XSS-Protection має бути відсутнім або 0"
 
 msgid "no /llms.txt summarises the site for language models"
 msgstr "жоден /llms.txt не підсумовує сайт для мовних моделей"
@@ -1764,8 +1782,11 @@ msgstr "інтерактивний елемент ніколи не досяга
 msgid "animations and videos keep moving although the visitor asks for reduced motion"
 msgstr "анімації та відео не зупиняються, хоча відвідувач просить зменшити рух"
 
-msgid "entry variants do not land on the canonical origin"
-msgstr "варіанти входу не потрапляють на канонічний origin"
+msgid "entry variants do not land on {canonical}, the canonical origin you configured"
+msgstr "варіанти входу не потрапляють на {canonical}, канонічний origin, який ви налаштували"
+
+msgid "entry variants do not land on {canonical}, the audited origin, since no canonical origin is configured"
+msgstr "варіанти входу не потрапляють на {canonical}, перевірений origin, бо канонічний origin не налаштовано"
 
 msgid "internal links carry rel=nofollow"
 msgstr "внутрішні посилання мають rel=nofollow"
@@ -1811,6 +1832,18 @@ msgstr "елемент хлібних крихт переспрямовує; й�
 
 msgid "the file names AI crawlers"
 msgstr "файл називає краулери ШІ"
+
+msgid "crawler access contradicts the content signals"
+msgstr "доступ краулерів суперечить сигналам вмісту"
+
+msgid "the edge refuses crawlers the content signals welcome; it may only refuse look-alikes"
+msgstr "периметр відхиляє краулерів, яких сигнали вмісту вітають; можливо, він відхиляє лише імітації"
+
+msgid "the site refuses crawlers the content signals welcome"
+msgstr "сайт відхиляє краулерів, яких сигнали вмісту вітають"
+
+msgid "a page says noai or noimageai while the content signals allow AI training"
+msgstr "сторінка каже noai або noimageai, хоча сигнали вмісту дозволяють навчання ШІ"
 
 msgid "the first Tab stop is not a link to the main content"
 msgstr "перша зупинка Tab не є посиланням на основний вміст"
@@ -1880,3 +1913,36 @@ msgstr "ці сервери імен перелічені для зони, ал�
 
 msgid "a script changes declarations the served HTML makes; rules judge the served ones"
 msgstr "скрипт змінює оголошення, які робить відданий HTML; правила оцінюють віддані"
+
+msgid "Examples"
+msgstr "Приклади"
+
+msgid "Example reports"
+msgstr "Приклади звітів"
+
+msgid "Example reports, page {page}"
+msgstr "Приклади звітів, сторінка {page}"
+
+msgid "Previous"
+msgstr "Попередня"
+
+msgid "Next"
+msgstr "Наступна"
+
+msgid "Page {page} of {pages}"
+msgstr "Сторінка {page} з {pages}"
+
+msgid "The first examples are being scanned. Come back soon."
+msgstr "Перші приклади зараз скануються. Завітайте трохи згодом."
+
+msgid "Well-known sites this instance scans by itself, again and again. Each card leads to the latest report."
+msgstr "Відомі сайти, які цей екземпляр сканує сам, раз за разом. Кожна картка веде до останнього звіту."
+
+msgid "spiderlint reports of well-known sites: search engine tags, security headers, TLS, links and more, rated S to F."
+msgstr "Звіти spiderlint про відомі сайти: теги для пошукових систем, заголовки безпеки, TLS, посилання та інше, з оцінкою від S до F."
+
+msgid "Sort by"
+msgstr "Сортувати за"
+
+msgid "Score"
+msgstr "Оцінка"

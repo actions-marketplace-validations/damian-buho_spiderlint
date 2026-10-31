@@ -34,6 +34,12 @@ function withFakePfCli<T>(script: string, run: () => T): T {
     }
 }
 
+// Writes `lines` to `file` and names it.
+function writeAndName(file: string, lines: string[]): string {
+    writeFileSync(file, lines.join("\n"));
+    return file;
+}
+
 // Removes pf-cli from PATH entirely for the duration of `run`.
 function withoutPfCli<T>(run: () => T): T {
     const original = process.env.PATH;
@@ -86,6 +92,8 @@ describe("validateSubtree", () => {
             scope: "origin",
             concurrency: 0,
             rate: 0,
+            requests: 90,
+            misses: 6,
             "max-pages": 0,
             "max-depth": 0,
             resources: { fetch: true, "max-per-page": 200 },
@@ -207,6 +215,19 @@ describe("loadSettings", () => {
         const { settings, sites } = loadSettings(file);
         assert.deepEqual(settings, { pluginSettings: { images: { weight: 5 }, other: { x: 1 } } });
         assert.deepEqual(sites.a?.pluginSettings, { images: { oversize: 3 }, other: { x: 1 } });
+    });
+
+    it("takes the stance from org.projectfile.ai.content-signals, with or without pf-cli", () => {
+        const declared = path.join(directory, "signals.yaml");
+        writeFileSync(declared, ["org:", "  projectfile:", "    ai:", "      attitude: allowed", "      content-signals: [search]", "  spiderlint:", "    max-pages: 5"].join("\n"));
+        const expected = { search: "yes", "ai-input": "no", "ai-train": "no" };
+        assert.deepEqual(loadSettings(declared).settings.contentSignals, expected);
+        assert.deepEqual(
+            withoutPfCli(() => loadSettings(declared).settings.contentSignals),
+            expected,
+        );
+        const none = writeAndName(path.join(directory, "signals-none.yaml"), ["org:", "  spiderlint:", "    max-pages: 5"]);
+        assert.equal(loadSettings(none).settings.contentSignals, undefined);
     });
 
     it("rejects shared targets beside sites", () => {

@@ -13,7 +13,7 @@ rules:
       http.size.decoded: {minimum: 1024}
     severity: warning
     score: 6.3
-    message: "a text response over 1 KB should be sent br, zstd or gzip, found {got}"
+    message: "a text response over 1 KB should be sent br, zstd or gzip"
     fix: "Compress text responses with br, zstd or gzip at the edge or in the server."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Compression
   http/vary-encoding:
@@ -22,7 +22,7 @@ rules:
     when: {http.headers.content-encoding: {type: string}, http.parsed.vary.errors: {maxItems: 0}}
     severity: warning
     score: 5.4
-    message: "a compressed response should carry Vary: Accept-Encoding, found {got}"
+    message: "a compressed response should carry Vary: Accept-Encoding"
     fix: "Add Vary: Accept-Encoding to the response."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Vary
   http/vary-star:
@@ -31,7 +31,7 @@ rules:
     when: {http.parsed.vary.value: {type: array}}
     severity: warning
     score: 5.6
-    message: "Vary: * makes the response uncacheable, found {got}"
+    message: "Vary: * makes the response uncacheable"
     fix: "Replace Vary: * with the specific header names the response varies by."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Vary
   http/validator:
@@ -49,7 +49,7 @@ rules:
     when: {http.status: {minimum: 200, maximum: 299}, http.content-type: {pattern: "^text/html"}, http.parsed.cache-control.errors: {maxItems: 0}}
     severity: info
     score: 2.7
-    message: "no Cache-Control directive on an HTML page, found {got}"
+    message: "no Cache-Control directive on an HTML page"
     fix: "Add a Cache-Control header, e.g. no-cache to revalidate, or public with a max-age."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Cache-Control
   http/no-store-bfcache:
@@ -58,7 +58,7 @@ rules:
     when: {http.content-type: {pattern: "^text/html"}, http.parsed.cache-control.value: {type: object}}
     severity: info
     score: 2.4
-    message: "Cache-Control no-store keeps the page out of the back/forward cache, found {got}"
+    message: "Cache-Control no-store keeps the page out of the back/forward cache"
     fix: "Remove no-store from Cache-Control, or replace it with no-cache."
     docs: https://web.dev/articles/bfcache#minimize-use-of-cache-control-no-store
   caching/long-without-hash:
@@ -69,7 +69,7 @@ rules:
     when: {http.version: {type: string}}
     severity: warning
     score: 5.8
-    message: "the server should speak HTTP/2 or HTTP/3, found {got}"
+    message: "the server should speak HTTP/2 or HTTP/3"
     fix: "Enable HTTP/2 or HTTP/3 on the server."
     docs: https://developer.mozilla.org/docs/Glossary/HTTP_2
   http/alt-svc-h3:
@@ -78,7 +78,7 @@ rules:
     when: {url.protocol: "https:", http.version: {not: {const: "3.0"}}, http.parsed.alt-svc.errors: {maxItems: 0}}
     severity: warning
     score: 5.2
-    message: "Alt-Svc should advertise h3, found {got}"
+    message: "Alt-Svc should advertise h3"
     fix: "Add h3 to the Alt-Svc header."
     docs: https://developer.mozilla.org/docs/Web/HTTP/Headers/Alt-Svc
   tls/ec-key:
@@ -105,7 +105,7 @@ rules:
     when: {http.headers.sunset: {type: string}}
     severity: warning
     score: 3.7
-    message: "Sunset should be an HTTP-date, found {got}"
+    message: "Sunset should be an HTTP-date"
     fix: "Send Sunset as an HTTP-date, e.g. Sun, 01 Jan 2027 00:00:00 GMT."
     docs: https://www.rfc-editor.org/rfc/rfc8594
   http/deprecation-format:
@@ -114,7 +114,7 @@ rules:
     when: {http.headers.deprecation: {type: string}}
     severity: warning
     score: 3.6
-    message: "Deprecation should be @ and Unix seconds, found {got}"
+    message: "Deprecation should be @ and Unix seconds"
     fix: "Send Deprecation: @1704067200 with the Unix timestamp of the removal."
     docs: https://www.rfc-editor.org/rfc/rfc9745
   html/render-blocking-script:
@@ -122,7 +122,7 @@ rules:
     expect: {items: {if: {required: [src], properties: {head: {const: true}, async: {const: false}, defer: {const: false}}}, then: {required: [type], properties: {type: {const: module}}}}}
     severity: info
     score: 3.0
-    message: "a script in <head> without async, defer or type=module blocks rendering: {got}"
+    message: "a script in <head> without async, defer or type=module blocks rendering"
     fix: "Add async, defer, or type=module to the script, or move it to the end of <body>."
     docs: https://developer.mozilla.org/docs/Web/HTML/Element/script#defer
   html/first-img-lazy:
@@ -130,7 +130,7 @@ rules:
     expect: {not: {type: object, required: [loading], properties: {loading: {pattern: "^(?i:lazy)$"}}}}
     severity: info
     score: 2.9
-    message: "the first <img> is usually above the fold, and loading=lazy delays it: {got}"
+    message: "the first <img> is usually above the fold, and loading=lazy delays it"
     fix: "Remove loading=lazy from the first <img>, or set it to eager."
     docs: https://web.dev/articles/lcp-lazy-loading
   html/img-dimensions:
@@ -138,7 +138,7 @@ rules:
     expect: {items: {if: {not: {required: [noscript]}}, then: {required: [width, height]}}}
     severity: warning
     score: 6.0
-    message: "an <img> without width and height shifts the layout as it loads: {got}"
+    message: "an <img> without width and height shifts the layout as it loads"
     fix: "Add width and height attributes to the <img>."
     docs: https://web.dev/articles/optimize-cls#images-without-dimensions
   http/early-hints-preload:
@@ -159,7 +159,7 @@ rules:
     when: {http.parsed.link: {type: object}}
     severity: warning
     score: 4.6
-    message: "Link breaks RFC 8288 §3, so clients drop the links they cannot read: {got}"
+    message: "Link breaks RFC 8288 §3, so clients drop the links they cannot read"
     fix: "Write each Link entry as <https://example.com/a>; rel=preload, separated by commas."
     docs: https://www.rfc-editor.org/rfc/rfc8288#section-3
   http/dictionary-format:
@@ -168,7 +168,7 @@ rules:
     when: {http.parsed.use-as-dictionary.value: {type: object}}
     severity: warning
     score: 3.5
-    message: "Use-As-Dictionary needs a match=\"<URL pattern>\" member, found {got}"
+    message: "Use-As-Dictionary needs a match=\"<URL pattern>\" member"
     fix: "Send Use-As-Dictionary: match=\"/assets/app-*.js\"."
     docs: https://www.rfc-editor.org/rfc/rfc9842#section-2.1
   html/render-blocking-css:
@@ -176,7 +176,7 @@ rules:
     expect: {minContains: 0, maxContains: 1, contains: {required: [rel], properties: {rel: {pattern: "^\\s*(?i:stylesheet)\\s*$"}, media: {pattern: "^\\s*(?i:all|screen)?\\s*$"}}}}
     severity: info
     score: 2.3
-    message: "more than one stylesheet in <head> blocks rendering: {got}"
+    message: "more than one stylesheet in <head> blocks rendering"
     fix: "Inline the critical CSS and load the rest with media=print onload, or merge the stylesheets into one."
     docs: https://web.dev/articles/defer-non-critical-css
   http/cache-control-syntax:
@@ -185,7 +185,7 @@ rules:
     when: {http.parsed.cache-control: {type: object}}
     severity: warning
     score: 5.0
-    message: "Cache-Control breaks RFC 9111 §5.2, and caches ignore what they cannot read: {got}"
+    message: "Cache-Control breaks RFC 9111 §5.2, and caches ignore what they cannot read"
     fix: "Write Cache-Control with registered directives only, as in public, max-age=3600."
     docs: https://www.rfc-editor.org/rfc/rfc9111#section-5.2
   http/vary-syntax:
@@ -194,7 +194,7 @@ rules:
     when: {http.parsed.vary: {type: object}}
     severity: warning
     score: 4.2
-    message: "Vary breaks RFC 9110 §12.5.5: {got}"
+    message: "Vary breaks RFC 9110 §12.5.5"
     fix: "List the request header names the response varies by, as in Vary: Accept-Encoding."
     docs: https://www.rfc-editor.org/rfc/rfc9110#section-12.5.5
   http/content-type-syntax:
@@ -203,7 +203,7 @@ rules:
     when: {http.parsed.content-type: {type: object}}
     severity: warning
     score: 4.0
-    message: "Content-Type breaks RFC 9110 §8.3.1: {got}"
+    message: "Content-Type breaks RFC 9110 §8.3.1"
     fix: "Send Content-Type as type/subtype with name=value parameters, as in text/html; charset=utf-8."
     docs: https://www.rfc-editor.org/rfc/rfc9110#section-8.3.1
   http/use-as-dictionary-syntax:
@@ -212,7 +212,7 @@ rules:
     when: {http.parsed.use-as-dictionary: {type: object}}
     severity: warning
     score: 3.4
-    message: "Use-As-Dictionary breaks its structured-field grammar, so clients ignore it: {got}"
+    message: "Use-As-Dictionary breaks its structured-field grammar, so clients ignore it"
     fix: "Send Use-As-Dictionary: match=\"/assets/app-*.js\"."
     docs: https://www.rfc-editor.org/rfc/rfc9842#section-2.1
   http/accept-ch-syntax:
@@ -221,7 +221,7 @@ rules:
     when: {http.parsed.accept-ch: {type: object}}
     severity: warning
     score: 3.9
-    message: "Accept-CH breaks its structured-field grammar, so browsers ignore it: {got}"
+    message: "Accept-CH breaks its structured-field grammar, so browsers ignore it"
     fix: "Send Accept-CH as a list of hint names, as in Accept-CH: Sec-CH-UA-Platform."
     docs: https://www.rfc-editor.org/rfc/rfc8942#section-3.1
   http/priority-syntax:
@@ -230,7 +230,7 @@ rules:
     when: {http.parsed.priority: {type: object}}
     severity: warning
     score: 3.8
-    message: "Priority breaks its structured-field grammar, so clients ignore it: {got}"
+    message: "Priority breaks its structured-field grammar, so clients ignore it"
     fix: "Send Priority as a dictionary, as in Priority: u=1, i."
     docs: https://www.rfc-editor.org/rfc/rfc9218#section-5
   http/cache-status-syntax:
@@ -239,7 +239,7 @@ rules:
     when: {http.parsed.cache-status: {type: object}}
     severity: warning
     score: 3.3
-    message: "Cache-Status breaks its structured-field grammar: {got}"
+    message: "Cache-Status breaks its structured-field grammar"
     fix: "Send Cache-Status as a list of caches with parameters, as in Cache-Status: ExampleCache; hit."
     docs: https://www.rfc-editor.org/rfc/rfc9211#section-2
   http/retry-after-short:
@@ -248,7 +248,7 @@ rules:
     when: {http.status: {enum: [429, 503]}, http.parsed.retry-after.value: {type: object}}
     severity: info
     score: [[0, 3.0], [9, 1.2]]
-    message: "Retry-After asks clients back in {got} seconds, which brings the load straight back to a server that is shedding it"
+    message: "Retry-After asks clients back too soon, which brings the load straight back to a server that is shedding it"
     fix: "Send Retry-After: 120, or as long as the server needs to recover."
     docs: https://www.rfc-editor.org/rfc/rfc9110#section-10.2.3
   http/retry-after-syntax:
@@ -257,7 +257,7 @@ rules:
     when: {http.parsed.retry-after: {type: object}}
     severity: warning
     score: 4.1
-    message: "Retry-After breaks RFC 9110 §10.2.3, so clients cannot tell when to retry: {got}"
+    message: "Retry-After breaks RFC 9110 §10.2.3, so clients cannot tell when to retry"
     fix: "Send Retry-After as a number of seconds, as in Retry-After: 120, or an IMF-fixdate."
     docs: https://www.rfc-editor.org/rfc/rfc9110#section-10.2.3
   http/alt-svc-syntax:
@@ -266,6 +266,6 @@ rules:
     when: {http.parsed.alt-svc: {type: object}}
     severity: warning
     score: 4.4
-    message: "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative: {got}"
+    message: "Alt-Svc breaks RFC 7838 §3, so clients never try the alternative"
     fix: "Send Alt-Svc as h3=\":443\"; ma=86400."
     docs: https://www.rfc-editor.org/rfc/rfc7838#section-3

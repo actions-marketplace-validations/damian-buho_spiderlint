@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { cspFacts } from "../src/facts/csp.ts";
 import { documentFacts, parsedHeaders } from "../src/facts/headers.ts";
 import { robotsFacts } from "../src/facts/robots.ts";
-import type { Facts, HtmlFacts, RedirectHop, Role, TlsFacts } from "../src/facts/types.ts";
+import type { Facts, HtmlFacts, RedirectHop, Role, Stance, TlsFacts } from "../src/facts/types.ts";
 import { compileRule } from "../src/rules/declarative.ts";
 import { isBrowserFact } from "../src/plugins/index.ts";
 import { NEVER_SERVED, WEB_PRESETS } from "../src/server/policy.ts";
@@ -17,6 +17,7 @@ import { isPageRule, type AggregateRule, type Finding, type PageRule } from "../
 
 interface Patch {
     role?: Role;
+    stance?: Stance;
     status?: number;
     version?: string;
     headers?: Record<string, string>;
@@ -229,6 +230,10 @@ const FAILS: Record<string, Patch[]> = {
         { role: "development", headers: { "server-timing": "" } },
         { role: "staging", headers: { "server-timing": "" } },
     ],
+    "html/noai": [
+        { stance: { "ai-train": "yes" }, meta: { robots: "noai" } },
+        { stance: { "ai-train": "yes" }, headers: { "x-robots-tag": "noimageai" } },
+    ],
     "html/noindex-staging": [{ role: "staging" }, { role: "development", meta: { robots: "nofollow" } }],
     "http/no-vary-search": [{ search: "?utm_source=x" }],
     "http/link-syntax": [{ headers: { link: "https://site.test/a.css; rel=preload" } }, { headers: { link: "<https://site.test/a.css>" } }, { headers: { link: '<https://site.test/a.css>; rel=preload; as="style' } }],
@@ -318,6 +323,7 @@ const PASSES: Record<string, Patch[]> = {
         },
     ],
     "http/server-timing": [{ headers: { "server-timing": "" } }],
+    "html/noai": [{ meta: { robots: "noai" } }, { stance: { "ai-train": "no" }, meta: { robots: "noai" } }, { stance: { "ai-train": "yes" } }],
     "html/noindex-staging": [
         { role: "staging", meta: { robots: "noindex" } },
         { role: "staging", twin: "https://prod.test/posts/hello-world/" },
@@ -336,6 +342,7 @@ const PASSES: Record<string, Patch[]> = {
             },
         },
     ],
+    "html/jsonld-parses": [{ html: { jsonld: [[{ "@type": "Thing" }, { "@type": "Place" }, { "@type": "Person" }]] } }],
     "html/render-blocking-script": [
         {
             html: {
@@ -415,7 +422,7 @@ const PASSES: Record<string, Patch[]> = {
 };
 
 const specs = resolveRuleset("spiderlint:all", {});
-const check = (id: string, patch: Patch) => (compileRule(id, specs[id] ?? {}) as PageRule).check(page(patch), { sitemaps: [], role: patch.role ?? "production" }) ?? [];
+const check = (id: string, patch: Patch) => (compileRule(id, specs[id] ?? {}) as PageRule).check(page(patch), { sitemaps: [], role: patch.role ?? "production", ...(patch.stance && { "content-signals": patch.stance }) }) ?? [];
 
 describe("presets", () => {
     it("excludes and overrides rules by ID or glob", () => {
@@ -474,11 +481,20 @@ describe("presets", () => {
         assert.equal(resolveRuleset("spiderlint:recommended", {})["insight/numeric-outlier"]?.severity, "info");
     });
 
-    it("keeps a preset message as a template over the offending value", () => {
+    it("keeps the offending value in data for a header rule", () => {
         const [finding] = check("http/referrer-policy", { headers: { "referrer-policy": "unsafe-url" } });
-        assert.equal(finding?.text, "Referrer-Policy should not leak full URLs, found {got}");
-        assert.deepEqual(finding?.variables, { got: "10 characters: “unsafe-url”", field: "value" });
-        assert.match(finding?.message ?? "", /found 10 characters: “unsafe-url”$/);
+        assert.equal(finding?.text, "Referrer-Policy should not leak full URLs");
+        assert.deepEqual(finding?.variables, { field: "value" });
+        assert.equal(finding?.message, "Referrer-Policy should not leak full URLs");
+        assert.deepEqual(finding?.data, { "https://site.test/posts/hello-world/": { got: "10 characters: “unsafe-url”" } });
+    });
+
+    it("keeps a measured value out of the sentence, in the data of each URL", () => {
+        const rule = compileRule("test/measured", { fact: "html.title", expect: { type: "string", minLength: 30 }, message: "title is short", severity: "warning" }) as PageRule;
+        const [first, second] = ["Short", "Tiny"].map((html_title) => (rule.check(page({ html: { title: html_title } }), { sitemaps: [], role: "production" }) ?? [])[0] as Finding);
+        assert.equal(first?.message, "title is short");
+        assert.equal(first?.message, second?.message);
+        assert.deepEqual(first?.data, { [first?.url as string]: { got: "5 characters: “Short”" } });
     });
 
     it("shows the value alone, with no length, when an exact value is expected", () => {
@@ -516,7 +532,7 @@ describe("url shape across pages", () => {
 
     it("names the pages of a group whose trailing slash breaks the group's usual form", () => {
         const rule = builtin["url/trailing-slash"]?.("warning") as AggregateRule;
-        const pages = ["/a/", "/b/", "/c", "/", "/feed.xml"].map((pathname) => page({ pathname }));
+        const pages = ["/a/", "/b/", "/c", "/", "/feed.xml", "/.well-known/api-catalog"].map((pathname) => page({ pathname }));
         const [finding, ...rest] = rule.check(pages) ?? [];
         assert.equal(rest.length, 0);
         assert.deepEqual(paths([finding as Finding]), ["/c"]);

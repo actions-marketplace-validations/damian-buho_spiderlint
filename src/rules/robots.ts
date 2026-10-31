@@ -2,13 +2,20 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import type { Facts, RobotsFileFacts, RobotsGroupFacts, SiteFacts } from "../facts/types.ts";
+import { groupsFor } from "../crawl/robots.ts";
+import type { ContentSignal, Facts, RobotsFileFacts, RobotsGroupFacts, SiteFacts, Stance } from "../facts/types.ts";
 import { log } from "../logger.ts";
 import { said } from "./message.ts";
 import type { Finding, Make } from "./types.ts";
 
-// AI crawler product tokens by purpose; `retired` ones no vendor still sends.
-export const AI_CRAWLERS: Record<string, "training" | "search" | "user" | "retired"> = {
+// Crawler product tokens by purpose; `index` is a search engine, `retired` ones no vendor still sends.
+export const CRAWLERS: Record<string, "index" | "training" | "search" | "user" | "retired"> = {
+    googlebot: "index",
+    bingbot: "index",
+    applebot: "index",
+    duckduckbot: "index",
+    yandexbot: "index",
+    baiduspider: "index",
     gptbot: "training",
     claudebot: "training",
     ccbot: "training",
@@ -29,6 +36,9 @@ export const AI_CRAWLERS: Record<string, "training" | "search" | "user" | "retir
     "cohere-ai": "retired",
 };
 
+// The Content Signal each purpose answers to.
+export const SIGNAL_OF: Partial<Record<(typeof CRAWLERS)[string], ContentSignal>> = { index: "search", search: "ai-input", user: "ai-input", training: "ai-train" };
+
 // Content Signals keys and the values each takes.
 const SIGNALS = new Set(["search", "ai-input", "ai-train"]);
 const VERDICTS = new Set(["yes", "no"]);
@@ -39,14 +49,14 @@ function isBlanket(group: RobotsGroupFacts): boolean {
 }
 
 // One site rule per robots.txt file: `judge` returns the finding’s sentence and value, or nothing.
-function robotsRule(id: string, documentation: string, judge: (file: RobotsFileFacts) => Pick<Finding, "message" | "text" | "variables" | "data" | "locations" | "value"> | undefined, fix?: string): Make {
+function robotsRule(id: string, documentation: string, judge: (file: RobotsFileFacts, site?: SiteFacts) => Pick<Finding, "message" | "text" | "variables" | "data" | "locations" | "value"> | undefined, fix?: string, facts: string[] = []): Make {
     return (severity) => ({
-        meta: { id, severity, scope: "site", facts: ["site.robots"], docs: documentation, ...(fix && { fix }) },
+        meta: { id, severity, scope: "site", facts: ["site.robots", ...facts], docs: documentation, ...(fix && { fix }) },
         check(_pages: Facts[], _group?: string, site?: SiteFacts) {
             const findings: Finding[] = [];
             const files = site?.robots ?? [];
             for (const file of files) {
-                const verdict = judge(file);
+                const verdict = judge(file, site);
                 log.debug({ rule: id, url: file.url, isFinding: verdict !== undefined }, "robots.txt judged");
                 if (verdict) findings.push({ rule: id, severity, scope: "site", url: file.url, ...verdict });
             }
@@ -71,7 +81,7 @@ const aiCrawlers = robotsRule(
     "robots/ai-crawlers",
     "https://www.rfc-editor.org/rfc/rfc9309#section-2.2.1",
     (file) => {
-        const named = file.groups.flatMap((group) => group.agents.flatMap((agent) => (Object.hasOwn(AI_CRAWLERS, agent) ? { agent, purpose: AI_CRAWLERS[agent], blocked: isBlanket(group) } : [])));
+        const named = file.groups.flatMap((group) => group.agents.flatMap((agent) => (Object.hasOwn(CRAWLERS, agent) && CRAWLERS[agent] !== "index" ? { agent, purpose: CRAWLERS[agent], blocked: isBlanket(group) } : [])));
         if (named.length === 0) return;
         return { ...said("the file names AI crawlers"), locations: named.map(({ agent, purpose, blocked }) => `${agent} (${purpose}${blocked ? ", disallowed" : ""})`), value: named };
     },
@@ -92,7 +102,44 @@ const contentSignal = robotsRule(
     "Write each Content-Signal line as comma-separated signal=yes|no pairs, e.g. Content-Signal: search=yes, ai-input=no, ai-train=no.",
 );
 
+// The stance a file serves: its `Content-Signal` lines outside a group or for `*`, the last one winning per signal.
+export function servedStance(file: RobotsFileFacts): Stance {
+    const lines = file["content-signals"].filter(({ agents }) => agents.length === 0 || agents.includes("*"));
+    return Object.fromEntries(lines.flatMap(({ signals }) => Object.entries(signals).filter(([key, value]) => SIGNALS.has(key) && VERDICTS.has(value))));
+}
+
+// Whether `agent` is shut out of `/`: the groups RFC 9309 picks for it disallow `/` and allow nothing back.
+export function isShutOut(file: RobotsFileFacts, agent: string): boolean {
+    const groups = groupsFor(file, agent);
+    return groups.some((group) => group.disallow.includes("/")) && groups.every((group) => group.allow.length === 0);
+}
+
+// Every crawler whose access contradicts the stance: shut out where its signal says yes, let in where a declared one says no.
+const crawlerAccess = robotsRule(
+    "robots/crawler-access",
+    "https://contentsignals.org/",
+    (file, site) => {
+        if (file.status === 0 || file.status >= 500) return;
+        const declared = site?.["content-signals"];
+        const stance = { search: "yes", ...(declared ?? servedStance(file)) } as Stance;
+        const judged = Object.entries(CRAWLERS).map(([agent, purpose]) => {
+            const signal = SIGNAL_OF[purpose];
+            const isBlocked = isShutOut(file, agent);
+            const want = signal && stance[signal];
+            const isWrong = (want === "yes" && isBlocked) || (declared !== undefined && want === "no" && !isBlocked);
+            log.debug({ rule: "robots/crawler-access", url: file.url, agent, signal, want, isBlocked, isDeclared: declared !== undefined }, "crawler access judged");
+            return isWrong ? `${agent} (${signal}=${want}, ${isBlocked ? "disallowed" : "allowed"})` : undefined;
+        });
+        const wrong = judged.filter((entry) => entry !== undefined);
+        if (wrong.length === 0) return;
+        return { ...said("crawler access contradicts the content signals"), locations: wrong, value: wrong, data: { [file.url]: { source: declared ? "declared" : "served" } } };
+    },
+    "Disallow / for every crawler whose signal is no, and lift the Disallow for every crawler whose signal is yes, e.g. User-agent: GPTBot then Disallow: /.",
+    ["site.content-signals"],
+);
+
 export const robotsRules: Record<string, Make> = {
+    "robots/crawler-access": crawlerAccess,
     "robots/disallow-all": disallowAll,
     "robots/ai-crawlers": aiCrawlers,
     "robots/content-signal": contentSignal,

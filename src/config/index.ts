@@ -4,7 +4,7 @@
 
 import type { BucketName, CacheMode } from "../cache/index.ts";
 import type { Pin } from "../crawl/resolve.ts";
-import type { Role } from "../facts/types.ts";
+import type { Role, Stance } from "../facts/types.ts";
 import type { Scope } from "../crawl/scope.ts";
 import { log } from "../logger.ts";
 import type { RulesetConfig, Severity } from "../rules/types.ts";
@@ -14,6 +14,7 @@ export type BrowserName = "chromium" | "firefox" | "webkit";
 // A level, `never`, or the lowest score that fails the run.
 export type FailOn = "error" | "warning" | "info" | "never" | number;
 export const ROLES = ["production", "staging", "development"] as const;
+export const CONTENT_SIGNALS = ["search", "ai-input", "ai-train"] as const;
 
 export interface GroupConfig {
     match?: string[];
@@ -33,6 +34,8 @@ export interface Config {
     canonicalOrigin?: string;
     // What the site is for, the `site.role` fact rules gate on.
     role: Role;
+    // What crawlers may do with the content, from org.projectfile.ai.content-signals; unset is no stance.
+    contentSignals?: Stance;
     fetch: FetchMode;
     browser: BrowserName;
     // Whether a missing browser is downloaded before the crawl instead of failing.
@@ -42,6 +45,10 @@ export interface Config {
     concurrency: number;
     // Requests per minute; 0 is unlimited.
     rate: number;
+    // Non-static requests per minute one registrable domain may receive, a burst of a third of them first; 0 is unlimited.
+    requests: number;
+    // 4xx answers per minute one registrable domain may give, a burst of as many first; 0 is unlimited.
+    misses: number;
     // Seconds one page may take, its navigation half of it.
     timeout: number;
     // Seconds after which the crawl stops taking pages and the run goes on with what it has; 0 is no deadline.
@@ -110,6 +117,8 @@ export function defaults(): Config {
         scope: "origin",
         concurrency: 0,
         rate: 0,
+        requests: 90,
+        misses: 6,
         timeout: 60,
         crawlDeadline: 0,
         profile: "",

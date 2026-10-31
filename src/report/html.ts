@@ -65,6 +65,11 @@ main { padding-block: 2.5rem; }
 .rule-head .badge { flex: none; font-weight: 700; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
 .rule-head code { flex: none; }
 .rule-head .rule-message { overflow-wrap: anywhere; }
+.rule-head .rule-meta { flex: none; display: flex; gap: .75rem; font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rule-head .rule-subject { color: var(--muted); overflow-wrap: anywhere; }
+.rule-list { display: flex; flex-direction: column; gap: 1rem; margin-block: 1rem; } .rule-list .rule-card { margin-block: 0; order: var(--by-impact); }
+body:has(#sort-score:checked) .rule-list .rule-card { order: var(--by-score); } body:has(#sort-scope:checked) .rule-list .rule-card { order: var(--by-scope); }
+.sort { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; align-items: center; margin-block-end: 1rem; color: var(--muted); font-size: .9rem; } .sort label { display: inline-flex; align-items: center; }
 .rule-head .rule-arrow { margin-inline-start: auto; flex: none; color: var(--muted); }
 .rule-findings { padding: 0 1.25rem .5rem; } .rule-findings .data { color: var(--muted); font-variant-numeric: tabular-nums; margin-inline-start: .75em; } .rule-findings p { margin-block: .5rem 0; }
 .rule-foot { display: grid; grid-template-columns: minmax(0, 1fr) 10rem 13rem; gap: .5rem 1.5rem; padding: .75rem 1.25rem; border-block-start: 1px solid var(--line); font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -83,11 +88,15 @@ fieldset { flex: 1 1 100%; border: 0; padding: 0; margin: 1rem 0 0; display: gri
 legend { padding: 0; }
 input[type=radio], input[type=checkbox] { flex: none; inline-size: auto; margin-inline-end: .5rem; }
 .check { flex: 1 1 100%; }
-.recent { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: .5rem; }
-.recent a { display: flex; gap: .75rem; align-items: center; padding: .5rem .75rem; background: var(--surface); border: 1px solid var(--line); color: var(--fg); text-decoration: none; }
-.recent a:hover { border-color: var(--accent); }
-.recent .grade { inline-size: 2.25rem; block-size: 2.25rem; font-size: 1.15rem; }
-.recent time { font-size: .85rem; }
+.cards { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 1rem; }
+.cards a { display: flex; flex-direction: column; block-size: 100%; background: var(--surface); border: 1px solid var(--line); color: var(--fg); text-decoration: none; }
+.cards a:hover { border-color: var(--accent); }
+.cards img, .cards .shot { display: block; inline-size: 100%; block-size: auto; aspect-ratio: 8 / 5; object-fit: cover; object-position: top; background: var(--line); border-block-end: 1px solid var(--line); }
+.caption { display: flex; gap: .75rem; align-items: flex-start; padding: .75rem; line-height: 1.4; }
+.caption strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
+.cards .grade { inline-size: 2.25rem; block-size: 2.25rem; font-size: 1.15rem; }
+.cards .muted { font-size: .85rem; }
+.pager { display: flex; gap: 1.5rem; justify-content: center; align-items: baseline; margin-block-start: 2rem; }
 input { flex: 1 1 20rem; font: inherit; padding: .75rem 1rem; border: 1px solid var(--line); color: inherit; background: var(--surface); }
 progress { inline-size: 100%; block-size: .75rem; accent-color: var(--accent); }
 .alert { border-inline-start: .25rem solid var(--error); padding: 1rem 1.25rem; background: light-dark(#fdecea, #2c1614); }
@@ -185,8 +194,13 @@ function bundleImpact(same: Finding[], total: number): number {
     return same.reduce((sum, finding) => sum + impact(finding, total), 0);
 }
 
-// One card per bundle: severity, message and subject on its head; expanded, the pages, locations, fix and docs; rule, impact and scope on its foot.
-function entry(t: Translator, same: Finding[], origin: string, guides: Report["rules"], total: number): string {
+// Pages a bundle touches.
+function bundlePages(same: Finding[], total: number): number {
+    return same.reduce((sum, finding) => sum + pagesOf(finding, total), 0);
+}
+
+// One card per bundle: severity, message, impact, scope and subject on its head; expanded, the pages, locations, fix and docs; the rule on its foot.
+function entry(t: Translator, same: Finding[], origin: string, guides: Report["rules"], total: number, order: string): string {
     const [first] = same as [Finding];
     const { subject, isWhole, pages } = reach(t, same, origin, total);
     const said = sentence(first, t);
@@ -198,18 +212,20 @@ function entry(t: Translator, same: Finding[], origin: string, guides: Report["r
             : `<p class="muted">${escape(first.sampled === undefined ? t._("Pages: {count} ({share})", { count: t.number(first.occurrences), share: t.number(first.coverage ?? 0, { style: "percent" }) }) : t._("Sampled pages: {count} of {sampled} ({share})", { count: t.number(first.occurrences), sampled: t.number(first.sampled), share: t.number(first.coverage ?? 0, { style: "percent" }) }))}${first.groups ? ` ${escape(t._("Groups: {groups}", { groups: first.groups.join(", ") }))}` : ""}</p>`;
     const own = same.length === 1 && first.occurrences === undefined && !first.urls ? `${measured(t, first, first.url)}${locations(t, first.locations)}` : "";
     const listed = isWhole && !hasLocations ? "" : items(t, pages);
-    const pageCount = same.reduce((sum, finding) => sum + pagesOf(finding, total), 0);
+    const pageCount = bundlePages(same, total);
     const scope = isWhole || (total > 0 && pageCount >= total) ? t._("Whole site") : t._("Pages: {count}", { count: t.number(pageCount) });
-    const foot = `<code>${escape(first.rule)}</code><span>${escape(t._("Impact"))}: ${escape(t.number(bundleImpact(same, total), { maximumFractionDigits: 1 }))}</span><span>${escape(t._("Scope"))}: ${escape(scope)}</span>`;
-    return `<article class="rule-card ${first.severity}"><details><summary class="rule-head"><span class="badge ${first.severity}">${escape(severityName(t, first.severity))} ${scoreOf(first).toFixed(1)}</span><span class="rule-message">${escape(message)}${subject ? ` — ${subjectText(subject, origin)}` : ""}</span><span class="rule-arrow" aria-hidden="true">▾</span></summary><div class="rule-findings">${share}${listed}${own}${cached(t, same, origin)}${remedy(t, guides?.[first.rule], first)}</div></details><footer class="rule-foot">${foot}</footer></article>`;
+    const meta = `<span class="rule-meta"><span>${escape(t._("Impact"))}: ${escape(t.number(bundleImpact(same, total), { maximumFractionDigits: 1 }))}</span><span>${escape(t._("Scope"))}: ${escape(scope)}</span></span>`;
+    return `<article class="rule-card ${first.severity}" style="${order}"><details><summary class="rule-head"><span class="badge ${first.severity}">${escape(severityName(t, first.severity))} ${scoreOf(first).toFixed(1)}</span>${meta}<span class="rule-message">${escape(message)}</span>${subject ? `<span class="rule-subject">${subjectText(subject, origin)}</span>` : ""}<span class="rule-arrow" aria-hidden="true">▾</span></summary><div class="rule-findings">${share}${listed}${own}${cached(t, same, origin)}${remedy(t, guides?.[first.rule], first)}</div></details><footer class="rule-foot"><code>${escape(first.rule)}</code></footer></article>`;
 }
 
-// One flat card per bundle, the highest impact first, a rule’s bundles in its own order on a tie.
+// One flat card per bundle, the highest impact first, a rule’s bundles in its own order on a tie; each card carries its rank by impact, score and scope for the sort control.
 function rules(t: Translator, findings: Finding[], origin: string, guides: Report["rules"], total: number): string {
-    return bundle(ordered(findings, total).flat())
-        .toSorted((a, b) => bundleImpact(b, total) - bundleImpact(a, total))
-        .map((same) => entry(t, same, origin, guides, total))
-        .join("");
+    const byImpact = bundle(ordered(findings, total).flat()).toSorted((a, b) => bundleImpact(b, total) - bundleImpact(a, total));
+    const rank = (measure: (same: Finding[]) => number) => new Map(byImpact.toSorted((a, b) => measure(b) - measure(a)).map((same, index) => [same, index]));
+    const byScore = rank((same) => Math.max(...same.map((finding) => scoreOf(finding))));
+    const byScope = rank((same) => bundlePages(same, total));
+    const cards = byImpact.map((same, index) => entry(t, same, origin, guides, total, `--by-impact: ${index}; --by-score: ${byScore.get(same)}; --by-scope: ${byScope.get(same)}`));
+    return `<div class="rule-list">${cards.join("")}</div>`;
 }
 
 // A fact’s translated label with its path on hover, or the path as code when it has none.
@@ -294,7 +310,13 @@ export function reportBody(report: Pick<Report, "summary" | "findings" | "rules"
         ...[...vendors].map(([vendor, findings]) => `<h3>${escape(t._("Vendor: {name}", { name: vendor }))}</h3>${cards(findings)}`),
         hints.length > 0 ? `<details><summary><h3>${escape(t._("Hints: {count}", { count: t.number(hints.length) }))}</h3></summary>${cards(hints)}</details>` : "",
     ].filter(Boolean);
-    const found = `<section><h2>${escape(t._("Findings"))}</h2>${parts.length > 0 ? parts.join("") : `<p>${escape(t._("No findings."))}</p>`}</section>`;
+    const sorts = [
+        ["impact", t._("Impact")],
+        ["score", t._("Score")],
+        ["scope", t._("Scope")],
+    ].map(([id, name], index) => `<label><input type="radio" name="sort" id="sort-${id}"${index === 0 ? " checked" : ""}>${escape(name)}</label>`);
+    const sort = parts.length > 0 ? `<div class="sort" role="radiogroup" aria-label="${escape(t._("Sort by"))}"><span>${escape(t._("Sort by"))}</span>${sorts.join("")}</div>` : "";
+    const found = `<section><h2>${escape(t._("Findings"))}</h2>${sort}${parts.length > 0 ? parts.join("") : `<p>${escape(t._("No findings."))}</p>`}</section>`;
     return `${head}${totals}${found}${passed(t, report)}${statistics(t, summary.stats)}${untested(t, summary.untested)}`;
 }
 

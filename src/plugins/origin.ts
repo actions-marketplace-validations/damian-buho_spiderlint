@@ -181,12 +181,13 @@ const variants: SiteExtractor = {
     },
 };
 
-// The origin `subject`’s variants must land on: the canonical origin its pages twin to when that is on its host or `www.` twin, else itself.
-export function canonicalOf(subject: string, pages: readonly Facts[]): string {
+// The origin `subject`’s variants must land on: the configured canonical origin its pages twin to when that is on its host or `www.` twin, else itself.
+export function canonicalOf(subject: string, pages: readonly Facts[]): { origin: string; isConfigured: boolean } {
     const twin = pages.find((page) => page.url.origin === subject && page.url.twin)?.url.twin;
     const { hostname } = new URL(subject);
     const candidate = twin ? new URL(twin).origin : subject;
-    return [hostname, swapped(hostname)].includes(new URL(candidate).hostname) ? candidate : subject;
+    const isConfigured = [hostname, swapped(hostname)].includes(new URL(candidate).hostname) && twin !== undefined;
+    return { origin: isConfigured ? candidate : subject, isConfigured };
 }
 
 // One finding per origin naming each resolving variant that fails or ends off the canonical origin.
@@ -196,12 +197,23 @@ const hostCanonical: Make = (severity) => ({
         const origins = Object.entries(site?.origins ?? {}).filter(([, facts]) => facts.variants !== undefined);
         if (origins.length === 0) return;
         return origins.flatMap(([subject, facts]): Finding[] => {
-            const canonical = canonicalOf(subject, pages);
+            const { origin: canonical, isConfigured } = canonicalOf(subject, pages);
             const astray = (facts.variants as { probes: Variant[] }).probes.filter((variant) => variant.resolves && (variant.error !== undefined || new URL(variant.final).origin !== canonical));
-            log.debug({ rule: "origin/host-canonical", subject, canonical, astray: astray.length }, "entry variants judged");
+            log.debug({ rule: "origin/host-canonical", subject, canonical, isConfigured, astray: astray.length }, "entry variants judged");
             return astray.length === 0
                 ? []
-                : [{ rule: "origin/host-canonical", severity, scope: "site", url: subject, ...said("entry variants do not land on the canonical origin"), data: { [subject]: { canonical } }, locations: astray.map((variant) => `${variant.url} → ${variant.error ?? variant.final}`), value: astray }];
+                : [
+                      {
+                          rule: "origin/host-canonical",
+                          severity,
+                          scope: "site",
+                          url: subject,
+                          ...said(isConfigured ? "entry variants do not land on {canonical}, the canonical origin you configured" : "entry variants do not land on {canonical}, the audited origin, since no canonical origin is configured", { canonical }),
+                          data: { [subject]: { canonical } },
+                          locations: astray.map((variant) => `${variant.url} → ${variant.error ?? variant.final}`),
+                          value: astray,
+                      },
+                  ];
         });
     },
 });

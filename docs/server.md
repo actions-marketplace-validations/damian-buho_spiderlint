@@ -40,7 +40,11 @@ redis: redis://valkey:6379/0
 redis-password-file: /run/secrets/o9s.vlky.password # the password, kept out of this file
 listen: { host: 0.0.0.0, port: 8080 }
 retention: 7d # jobs and reports are deleted this long after they settle
-recent: 16 # latest reports the form lists, one per host; 0 lists none
+recent: 10 # latest reports the form lists, one per host; 0 lists none
+previews: true # a finished scan keeps a thumbnail of its seed’s first screen; false takes none
+examples: # sites the instance scans by itself and lists under /examples; none without sites
+  every: 7d # a site is rescanned once its last example is this old
+  sites: [www.bbc.com, elpais.com, https://www.wikipedia.org/] # a bare domain is https
 workers: 2 # scans one worker process runs at a time
 max-queued: 100 # a new job is refused with 503 while this many wait
 allow-private: false # true lets scans reach loopback and private networks, and allows the browser
@@ -109,6 +113,13 @@ available”. List `web-*` in `allow` to offer them where `allow` is set. A pres
 lowers `max-pages` and never raises a cap past the policy’s. The job page and the
 report header name the rule set.
 
+Under them, an AI policy box declares a policy, and one box per Content Signal
+(`search`, `ai-input`, `ai-train`) grants it. A declared policy is sent as the
+request’s `content-signals` list, the shape of `org.projectfile.ai.content-signals`:
+a crawler the site blocks while its signal is granted, or lets in while it is not,
+is reported. With no policy declared, the scan takes the site’s own `Content-Signal`
+lines.
+
 A request that names no rules runs `recommended`, so an `allow` list without it
 refuses such a request. Settings a request may never set: `plugins`, `sources`,
 `proxy`, `resolver`, `resolve`, `robots`, `cache`, `profile`, `format`,
@@ -158,6 +169,10 @@ The request body carries the target and, optionally, `org.spiderlint` keys:
 }
 ```
 
+`"content-signals": ["search", "ai-input"]` holds the site to that AI policy, read as
+`org.projectfile.ai.content-signals` is: a known signal left out is withheld. It is
+not a setting, so `settings` never carries it.
+
 `"hidden": true` keeps the scan out of the host’s badge and out of the latest reports.
 The job reports `hidden`, its page asks search engines to skip it, and it has a repeat
 window of its own, so a public request for the same site never receives it. Anyone
@@ -204,12 +219,14 @@ checked before any window is charged.
 
 ## Pages
 
-| Route                   | Page                                                                                                              |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `GET /`                 | A form taking a domain (`https://` is assumed) or a URL, with a “Hide from results” box, above the latest reports |
-| `POST /`                | Queues the scan and redirects to its page with `303`, or shows the form with the refusal                          |
-| `GET /jobs/<id>`        | Progress while queued or running, then the report, its downloads and the badge                                    |
-| `GET /badge/<host>.svg` | The grade of the host’s latest finished scan, linking to it; `not scanned` otherwise                              |
+| Route                     | Page                                                                                                              |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `GET /`                   | A form taking a domain (`https://` is assumed) or a URL, with a “Hide from results” box, above the latest reports |
+| `POST /`                  | Queues the scan and redirects to its page with `303`, or shows the form with the refusal                          |
+| `GET /jobs/<id>`          | Progress while queued or running, then the report, its downloads and the badge                                    |
+| `GET /badge/<host>.svg`   | The grade of the host’s latest finished scan, linking to it; `not scanned` otherwise                              |
+| `GET /examples[/<n>]`     | The examples as cards, twelve a page in the order `examples.sites` lists them; `404` without examples             |
+| `GET /previews/<id>.webp` | The thumbnail of a finished scan, `404` when it has none                                                          |
 
 Pages are rendered on the server and work without JavaScript: a waiting page
 refreshes itself every 5 s, and with scripts it follows the job’s events instead.
@@ -225,7 +242,25 @@ anyone who knows the hostname. A hidden scan never becomes the host’s latest.
 The form lists the latest reports under `recent`: one per host, so a rescan replaces
 the host’s entry, newest first, each with its grade and its finish time in UTC. An
 entry lives as long as its report and a hidden scan is never listed. `recent: 0` turns
-the list off; an unreachable Redis shows the form without it.
+the list off; an unreachable Redis shows the form without it. Each entry is a card:
+the thumbnail, the page title, the domain, the grade and the finish time.
+
+After the report, the scan runner opens the seed in Chromium and keeps its first
+screen (1280×800, as a 480 px WebP) and its title, unless the scan is hidden or
+`previews` is false; a failure or the scan’s timeout leaves the card blank and
+never fails the scan. Chromium resolves no name itself: every request it makes is
+answered by Node’s `fetch` under the scan’s address guard, so a preview reaches no
+private address while `allow-private` is false, the same as the crawl. The preview
+lives as long as its report and is the report page’s `og:image`.
+
+`examples` names sites the instance scans by itself. Once a minute, while no scan
+waits in the queue, one API replica queues the example due longest: a site never
+scanned, else one whose last example is `every` old. So examples take only idle
+workers and never delay a reader’s scan. Each example runs under the policy its host
+matches, with no client bucket or host window charged. Its report and preview never
+expire: the next finished example of the host replaces them, and a failed one leaves
+the previous in place. A site removed from the list loses its example within a
+minute. The header links to `/examples` while any site is listed.
 
 ## Customising pages
 

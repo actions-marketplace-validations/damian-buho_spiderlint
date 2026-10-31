@@ -5,16 +5,17 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { groupsFor, parseRobots } from "../src/crawl/robots.ts";
-import type { SiteFacts } from "../src/facts/types.ts";
+import { stanceOf } from "../src/config/policy.ts";
+import type { SiteFacts, Stance } from "../src/facts/types.ts";
 import { builtin } from "../src/rules/builtin.ts";
 import type { AggregateRule } from "../src/rules/types.ts";
 
 const URL_ = "https://a.test/robots.txt";
 
 // The findings of site rule `id` over one robots.txt body.
-function judge(id: string, body: string) {
+function judge(id: string, body: string, stance?: Stance, status = 200) {
     const rule = builtin[id]?.("warning") as AggregateRule;
-    const site: SiteFacts = { sitemaps: [], robots: [parseRobots(URL_, 200, body)] };
+    const site: SiteFacts = { sitemaps: [], robots: [parseRobots(URL_, status, body)], ...(stance && { "content-signals": stance }) };
     return rule.check([], undefined, site) ?? [];
 }
 
@@ -58,5 +59,37 @@ describe("robots.txt", () => {
         assert.deepEqual(finding?.value, ["search=maybe, ai-train=no"]);
         assert.equal(judge("robots/content-signal", "User-agent: *\nContent-Signal: search=yes, ai-input=yes, ai-train=no\n").length, 0);
         assert.equal(judge("robots/content-signal", "Content-Signal: training\n").length, 1);
+    });
+
+    it("reports a search engine shut out even with no stance, and nothing else", () => {
+        const [finding] = judge("robots/crawler-access", "User-agent: Googlebot\nUser-agent: GPTBot\nDisallow: /\n");
+        assert.deepEqual(finding?.locations, ["googlebot (search=yes, disallowed)"]);
+        assert.equal(judge("robots/crawler-access", "User-agent: Googlebot\nDisallow: /\nAllow: /public/\n").length, 0);
+    });
+
+    it("holds a served stance to what it says yes to, and lets its no stand", () => {
+        const [finding] = judge("robots/crawler-access", "User-agent: *\nDisallow: /\nContent-Signal: search=yes, ai-input=no, ai-train=no\n");
+        assert.deepEqual(finding?.locations, ["googlebot (search=yes, disallowed)", "bingbot (search=yes, disallowed)", "applebot (search=yes, disallowed)", "duckduckbot (search=yes, disallowed)", "yandexbot (search=yes, disallowed)", "baiduspider (search=yes, disallowed)"]);
+        assert.equal(judge("robots/crawler-access", "User-agent: *\nAllow: /\nContent-Signal: search=yes, ai-train=no\n").length, 0);
+    });
+
+    it("holds a declared stance both ways, and wins over the served one", () => {
+        const body = "User-agent: *\nAllow: /\nUser-agent: GPTBot\nUser-agent: CCBot\nDisallow: /\nContent-Signal: ai-train=yes\n";
+        const [finding] = judge("robots/crawler-access", body, { search: "yes", "ai-input": "yes", "ai-train": "no" });
+        assert.equal(finding?.locations?.length, 7);
+        assert.ok(finding?.locations?.includes("claudebot (ai-train=no, allowed)"));
+        assert.ok(!finding?.locations?.some((location) => location.startsWith("gptbot")));
+        assert.equal(judge("robots/crawler-access", "User-agent: *\nAllow: /\n", { "ai-input": "yes" }).length, 0);
+    });
+
+    it("judges no file the origin failed to serve", () => {
+        assert.equal(judge("robots/crawler-access", "", { "ai-train": "no" }, 503).length, 0);
+        assert.equal(judge("robots/crawler-access", "", { "ai-train": "no" }, 404).length, 1);
+    });
+
+    it("reads a granted list as a stance on every known signal", () => {
+        assert.deepEqual(stanceOf(["search", "ai-input", "x"]), { search: "yes", "ai-input": "yes", "ai-train": "no" });
+        assert.deepEqual(stanceOf([]), { search: "no", "ai-input": "no", "ai-train": "no" });
+        assert.equal(stanceOf({}), undefined);
     });
 });

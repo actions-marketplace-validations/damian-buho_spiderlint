@@ -14,6 +14,7 @@ import { cachedGet, type ProfileBucket } from "../crawl/profile.ts";
 import type { RobotsFor } from "../crawl/robots.ts";
 import { width } from "../crawl/resources.ts";
 import { connectable } from "../crawl/guard.ts";
+import { Deadline } from "../crawl/network.ts";
 import { log } from "../logger.ts";
 import type { SiteContext, SiteExtractor } from "../plugins/types.ts";
 import type { Facts, SiteFacts } from "./types.ts";
@@ -67,13 +68,14 @@ function linkedHosts(pages: Facts[]): Map<string, Facts[]> {
 // One subject’s facts, abandoned with its probes once the extractor’s timeout, stretched by the run’s, passes.
 async function runOne(extractor: SiteExtractor, subject: string, pages: Facts[], isLinked: boolean, config: Pick<Config, "allowPrivate" | "linkExclude" | "timeout">, dns: DnsClient, probes: ProbeBucket, robots: RobotsFor | undefined, profiles: ProfileBucket, lists: ProfileBucket): Promise<unknown> {
     const timeout = ((extractor.timeout ?? TIMEOUT_MS) * config.timeout) / defaults().timeout;
-    const signal = AbortSignal.timeout(timeout);
+    const deadline = new Deadline(timeout);
+    const signal = deadline.signal;
     const host = extractor.per === "origin" ? new URL(subject).hostname : subject;
     const context: SiteContext = {
         pages,
         signal,
-        fetch: (url, init = {}) => probe(url, init, { host, allowPrivate: config.allowPrivate, signal, robots }),
-        delegated: (url, init = {}) => probe(url, init, { host: new URL(url).hostname, allowPrivate: config.allowPrivate, signal, robots }),
+        fetch: (url, init = {}) => probe(url, init, { host, allowPrivate: config.allowPrivate, signal, deadline, robots }),
+        delegated: (url, init = {}) => probe(url, init, { host: new URL(url).hostname, allowPrivate: config.allowPrivate, signal, deadline, robots }),
         cached: (url) => cachedGet(url, profiles, robots),
         list: async (url) => {
             const answer = await cachedGet(url, lists, undefined);

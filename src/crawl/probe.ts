@@ -6,12 +6,12 @@ import { request as httpRequest, type IncomingMessage } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { isIP } from "node:net";
 import { setTimeout as sleep } from "node:timers/promises";
-import { agentHeaders } from "../agent.ts";
+import { agentHeaders, botAgent } from "../agent.ts";
 import { redactHeaders } from "../facts/transport.ts";
 import { log } from "../logger.ts";
 import { delay, reason } from "./fetch.ts";
 import { guardedLookup, isPrivate, PrivateAddress } from "./guard.ts";
-import { pace, patient } from "./network.ts";
+import { admit, pace, patient, type Deadline } from "./network.ts";
 import { robotsFactsOf, type RobotsFor } from "./robots.ts";
 
 const ATTEMPTS = 2;
@@ -27,6 +27,8 @@ export interface ProbeInit {
     redirect?: "follow" | "manual";
     // Keeps the raw body as `bytes`, for an image the text body would mangle.
     binary?: true;
+    // A crawler UA the request poses as, the tool token appended and no Client Hints sent.
+    as?: string;
 }
 
 export interface Probe {
@@ -45,6 +47,8 @@ export interface ProbeOptions {
     host: string;
     allowPrivate: boolean;
     signal: AbortSignal;
+    // The countdown behind `signal`, paused while the probe waits for its domain’s budget.
+    deadline?: Deadline;
     // The run’s robots.txt verdicts; unset when `robots` is off.
     robots?: RobotsFor;
 }
@@ -80,13 +84,15 @@ async function once(url: URL, init: ProbeInit, options: ProbeOptions): Promise<O
     const literal = url.hostname.replaceAll(/^\[|\]$/g, "");
     if (!options.allowPrivate && isIP(literal) && isPrivate(literal)) throw new PrivateAddress(`${url.hostname} is a private address`);
     const request = url.protocol === "https:" ? httpsRequest : httpRequest;
+    const settle = await admit(url.href, options.signal, options.deadline);
     await pace();
     const expiry = AbortSignal.timeout(patient(TIMEOUT_MS));
     const response = await new Promise<IncomingMessage>((resolve, reject) => {
-        const outgoing = request(url, { method: init.method ?? "GET", headers: { ...init.headers, ...agentHeaders() }, signal: AbortSignal.any([options.signal, expiry]), ...(!options.allowPrivate && { lookup: guardedLookup }) }, resolve);
+        const outgoing = request(url, { method: init.method ?? "GET", headers: { ...init.headers, ...(init.as ? { "user-agent": botAgent(init.as) } : agentHeaders()) }, signal: AbortSignal.any([options.signal, expiry]), ...(!options.allowPrivate && { lookup: guardedLookup }) }, resolve);
         outgoing.on("error", reject);
         outgoing.end();
     });
+    settle(response.statusCode ?? 0);
     const { body, raw, truncated } = await text(response);
     return { url: url.href, status: response.statusCode ?? 0, headers: redactHeaders(response.headers as Record<string, string | string[]>), body, ...(truncated && { truncated }), ...(init.binary && { bytes: raw }) };
 }

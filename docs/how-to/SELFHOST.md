@@ -20,7 +20,7 @@ Put the settings in `server.yaml`:
 ```yaml
 redis: redis://valkey:6379/0
 redis-password-file: /run/secrets/o9s.vlky.password
-recent: 16
+recent: 10
 policies:
   - name: everyone
     hosts: ["*"]
